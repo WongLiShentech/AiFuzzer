@@ -1,0 +1,17 @@
+filename,relative_path,vulnerability_type,label,source_repo,eea_section
+modifier_reentrancy_fixed.sol,clean/modifier_reentrancy_fixed.sol,none,0,SmartContractSecurity/SWC-registry,Section 3.4 - External Interactions and Re-entrancy Attacks (remediated)
+mycontract_fixed.sol,clean/mycontract_fixed.sol,none,0,SmartContractSecurity/SWC-registry,Section 5 - Access Control ([S] No tx.origin) (remediated)
+simple_dao_fixed.sol,clean/simple_dao_fixed.sol,none,0,SmartContractSecurity/SWC-registry,Section 3.4 - External Interactions and Re-entrancy Attacks (remediated)
+mycontract.sol,vulnerable/access-control/mycontract.sol,Access Control (Authorization through tx.origin),1,SmartContractSecurity/SWC-registry,Section 5 - Access Control ([S] No tx.origin)
+parity_wallet_bug_1.sol,vulnerable/access-control/parity_wallet_bug_1.sol,Access Control,1,smartbugs/smartbugs-curated,Section 5 - Access Control
+parity_wallet_bug_2.sol,vulnerable/access-control/parity_wallet_bug_2.sol,Access Control,1,smartbugs/smartbugs-curated,Section 5 - Access Control
+Unprotected.sol,vulnerable/access-control/Unprotected.sol,Access Control,1,crytic/not-so-smart-contracts,Section 5 - Access Control
+PuppetPool.sol,vulnerable/oracle-manipulation/PuppetPool.sol,Oracle Manipulation,1,theredguild/damn-vulnerable-defi,Section 3.3 - External Data / Oracle Manipulation
+PuppetV2Pool.sol,vulnerable/oracle-manipulation/PuppetV2Pool.sol,Oracle Manipulation,1,theredguild/damn-vulnerable-defi,Section 3.3 - External Data / Oracle Manipulation
+ERC20.sol,vulnerable/ordering-attacks/ERC20.sol,Ordering Attacks (Front-Running),1,smartbugs/smartbugs-curated,Section 3.8 - Transaction Ordering Dependence / Front-Running
+eth_tx_order_dependence_minimal.sol,vulnerable/ordering-attacks/eth_tx_order_dependence_minimal.sol,Ordering Attacks (Front-Running),1,smartbugs/smartbugs-curated,Section 3.8 - Transaction Ordering Dependence / Front-Running
+FindThisHash.sol,vulnerable/ordering-attacks/FindThisHash.sol,Ordering Attacks (Front-Running),1,smartbugs/smartbugs-curated,Section 3.8 - Transaction Ordering Dependence / Front-Running
+odds_and_evens.sol,vulnerable/ordering-attacks/odds_and_evens.sol,Ordering Attacks (Front-Running),1,smartbugs/smartbugs-curated,Section 3.8 - Transaction Ordering Dependence / Front-Running
+0xbaf51e761510c1a11bf48dd87c0307ac8a8c8a4f.sol,vulnerable/reentrancy/0xbaf51e761510c1a11bf48dd87c0307ac8a8c8a4f.sol,Reentrancy,1,smartbugs/smartbugs-curated,Section 3.4 - External Interactions and Re-entrancy Attacks
+etherstore.sol,vulnerable/reentrancy/etherstore.sol,Reentrancy,1,smartbugs/smartbugs-curated,Section 3.4 - External Interactions and Re-entrancy Attacks
+simple_dao.sol,vulnerable/reentrancy/simple_dao.sol,Reentrancy,1,smartbugs/smartbugs-curated,Section 3.4 - External Interactions and Re-entrancy Attacks

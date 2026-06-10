@@ -1,0 +1,32 @@
+# Generated analysis output — never committed
+results/
+crytic-export/
+
+# Source repos — cloned locally for the dataset, never committed
+staging/
+
+# Claude Code session context — local only
+CLAUDE.md
+
+# Secrets
+.env
+
+# Python
+__pycache__/
+*.pyc
+*.egg-info/
+.pytest_cache/
+.venv/
+venv/
+build/
+dist/
+
+# Node / Foundry / Hardhat artifacts
+node_modules/
+out/
+cache/
+artifacts/
+
+# OS
+.DS_Store
+Thumbs.db

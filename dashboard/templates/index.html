@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>aifuzz — Smart Contract Security Analyzer</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+  <header>
+    <h1>aifuzz</h1>
+    <p>AI-assisted fuzzing for smart-contract security &mdash; SIT IWL2</p>
+  </header>
+
+  <main>
+    <section>
+      <h2>Analyze a contract</h2>
+      <form id="analyze-form">
+        <input type="text" name="contract" placeholder="path/to/Contract.sol" required />
+        <select name="mode">
+          <option value="random">Random fuzzing (baseline)</option>
+          <option value="ai-guided">AI-guided fuzzing</option>
+        </select>
+        <button type="submit">Analyze</button>
+      </form>
+      <pre id="result"></pre>
+    </section>
+
+    <section>
+      <h2>Random vs AI-guided</h2>
+      {% if has_results %}
+        <div id="comparison"><!-- populated by main.js from results/ --></div>
+      {% else %}
+        <p>No benchmark results yet. Run <code>python benchmark.py</code>.</p>
+      {% endif %}
+    </section>
+  </main>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aifuzz"
+version = "0.1.0"
+description = "AI-assisted fuzzing tool for smart-contract security analysis"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Li Shen" }]
+keywords = ["smart-contracts", "fuzzing", "security", "solidity", "echidna", "ai"]
+
+# Runtime deps kept minimal. The heavy native tools (Echidna, Anvil, solc) are
+# provided by the Docker image, not pip. AI extras are optional.
+dependencies = [
+    "flask",
+]
+
+[project.optional-dependencies]
+ai = ["chromadb", "ollama"]
+static = ["slither-analyzer"]
+dev = ["pytest"]
+
+[project.scripts]
+aifuzz = "aifuzz.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["aifuzz*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

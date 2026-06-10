@@ -1,0 +1,26 @@
+# aifuzz stack:  docker compose up   →   dashboard on http://localhost:5000
+# Config/secrets come from .env (copy from .env.example).
+
+services:
+  ollama:
+    # Local, air-gapped LLM inference for AI-guided fuzzing.
+    image: ollama/ollama:${OLLAMA_TAG:-latest}
+    volumes:
+      - ollama-models:/root/.ollama
+    restart: unless-stopped
+
+  aifuzz:
+    build:
+      context: .
+      args:
+        SOLC_VERSION: ${SOLC_VERSION:-0.8.25}
+    env_file: [.env]
+    ports:
+      - "${PORT:-5000}:5000"
+    depends_on:
+      - ollama
+    volumes:
+      - .:/app
+
+volumes:
+  ollama-models:
