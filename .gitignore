@@ -5,8 +5,9 @@ crytic-export/
 # Source repos — cloned locally for the dataset, never committed
 staging/
 
-# Claude Code session context — local only
+# Claude Code session context + dev-helper agents — local only
 CLAUDE.md
+.claude/
 
 # Secrets
 .env

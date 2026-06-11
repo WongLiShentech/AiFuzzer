@@ -15,7 +15,8 @@ from .fuzzer import EchidnaFuzzer
 from .report import Report
 
 
-def analyze(contract_path: str, mode: str = "random", contract: str | None = None) -> Report:
+def analyze(contract_path: str, mode: str = "random", contract: str | None = None,
+            config: str | None = None) -> Report:
     """Analyze a single contract and return a Report.
 
     Args:
@@ -23,6 +24,7 @@ def analyze(contract_path: str, mode: str = "random", contract: str | None = Non
         mode: "random" (baseline) or "ai-guided" (the experiment).
         contract: optional name of the test contract (the one with the
             echidna_* properties); passed through to Echidna.
+        config: optional path to an Echidna YAML config.
     """
     path = Path(contract_path)
     if not path.exists():
@@ -30,5 +32,5 @@ def analyze(contract_path: str, mode: str = "random", contract: str | None = Non
 
     report = Report(contract=path.name, mode=mode, tool_version=__version__)
     fuzzer = EchidnaFuzzer(mode=mode)
-    report.findings += fuzzer.fuzz(str(path), contract=contract)
+    report.findings += fuzzer.fuzz(str(path), contract=contract, config=config)
     return report

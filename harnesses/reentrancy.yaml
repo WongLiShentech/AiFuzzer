@@ -1,0 +1,5 @@
+# Echidna config for ReentrancyHarness.sol.
+# Give the test contract 10 ETH at deploy so it can seed the pool (victim funds)
+# and make its own deposit — otherwise there's nothing for reentrancy to steal.
+balanceContract: 10000000000000000000
+testLimit: 100000

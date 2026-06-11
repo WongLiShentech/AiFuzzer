@@ -1,43 +1,48 @@
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.4.15;
 
-// First-slice Echidna harness (M2) — a deliberately vulnerable contract plus an
-// invariant Echidna should be able to break by random transaction generation.
+// ACCESS-CONTROL oracle (Mechanism A) wrapping a REAL dataset contract:
+// dataset/vulnerable/access-control/Unprotected.sol — Trail of Bits' minimal
+// "unprotected function" example whose changeOwner() lacks an onlyowner guard,
+// so ANY account can seize ownership.
 //
-// Vulnerability class: ACCESS CONTROL.
-// `setOwner` has no `onlyOwner` / `msg.sender` guard, so ANY account can seize
-// ownership. Chosen for the first slice because Echidna can break it with a
-// single direct call (no attacker contract needed) — it proves the analyze →
-// fuzz → finding → report loop works. A reentrancy harness (needing a malicious
-// callback + value config) is the next step.
+// Unprotected.owner is `private` (no getter), so we can't read it directly.
+// Instead we PROBE ownership through the contract's OWN guarded twin,
+// changeOwner_fixed() (which is `onlyowner`): a low-level call to it succeeds
+// only while the caller is still the owner. The harness deploys Unprotected
+// (becoming its owner), then an Attacker — a NON-owner — calls the unguarded
+// changeOwner() to seize control. Reusable rule: "ownership must never move to
+// an account that was never authorised."
+import "../dataset/vulnerable/access-control/Unprotected.sol";
 
-contract VulnerableVault {
-    address public owner;
-
-    constructor() {
-        owner = msg.sender;
-    }
-
-    // BUG: missing access control — anyone can take ownership.
-    function setOwner(address newOwner) public {
-        owner = newOwner;
+contract Attacker {
+    // A non-owner that grabs ownership via the unguarded setter.
+    function seize(Unprotected u) public {
+        u.changeOwner(this);
     }
 }
 
-// Echidna test contract. Echidna deploys this and fuzzes its inherited
-// functions from several sender accounts. The property below must always hold;
-// the missing guard on setOwner() lets Echidna falsify it.
-contract AccessControlEchidnaTest is VulnerableVault {
-    address private immutable deployer;
+contract AccessControlEchidnaTest {
+    Unprotected public vault;
+    Attacker public attacker;
 
-    constructor() {
-        deployer = msg.sender;
+    function AccessControlEchidnaTest() public {
+        vault = new Unprotected();   // owner := this harness (the deployer)
+        attacker = new Attacker();
     }
 
-    // INVARIANT: ownership must never move away from the deployer.
-    // Echidna will call setOwner(<someAddr>) and break this — reporting the
-    // exact transaction sequence that did it.
-    function echidna_owner_is_deployer() public view returns (bool) {
-        return owner == deployer;
+    // Let the (non-owner) attacker grab ownership through the unguarded function.
+    function attack() public {
+        attacker.seize(vault);
+    }
+
+    // ORACLE: the original owner (this harness) must always be able to exercise
+    // an owner-only function. We probe via the contract's guarded
+    // changeOwner_fixed(): the low-level call succeeds (returns true) only while
+    // WE are still the owner. Once the attacker has seized ownership the guard
+    // reverts and this returns false → Echidna reports the violation + sequence.
+    function echidna_owner_retained() public returns (bool) {
+        return address(vault).call(
+            bytes4(keccak256("changeOwner_fixed(address)")), address(this)
+        );
     }
 }

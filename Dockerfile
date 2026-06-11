@@ -13,21 +13,27 @@ RUN apt-get update \
 # Version chosen at build time, not hardcoded in code.
 RUN pip install solc-select crytic-compile \
     && solc-select install "${SOLC_VERSION}" \
+    && solc-select install 0.4.26 \
     && solc-select use "${SOLC_VERSION}" \
     && solc --version
 
 # Echidna (the fuzzer) — prebuilt release binary; version via build arg.
-# Note: Anvil/Foundry are deferred to M5 (PoC exploits); the core fuzz loop
-# runs in Echidna's own EVM and needs only solc + crytic-compile.
+# The core fuzz loop runs in Echidna's own EVM and needs only solc + crytic-compile.
 RUN curl -fsSL -o /tmp/echidna.tar.gz "https://github.com/crytic/echidna/releases/download/v${ECHIDNA_VERSION}/echidna-${ECHIDNA_VERSION}-x86_64-linux.tar.gz" \
     && tar -xzf /tmp/echidna.tar.gz -C /usr/local/bin \
     && chmod +x /usr/local/bin/echidna \
     && rm /tmp/echidna.tar.gz \
     && echidna --version
 
+# Foundry — provides `anvil`, the local blockchain node used to deploy contracts
+# and run transactions against them (deliverable #2 + PoC exploits).
+RUN curl -L https://foundry.paradigm.xyz | bash
+ENV PATH="/root/.foundry/bin:${PATH}"
+RUN foundryup && anvil --version
+
 WORKDIR /app
 COPY . /app
-RUN pip install -e ".[dev]"
+RUN pip install -e ".[dev,chain]"
 
 # Default: serve the dashboard. Override to run the CLI or fuzz.
 CMD ["python", "dashboard/app.py"]

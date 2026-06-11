@@ -21,6 +21,7 @@ dependencies = [
 [project.optional-dependencies]
 ai = ["chromadb", "ollama"]
 static = ["slither-analyzer"]
+chain = ["web3"]
 dev = ["pytest"]
 
 [project.scripts]

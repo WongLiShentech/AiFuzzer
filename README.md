@@ -73,8 +73,16 @@ docker compose up          # dashboard → http://localhost:5000
 
 ```bash
 pip install -e .
-python -m aifuzz.cli analyze dataset/vulnerable/reentrancy/simple_dao.sol
+python -m aifuzz.cli analyze harnesses/AccessControlHarness.sol --contract-name AccessControlEchidnaTest
 python -m aifuzz.cli analyze <contract>.sol --mode ai-guided --format sarif
+```
+
+**Local blockchain (deploy a contract to Anvil and query it):**
+
+```bash
+python -m aifuzz.cli deploy harnesses/AccessControlHarness.sol \
+    --contract-name AccessControlEchidnaTest --call owner
+# → starts a local Anvil chain, deploys the contract, prints its address + owner()
 ```
 
 **Evaluate over the dataset:**
@@ -102,9 +110,11 @@ Not-So-Smart-Contracts, Damn Vulnerable DeFi). Full citations + licences:
 
 ## Status
 
-The findings/report layer, CLI, dashboard, and evaluation math are in place. The
-analysis **engines are built across milestones** — **M2** random fuzzing, **M3**
-AI-guided fuzzing, **M4** dashboard wiring, **M5** evaluation. Until an engine
-lands, commands report what's pending rather than fabricating results.
+Working today: **random fuzzing** (`aifuzz analyze` finds real bugs via Echidna)
+and the **local blockchain** (`aifuzz deploy` — Anvil deploy + transact + query).
+The findings/report layer, CLI, dashboard, and evaluation math are in place.
+Remaining milestones: **M3** AI-guided fuzzing (the novelty), **M4** dashboard
+wiring, **M5** full evaluation + PoC exploits. Until an engine lands, commands
+report what's pending rather than fabricating results.
 
 Tested on: Windows 11 (Docker Desktop), macOS 14 (Docker Desktop).

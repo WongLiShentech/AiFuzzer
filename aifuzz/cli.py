@@ -1,6 +1,7 @@
 """Command-line entry point: `aifuzz`.
 
     aifuzz analyze <contract.sol> [--mode random|ai-guided] [--contract-name NAME] [--format ...]
+    aifuzz deploy <contract.sol> --contract-name NAME [--call viewFn]   # local Anvil chain
     aifuzz benchmark            # run over the evaluation dataset (see benchmark.py)
 
 Implemented: argument parsing, report formatting, graceful messaging. The
@@ -20,7 +21,8 @@ from .analyzer import analyze
 
 def _cmd_analyze(args: argparse.Namespace) -> int:
     try:
-        report = analyze(args.contract, mode=args.mode, contract=args.contract_name)
+        report = analyze(args.contract, mode=args.mode, contract=args.contract_name,
+                         config=args.config)
     except FileNotFoundError as e:
         print(f"error: {e}", file=sys.stderr)
         return 2
@@ -41,6 +43,26 @@ def _cmd_analyze(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_deploy(args: argparse.Namespace) -> int:
+    from .local_chain import LocalChain  # lazy: only needs web3 + anvil
+
+    try:
+        with LocalChain() as chain:
+            print(f"[aifuzz] local chain up — chain id {chain.chain_id}, block {chain.block_number}")
+            dep = chain.deploy(args.contract, args.contract_name)
+            print(f"[aifuzz] deployed {args.contract_name} at {dep.address}")
+            if args.call:
+                value = chain.call(dep, args.call)
+                print(f"[aifuzz] {args.call}() = {value}")
+    except FileNotFoundError as e:
+        print(f"error: {e}", file=sys.stderr)
+        return 2
+    except RuntimeError as e:
+        print(f"[aifuzz] {e}", file=sys.stderr)
+        return 4
+    return 0
+
+
 def _cmd_benchmark(args: argparse.Namespace) -> int:
     print("[aifuzz] run the evaluation harness with:  python benchmark.py", file=sys.stderr)
     return 0
@@ -56,8 +78,18 @@ def build_parser() -> argparse.ArgumentParser:
     a.add_argument("--mode", choices=["random", "ai-guided"], default="random")
     a.add_argument("--contract-name", dest="contract_name", default=None,
                    help="name of the Echidna test contract (the one with echidna_* properties)")
+    a.add_argument("--config", default=None,
+                   help="optional Echidna YAML config (e.g. to fund the harness)")
     a.add_argument("--format", choices=["json", "markdown", "sarif"], default="markdown")
     a.set_defaults(func=_cmd_analyze)
+
+    d = sub.add_parser("deploy", help="deploy a contract to a local Anvil chain and query it")
+    d.add_argument("contract", help="path to a .sol contract")
+    d.add_argument("--contract-name", dest="contract_name", required=True,
+                   help="name of the contract to deploy")
+    d.add_argument("--call", default=None,
+                   help="optional view function to read after deploy (e.g. owner)")
+    d.set_defaults(func=_cmd_deploy)
 
     b = sub.add_parser("benchmark", help="evaluate over the labeled dataset")
     b.set_defaults(func=_cmd_benchmark)
