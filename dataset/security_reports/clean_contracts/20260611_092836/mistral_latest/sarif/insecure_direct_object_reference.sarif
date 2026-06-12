@@ -1,0 +1,93 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "OASIS",
+          "version": "0.6.1",
+          "informationUri": "https://github.com/psyray/oasis",
+          "rules": [
+            {
+              "id": "insecure-direct-object-reference",
+              "name": "Insecure Direct Object Reference",
+              "shortDescription": {
+                "text": "Vulnerabilities exposing direct references to internal objects"
+              },
+              "fullDescription": {
+                "text": "**Insecure Direct Object Reference**\n\nVulnerabilities exposing direct references to internal objects\n\n**Impact (type metadata)**\nUnauthorized access to data, privilege escalation, or data theft\n\n**Mitigation (type metadata)**\nImplement proper access controls, use indirect references, validate user authorization"
+              },
+              "helpUri": "https://github.com/psyray/oasis"
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "insecure-direct-object-reference",
+          "level": "warning",
+          "message": {
+            "text": "Vulnerability found\n\nThe contract exposes direct reference to an internal object (user's credit) without proper access control checks.\n\nImpact: Unauthorized access to data or privilege escalation\n\nRemediation: Implement proper access controls, use indirect references or check-effects-interactions pattern for credit[msg.sender]"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/clean/simple_dao_fixed.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "credit[msg.sender]"
+                  },
+                  "startLine": 25,
+                  "endLine": 25
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "mistral:latest",
+            "oasisFileSimilarity": 0.6392003313377885,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "insecure-direct-object-reference",
+          "level": "warning",
+          "message": {
+            "text": "Vulnerability found\n\nThe contract function airDrop uses the msg.sender address directly as the object reference, bypassing proper authorization checks.\n\nImpact: An attacker can manipulate the balance of any contract that supports the Nu Token by calling airDrop while having a zero balance.\n\nRemediation: Implement proper access controls or use indirect object references."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/clean/modifier_reentrancy_fixed.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "supportsToken hasNoBalance  public{\n    tokenBalance[msg.sender] += 20;\n}"
+                  },
+                  "startLine": 21,
+                  "endLine": 21
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "mistral:latest",
+            "oasisFileSimilarity": 0.6170243612780538,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        }
+      ],
+      "properties": {
+        "oasisReportTitle": "Insecure Direct Object Reference Security Analysis",
+        "oasisGeneratedAt": "2026-06-11 10:15:28",
+        "oasisVulnerabilityName": "Insecure Direct Object Reference"
+      }
+    }
+  ]
+}

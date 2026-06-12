@@ -1,0 +1,267 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "OASIS",
+          "version": "0.6.1",
+          "informationUri": "https://github.com/psyray/oasis",
+          "rules": [
+            {
+              "id": "file-upload-vulnerabilities",
+              "name": "File Upload Vulnerabilities",
+              "shortDescription": {
+                "text": "Security flaws in file upload functionality that can lead to various attacks"
+              },
+              "fullDescription": {
+                "text": "**File Upload Vulnerabilities**\n\nSecurity flaws in file upload functionality that can lead to various attacks\n\n**Impact (type metadata)**\nRemote code execution, web shell deployment, denial of service, or data corruption\n\n**Mitigation (type metadata)**\nValidate file types and content, use secure upload directories, implement size limits and virus scanning"
+              },
+              "helpUri": "https://github.com/psyray/oasis"
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "file-upload-vulnerabilities",
+          "level": "error",
+          "message": {
+            "text": "Unrestricted File Upload\n\nThe call() function allows the attacker to execute arbitrary Solidity code, including file uploads.\n\nImpact: Remote code execution and web shell deployment.\n\nRemediation: Validate file types and content before executing user-supplied code."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/reentrancy/etherstore.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "require(msg.sender.call.value(_weiToWithdraw)());"
+                  },
+                  "startLine": 35,
+                  "endLine": 35
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.627296744239541,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "file-upload-vulnerabilities",
+          "level": "error",
+          "message": {
+            "text": "Unrestricted file upload\n\nThe contract allows any address to set the `TransferLog` variable without validation.\n\nImpact: Remote code execution via arbitrary file uploads.\n\nRemediation: Implement validation and sanitization for the `_log` parameter."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/reentrancy/0xbaf51e761510c1a11bf48dd87c0307ac8a8c8a4f.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function ETH_VAULT(address _log) public { TransferLog = Log(_log); }"
+                  },
+                  "startLine": 1,
+                  "endLine": 85
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6260129308651848,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "file-upload-vulnerabilities",
+          "level": "error",
+          "message": {
+            "text": "Unrestricted File Upload\n\nThe contract allows any address to upload files without validation.\n\nImpact: Remote code execution and denial of service attacks are possible.\n\nRemediation: Validate file types and content before uploading files."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/reentrancy/simple_dao.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "bool res = msg.sender.call.value(amount)(); credit[msg.sender]-=amount;"
+                  },
+                  "startLine": 1,
+                  "endLine": 35
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6249833028618568,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "file-upload-vulnerabilities",
+          "level": "error",
+          "message": {
+            "text": "File Upload Vulnerability\n\nThe `owner.transfer(reward)` line allows an attacker to execute arbitrary system commands as the contract owner.\n\nImpact: Remote code execution\n\nRemediation: Use `transfer` instead of `owner.transfer` to prevent code injection"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/ordering-attacks/eth_tx_order_dependence_minimal.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function setReward() public payable {\nrequire (!claimed);\nrequire(msg.sender == owner);\nowner.transfer(reward);\nreward = msg.value;\n}"
+                  },
+                  "startLine": 26,
+                  "endLine": 26
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.5963287541958667,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "file-upload-vulnerabilities",
+          "level": "error",
+          "message": {
+            "text": "Unrestricted File Upload\n\nThe `owner` variable is set directly from the message sender without validation.\n\nImpact: Remote code execution and data corruption\n\nRemediation: Validate file types and content, use secure upload directories."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/mycontract.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "address owner = msg.sender;\nreceiver.transfer(amount);"
+                  },
+                  "startLine": 1,
+                  "endLine": 31
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.5944411364218295,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "file-upload-vulnerabilities",
+          "level": "warning",
+          "message": {
+            "text": "Potential File Upload Vulnerability\n\nThe `_newRequired` parameter is not validated, allowing an attacker to increase the number of required confirmations beyond the intended limit.\n\nImpact: An attacker could force a higher-than-expected confirmation threshold, leading to unnecessary delays in transaction execution.\n\nRemediation: Validate the `_newRequired` parameter using a secure range check."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_1.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function changeRequirement(uint _newRequired) onlymanyowners(sha3(msg.data)) external { if (_newRequired > m_numOwners) return; ... }"
+                  },
+                  "startLine": 126,
+                  "endLine": 467
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.5912809495607484,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "file-upload-vulnerabilities",
+          "level": "error",
+          "message": {
+            "text": "Insecure File Upload\n\nThe function `execute` accepts a file upload without type validation, allowing an attacker to send arbitrary files.\n\nImpact: Remote code execution or data corruption\n\nRemediation: Validate and sanitize the `_data` parameter"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_2.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function execute(address _to, uint _value, bytes _data) external onlyowner returns (bytes32 o_hash) {\n  // ..."
+                  },
+                  "startLine": 249,
+                  "endLine": 249
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.577549030284028,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "file-upload-vulnerabilities",
+          "level": "error",
+          "message": {
+            "text": "Unrestricted File Upload\n\nThe 'play' function does not validate the file type or size, allowing arbitrary files to be uploaded.\n\nImpact: Remote code execution and data corruption\n\nRemediation: Validate the file type and size before uploading it."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/ordering-attacks/odds_and_evens.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function play(uint number) payable{\nif (msg.value != 1 ether) throw;\nplayers[tot] = Player(msg.sender, number);\ntot++;\n}"
+                  },
+                  "startLine": 33,
+                  "endLine": 33
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.5596046427529979,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        }
+      ],
+      "properties": {
+        "oasisReportTitle": "File Upload Vulnerabilities Security Analysis",
+        "oasisGeneratedAt": "2026-06-12 01:34:07",
+        "oasisVulnerabilityName": "File Upload Vulnerabilities"
+      }
+    }
+  ]
+}

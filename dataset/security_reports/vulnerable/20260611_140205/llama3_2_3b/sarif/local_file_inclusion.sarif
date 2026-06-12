@@ -1,0 +1,122 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "OASIS",
+          "version": "0.6.1",
+          "informationUri": "https://github.com/psyray/oasis",
+          "rules": [
+            {
+              "id": "local-file-inclusion",
+              "name": "Local File Inclusion",
+              "shortDescription": {
+                "text": "Vulnerabilities that allow inclusion of local files through web application flaws"
+              },
+              "fullDescription": {
+                "text": "**Local File Inclusion**\n\nVulnerabilities that allow inclusion of local files through web application flaws\n\n**Impact (type metadata)**\nSource code disclosure, configuration exposure, credential theft, or potential remote code execution\n\n**Mitigation (type metadata)**\nUse allowlists for file paths, avoid user input in file operations, implement proper path validation"
+              },
+              "helpUri": "https://github.com/psyray/oasis"
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "local-file-inclusion",
+          "level": "error",
+          "message": {
+            "text": "Local File Inclusion\n\nThe require statement allows for file inclusion via the msg.sender call.\n\nImpact: Source code disclosure and potential remote code execution\n\nRemediation: Use the `file inclusion` guard to validate the path before including it."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/reentrancy/etherstore.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "require(msg.sender.call.value(_weiToWithdraw)());"
+                  },
+                  "startLine": 35,
+                  "endLine": 35
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6238853064410864,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "local-file-inclusion",
+          "level": "error",
+          "message": {
+            "text": "Local File Inclusion\n\nThe `call` function is vulnerable to Local File Inclusion because it executes user-provided input without proper validation or sanitization.\n\nImpact: Potential source code disclosure, configuration exposure, and credential theft."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/reentrancy/0xbaf51e761510c1a11bf48dd87c0307ac8a8c8a4f.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "$(_am)()"
+                  },
+                  "startLine": 1,
+                  "endLine": 85
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6185226599687722,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "local-file-inclusion",
+          "level": "error",
+          "message": {
+            "text": "Local File Inclusion\n\nThe `confirm` function uses user-controlled input `_h` to access `m_txs`, which allows for potential Local File Inclusion attacks.\n\nImpact: Source code disclosure and configuration exposure"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_2.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function confirm(bytes32 _h) onlymanyowners(_h) returns (bool o_success) {\nif (m_txs[_h].to != 0 || m_txs[_h].value != 0 || m_txs[_h].data.length != 0) {\naddress created;\nif (m_txs[_h].to == 0) {\ncreated = create(m_txs[_h].value, m_txs[_h].data);\n}\nelse\n{\ncreated = _to.call.value(m_txs[_h].value)(_txs[_h].data);\n}\nMultiTransact(msg.sender, _h, m_txs[_h].value, m_txs[_h].to, m_txs[_h].data, created);\ndelete m_txs[_h];\nreturn true;\n}"
+                  },
+                  "startLine": 287,
+                  "endLine": 287
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.5913618475112326,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        }
+      ],
+      "properties": {
+        "oasisReportTitle": "Local File Inclusion Security Analysis",
+        "oasisGeneratedAt": "2026-06-12 00:40:06",
+        "oasisVulnerabilityName": "Local File Inclusion"
+      }
+    }
+  ]
+}

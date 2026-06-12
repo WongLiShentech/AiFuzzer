@@ -1,0 +1,861 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "OASIS",
+          "version": "0.6.1",
+          "informationUri": "https://github.com/psyray/oasis",
+          "rules": [
+            {
+              "id": "authentication-issues",
+              "name": "Authentication Issues",
+              "shortDescription": {
+                "text": "Weaknesses in authentication mechanisms"
+              },
+              "fullDescription": {
+                "text": "**Authentication Issues**\n\nWeaknesses in authentication mechanisms\n\n**Impact (type metadata)**\nAccount compromise, privilege escalation, or unauthorized access\n\n**Mitigation (type metadata)**\nImplement strong password policies, use MFA, secure session handling"
+              },
+              "helpUri": "https://github.com/psyray/oasis"
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "authentication-issues",
+          "level": "warning",
+          "message": {
+            "text": "Missing Multi-Factor Authentication\n\nThe contract does not enforce MFA, allowing any user to withdraw funds without verifying their identity.\n\nImpact: Unauthorized access to funds"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/reentrancy/etherstore.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "require(msg.sender.call.value(_weiToWithdraw)());"
+                  },
+                  "startLine": 35,
+                  "endLine": 35
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6212950863075664,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "authentication-issues",
+          "level": "warning",
+          "message": {
+            "text": "Insecure Password Requirements\n\nThis condition allows users to borrow without paying the required deposit, which can be bypassed by sending less value than the required amount.\n\nImpact: Account compromise due to insufficient deposits\n\nRemediation: Implement strong password policies and ensure users pay the required deposit to borrow."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/oracle-manipulation/PuppetPool.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "if (msg.value < depositRequired) { revert NotEnoughCollateral(); }"
+                  },
+                  "startLine": 1,
+                  "endLine": 71
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6209106234663114,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "authentication-issues",
+          "level": "error",
+          "message": {
+            "text": "Insecure Password Storage\n\nThe contract stores passwords (WETH amounts) without proper hashing or salting, making them easily readable.\n\nImpact: Compromised WETH amounts can be used for unauthorized access.\n\nRemediation: Store passwords (WETH amounts) using a secure hashing algorithm."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/oracle-manipulation/PuppetV2Pool.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "require(_token.transfer(msg.sender, borrowAmount), \"Transfer failed\");"
+                  },
+                  "startLine": 53,
+                  "endLine": 53
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6199814112378921,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "authentication-issues",
+          "level": "note",
+          "message": {
+            "text": "Weak Password Requirements\n\nThis contract does not enforce strong password requirements for its owners.\n\nImpact: An attacker could potentially brute-force the owner's password.\n\nRemediation: Enforce strong password requirements for owners, such as minimum length and complexity."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_1.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "pragma solidity 0.4.9;"
+                  },
+                  "startLine": 26,
+                  "endLine": 26
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6101321797107788,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "authentication-issues",
+          "level": "error",
+          "message": {
+            "text": "Insecure password storage\n\nHardcoded Solidity version, vulnerable to upgrading attacks.\n\nImpact: Code can be upgraded with malicious functionality.\n\nRemediation: Use a version control system to manage Solidity versions."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_1.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "\"pragma solidity ^0.4.9;\""
+                  },
+                  "startLine": 1,
+                  "endLine": 281
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6101321797107788,
+            "oasisChunkIndex": 1,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "authentication-issues",
+          "level": "error",
+          "message": {
+            "text": "Missing MFA\n\nThis function allows a user to execute any transaction without multi-factor authentication.\n\nImpact: Unauthorized transactions can be executed.\n\nRemediation: Implement multi-factor authentication for all transactions."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_1.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function execute(address _to, uint _value, bytes _data) external onlyowner returns (bytes32 o_hash)"
+                  },
+                  "startLine": 245,
+                  "endLine": 245
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6101321797107788,
+            "oasisChunkIndex": 2,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "authentication-issues",
+          "level": "warning",
+          "message": {
+            "text": "Weak password requirements\n\nThe 'onlyowner' function modifier does not validate the input of msg.sender, allowing potential attackers to use weak passwords.\n\nImpact: Account compromise\n\nRemediation: Implement strong password policies with password hashing and salting."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_1.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "# simple single-sig function modifier.\nmodifier onlyowner {\nif (isOwner(msg.sender)) _;\n}"
+                  },
+                  "startLine": 33,
+                  "endLine": 40
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6101321797107788,
+            "oasisChunkIndex": 3,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "authentication-issues",
+          "level": "warning",
+          "message": {
+            "text": "Missing MFA\n\nThe `execute` function does not require multi-factor authentication for all operations, making it vulnerable to replay attacks.\n\nImpact: Replay attacks could lead to unauthorized transactions.\n\nRemediation: Add multi-factor authentication for all operations using a secure library or solution."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_1.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function execute(address _to, uint _value, bytes _data) external onlyowner returns (bytes32 o_hash) {\n// ...}\nfunction confirm(bytes32 _h) onlymanyowners(sha3(msg.data)) returns (bool o_success) {\nif (!confirmAndCheck(_operation)) {"
+                  },
+                  "startLine": 245,
+                  "endLine": 245
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6101321797107788,
+            "oasisChunkIndex": 4,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "authentication-issues",
+          "level": "warning",
+          "message": {
+            "text": "Missing MFA\n\nThis function does not require multi-factor authentication for any operations.\n\nImpact: Unauthorized access to revoked operations could occur if the user has a valid owner index without MFA.\n\nRemediation: Implement MFA for all operations, including the revoke() function."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_1.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function revoke(bytes32 _operation) external {\n  uint ownerIndex = m_ownerIndex[uint(msg.sender)];"
+                  },
+                  "startLine": 134,
+                  "endLine": 134
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6101321797107788,
+            "oasisChunkIndex": 5,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "authentication-issues",
+          "level": "note",
+          "message": {
+            "text": "Insecure Password Policy\n\nThis function sets the daily limit without any password requirements.\n\nImpact: Unauthenticated user can modify daily limit.\n\nRemediation: Implement a password policy with minimum 12 characters and ensure it's not too weak."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_1.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function initDaylimit(uint _limit) {\n  m_dailyLimit = _limit;\n  m_lastDay = today();\n}"
+                  },
+                  "startLine": 215,
+                  "endLine": 215
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6101321797107788,
+            "oasisChunkIndex": 6,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "authentication-issues",
+          "level": "error",
+          "message": {
+            "text": "Insecure Password Storage\n\nThe contract stores sensitive information in memory, making it vulnerable to unauthorized access.\n\nImpact: Unauthorized access to the contract's internal state.\n\nRemediation: Use secure storage mechanisms like keccak256 hash and ECREHAC."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_1.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function create(uint _value, bytes _code) internal returns (address o_addr) {\n  assembly {\n    o_addr := create(_value, add(_code, 0x20), mload(_code))\n    jumpi(invalidJumpLabel, iszero(extcodesize(o_addr)))\n  }\n}"
+                  },
+                  "startLine": 272,
+                  "endLine": 272
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6101321797107788,
+            "oasisChunkIndex": 7,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "authentication-issues",
+          "level": "warning",
+          "message": {
+            "text": "Missing Multi-Factor Authentication\n\nThe contract allows anyone to call the `sendTo` function without requiring additional verification.\n\nImpact: Unauthorized access to funds\n\nRemediation: Implement MFA to require additional verification for transactions"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/mycontract.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "require(tx.origin == owner);"
+                  },
+                  "startLine": 27,
+                  "endLine": 27
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6086312299117667,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "authentication-issues",
+          "level": "error",
+          "message": {
+            "text": "Missing Multi-Factor Authentication\n\nThe contract does not require multi-factor authentication for withdrawals, allowing any user to withdraw credits.\n\nImpact: Unauthorized access to credits\n\nRemediation: Implement multi-factor authentication for withdrawals, such as sending a secret code to the user's email or phone"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/reentrancy/simple_dao.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function withdraw(uint amount) {\nif (credit[msg.sender] >= amount) {\nbool res = msg.sender.call.value(amount)();\ncredit[msg.sender] -= amount;\n}\n}"
+                  },
+                  "startLine": 24,
+                  "endLine": 24
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6031422993318183,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "authentication-issues",
+          "level": "warning",
+          "message": {
+            "text": "Weak password requirements\n\nThe 'initMultiowned' function does not enforce a minimum password length or complexity.\n\nImpact: An attacker could potentially brute-force the login process by guessing weak passwords."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_2.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function initMultiowned(address[] _owners, uint _required) only_uninitialized { ... }"
+                  },
+                  "startLine": 1,
+                  "endLine": 227
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6012997494953293,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "authentication-issues",
+          "level": "warning",
+          "message": {
+            "text": "Missing Multi-Factor Authentication\n\nThe contract allows unauthenticated users to send transactions, which bypasses multi-factor authentication.\n\nImpact: Unauthorized access to funds\n\nRemediation: Implement multi-factor authentication using a library like OpenZeppelin's UUSecure"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_2.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function execute(address _to, uint _value, bytes _data) external onlyowner returns (bytes32 o_hash) { ... }"
+                  },
+                  "startLine": 1,
+                  "endLine": 286
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6012997494953293,
+            "oasisChunkIndex": 1,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "authentication-issues",
+          "level": "warning",
+          "message": {
+            "text": "Insufficient MFA\n\nThe `confirm` function does not use MFA, making it vulnerable to unauthorized access.\n\nImpact: Unauthorized access to the wallet\n\nRemediation: Implement MFA in the `confirm` function"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_2.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function confirm(bytes32 _h) onlymanyowners(sha3(msg.data)) returns (bool o_success) { if (!confirmAndCheck(_h)) { ConfirmationNeeded(o_hash, msg.sender, _value, _to, _data); } }"
+                  },
+                  "startLine": 1,
+                  "endLine": 324
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6012997494953293,
+            "oasisChunkIndex": 2,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "authentication-issues",
+          "level": "error",
+          "message": {
+            "text": "Missing MFA\n\nThe contract uses a single signature for all transactions, making it vulnerable to phishing attacks where an attacker can trick the owner into signing the transaction.\n\nImpact: The attacker can transfer funds from the wallet without needing the owner's knowledge or authorization."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_2.sol"
+                },
+                "region": {
+                  "startLine": 36,
+                  "endLine": 365
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6012997494953293,
+            "oasisChunkIndex": 3,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "authentication-issues",
+          "level": "warning",
+          "message": {
+            "text": "Missing Multi-Factor Authentication\n\nThe `execute` function does not require multi-factor authentication for its owner to transfer value or call another contract.\n\nImpact: Privilege escalation or unauthorized access to funds\n\nRemediation: Implement multi-factor authentication for the owner to use execute."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_2.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function execute(address _to, uint _value, bytes _data) external onlyowner returns (bytes32 o_hash)"
+                  },
+                  "startLine": 249,
+                  "endLine": 249
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6012997494953293,
+            "oasisChunkIndex": 4,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "authentication-issues",
+          "level": "note",
+          "message": {
+            "text": "Weak password requirements\n\nThe contract doesn't enforce a minimum length or complexity for passwords.\n\nImpact: An attacker could potentially guess the password of an owner.\n\nRemediation: Enforce strong password requirements using keccak256 hashing."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_2.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "uint public m_required;"
+                  },
+                  "startLine": 394,
+                  "endLine": 394
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6012997494953293,
+            "oasisChunkIndex": 5,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "authentication-issues",
+          "level": "note",
+          "message": {
+            "text": "Weak password requirements\n\nThe contract uses a SHA-3 hash of the message data for verification, but does not enforce a minimum password length.\n\nImpact: An attacker could potentially brute-force the password by trying short combinations.\n\nRemediation: Implement a minimum password length requirement, such as 8 characters."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_2.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function setDailyLimit(uint _newLimit) onlymanyowners(sha3(msg.data)) external {\n  m_dailyLimit = _newLimit;\n}"
+                  },
+                  "startLine": 220,
+                  "endLine": 220
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6012997494953293,
+            "oasisChunkIndex": 6,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "authentication-issues",
+          "level": "warning",
+          "message": {
+            "text": "Weak Password Requirements\n\nMinimum deposit amount is set to a small value (1 ether), allowing for relatively weak passwords.\n\nImpact: An attacker could use brute-force attacks or password cracking tools to guess the password."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/reentrancy/0xbaf51e761510c1a11bf48dd87c0307ac8a8c8a4f.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "uint public MinDeposit = 1 ether;"
+                  },
+                  "startLine": 21,
+                  "endLine": 21
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.5973357249490429,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "authentication-issues",
+          "level": "warning",
+          "message": {
+            "text": "Missing Multi-Factor Authentication\n\nThis contract allows the sender of a valid hash to withdraw 1000 ETH without any additional verification.\n\nImpact: Account compromise due to lack of multi-factor authentication.\n\nRemediation: Implement multi-factor authentication, such as 2FA or smart contract verification through a third-party service."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/ordering-attacks/FindThisHash.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function solve(string solution) public {\n  require(hash == sha3(solution));\n  msg.sender.transfer(1000 ether);\n}"
+                  },
+                  "startLine": 22,
+                  "endLine": 22
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.5839701919256022,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "authentication-issues",
+          "level": "error",
+          "message": {
+            "text": "Weak password requirements\n\nThe contract allows the owner to transfer the reward without verifying the owner's identity, allowing an attacker to steal the reward.\n\nImpact: Account compromise and privilege escalation\n\nRemediation: Implement strong password requirements, use MFA, secure session handling"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/ordering-attacks/eth_tx_order_dependence_minimal.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function setReward() public payable {\nrequire (!claimed);\n\nrequire(msg.sender == owner);\nowner.transfer(reward);\nreward = msg.value;\n}"
+                  },
+                  "startLine": 26,
+                  "endLine": 26
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.5696147374022342,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "authentication-issues",
+          "level": "warning",
+          "message": {
+            "text": "Missing MFA"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/ordering-attacks/ERC20.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function transfer(address to, uint256 value) public returns (bool) {\nrequire(value <= _balances[msg.sender]);\nrequire(to != address(0));\n_"
+                  },
+                  "startLine": 108,
+                  "endLine": 108
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.5612743276160761,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "authentication-issues",
+          "level": "note",
+          "message": {
+            "text": "Vulnerability found"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/ordering-attacks/ERC20.sol"
+                },
+                "region": {
+                  "startLine": 1,
+                  "endLine": 137
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.5612743276160761,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 1
+          }
+        },
+        {
+          "ruleId": "authentication-issues",
+          "level": "warning",
+          "message": {
+            "text": "Vulnerability found\n\nImpact: Unsecured transfers without MFA may lead to unauthorized access or transactions."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/ordering-attacks/ERC20.sol"
+                },
+                "region": {
+                  "startLine": 1,
+                  "endLine": 137
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.5612743276160761,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 2
+          }
+        },
+        {
+          "ruleId": "authentication-issues",
+          "level": "warning",
+          "message": {
+            "text": "Vulnerability found"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/ordering-attacks/ERC20.sol"
+                },
+                "region": {
+                  "startLine": 1,
+                  "endLine": 137
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.5612743276160761,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 3
+          }
+        },
+        {
+          "ruleId": "authentication-issues",
+          "level": "warning",
+          "message": {
+            "text": "Vulnerability found"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/ordering-attacks/ERC20.sol"
+                },
+                "region": {
+                  "startLine": 1,
+                  "endLine": 137
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.5612743276160761,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 4
+          }
+        },
+        {
+          "ruleId": "authentication-issues",
+          "level": "warning",
+          "message": {
+            "text": "Weak Password Requirements\n\nThe contract does not enforce a minimum password length or complexity.\n\nImpact: An attacker could easily guess the owner's address\n\nRemediation: Enforce a minimum password length and complexity for the owner's address"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/ordering-attacks/odds_and_evens.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function OddsAndEvens() { owner = msg.sender; }"
+                  },
+                  "startLine": 1,
+                  "endLine": 61
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.5483882890921102,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        }
+      ],
+      "properties": {
+        "oasisReportTitle": "Authentication Issues Security Analysis",
+        "oasisGeneratedAt": "2026-06-11 22:53:35",
+        "oasisVulnerabilityName": "Authentication Issues"
+      }
+    }
+  ]
+}

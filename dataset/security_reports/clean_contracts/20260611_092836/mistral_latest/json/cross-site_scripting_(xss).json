@@ -1,0 +1,183 @@
+{
+  "schema_version": 5,
+  "report_type": "vulnerability",
+  "title": "Cross-Site Scripting (XSS) Security Analysis",
+  "generated_at": "2026-06-11 10:57:18",
+  "model_name": "mistral:latest",
+  "language": "en",
+  "vulnerability_name": "Cross-Site Scripting (XSS)",
+  "vulnerability": {
+    "name": "Cross-Site Scripting (XSS)",
+    "description": "Vulnerabilities that allow attackers to inject client-side scripts",
+    "patterns": [
+      "unescaped output to HTML",
+      "innerHTML with user input",
+      "document.write with variables",
+      "eval with user content",
+      "rendering content without sanitization",
+      "dangerous DOM operations",
+      "raw user data in templates",
+      "bypass content sanitization",
+      "script injection vulnerability",
+      "missing HTML encoding",
+      "dangerouslySetInnerHTML",
+      "template literals with user data",
+      "attribute injection vulnerability",
+      "data-* attribute with user input",
+      "event handler assignment",
+      "href with javascript: protocol",
+      "DOM manipulation with createElement",
+      "React props sanitization missing",
+      "Vue v-html directive with data",
+      "Angular [innerHTML] binding",
+      "svg onload attribute",
+      "CSS expression with user input",
+      "postMessage without origin check"
+    ],
+    "impact": "Can lead to session hijacking, credential theft, or delivery of malware to users",
+    "mitigation": "Apply context-aware output encoding, use Content-Security-Policy, validate and sanitize all inputs"
+  },
+  "files": [
+    {
+      "file_path": "/work/project/dataset/clean/mycontract_fixed.sol",
+      "similarity_score": 0.623753952870063,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Vulnerability found",
+              "vulnerable_code": "msg.sender == owner",
+              "explanation": "The 'msg.sender' variable is used to compare with 'owner', which may contain user input. This opens the door for Cross-Site Scripting (XSS) attacks.",
+              "severity": "Medium",
+              "impact": "An attacker could potentially steal session cookies, leading to credential theft.",
+              "entry_point": "sendTo function",
+              "execution_path_diagram": "```\n\tMyContract -> sendTo(...) -> require(msg.sender == owner)\n```",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "amount"
+              ],
+              "exploitation_steps": [
+                "Send a crafted amount parameter to the 'sendTo' function",
+                "The user input within 'msg.sender' is executed as JavaScript"
+              ],
+              "example_payloads": [
+                "<script>alert('XSS!')</script>"
+              ],
+              "exploitation_conditions": "",
+              "remediation": "Sanitize all inputs, such as by using context-aware output encoding or Content-Security-Policy.",
+              "secure_code_example": "",
+              "snippet_start_line": 27,
+              "snippet_end_line": 27,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 31,
+          "notes": "Code is vulnerable to Cross-Site Scripting (XSS) via the user input in 'msg.sender'.",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    },
+    {
+      "file_path": "/work/project/dataset/clean/modifier_reentrancy_fixed.sol",
+      "similarity_score": 0.6023776286971635,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Vulnerability found",
+              "vulnerable_code": "airDrop() supportsToken hasNoBalance public{\n\t tokenBalance[msg.sender] += 20;\n}",
+              "explanation": "The function airDrop(), when called, does not sanitize the msg.sender input, potentially allowing an attacker to execute XSS attacks.",
+              "severity": "Medium",
+              "impact": "Session hijacking or credential theft via XSS payloads",
+              "entry_point": "/airDrop",
+              "execution_path_diagram": "```\nuser -> airDrop -> tokenBalance[msg.sender]\n```",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "msg.sender"
+              ],
+              "exploitation_steps": [
+                "Call the airDrop() function with a crafted XSS payload as the msg.sender"
+              ],
+              "example_payloads": [
+                "<script>alert('XSS');</script>"
+              ],
+              "exploitation_conditions": "",
+              "remediation": "Sanitize the input for msg.sender before using it in the tokenBalance[msg.sender] assignment.",
+              "secure_code_example": "",
+              "snippet_start_line": null,
+              "snippet_end_line": null,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 42,
+          "notes": "No issues",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    },
+    {
+      "file_path": "/work/project/dataset/clean/simple_dao_fixed.sol",
+      "similarity_score": 0.5884846368107324,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Vulnerability found",
+              "vulnerable_code": "'\\n * @source: http://blockchain.unica.it/projects/ethereum-survey/attacks.html#simpledao\n * @author: Atzei N., Bartoletti M., Cimoli T\n'",
+              "explanation": "The code includes user input in the HTML comment section, which could allow an attacker to inject client-side scripts.",
+              "severity": "Medium",
+              "impact": "Can lead to session hijacking or delivery of malware to users",
+              "entry_point": "N/A (comment text)",
+              "execution_path_diagram": "user -> comments (injection) -> web page -> victim user",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "comments"
+              ],
+              "exploitation_steps": [
+                "Attacker injects malicious script in a comment",
+                "Victim visits the webpage with the injected comment",
+                "Script is executed on victim's client"
+              ],
+              "example_payloads": [
+                "<script>alert(document.cookie)</script>"
+              ],
+              "exploitation_conditions": "Attacker can control the comments section of the page",
+              "remediation": "Sanitize all user-generated HTML content before rendering",
+              "secure_code_example": "/* comments */",
+              "snippet_start_line": null,
+              "snippet_end_line": null,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 34,
+          "notes": "N/A",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    }
+  ],
+  "stats": {
+    "files_analyzed": 3,
+    "high_risk": 0,
+    "medium_risk": 3,
+    "low_risk": 0,
+    "critical_risk": 0,
+    "total_findings": 3,
+    "potential_findings": 0
+  },
+  "analysis_root": "../clean",
+  "embed_model": "nomic-embed-text",
+  "project": "clean_contracts"
+}

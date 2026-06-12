@@ -1,0 +1,93 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "OASIS",
+          "version": "0.6.1",
+          "informationUri": "https://github.com/psyray/oasis",
+          "rules": [
+            {
+              "id": "command-injection",
+              "name": "Command Injection",
+              "shortDescription": {
+                "text": "Vulnerabilities allowing injection of arbitrary operating system commands"
+              },
+              "fullDescription": {
+                "text": "**Command Injection**\n\nVulnerabilities allowing injection of arbitrary operating system commands\n\n**Impact (type metadata)**\nComplete system compromise, data theft, privilege escalation, or service disruption\n\n**Mitigation (type metadata)**\nUse parameterized commands, avoid shell execution, validate and sanitize command inputs"
+              },
+              "helpUri": "https://github.com/psyray/oasis"
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "command-injection",
+          "level": "warning",
+          "message": {
+            "text": "Vulnerability found\n\nThe function 'supportsToken' does not sanitize the user input (the abi encoded packed string), making it vulnerable to command injection.\n\nImpact: Arbitrary OS command execution\n\nRemediation: 'supportsToken' function should sanitize user input before passing it to system()"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/clean/modifier_reentrancy_fixed.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "'supportsToken() external returns(bytes32){ return(keccak256(abi.encodePacked(\"Nu Token\"))); }'"
+                  },
+                  "startLine": 18,
+                  "endLine": 30
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "mistral:latest",
+            "oasisFileSimilarity": 0.5664100708204771,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "command-injection",
+          "level": "error",
+          "message": {
+            "text": "Command Injection vulnerability\n\nThe contract allows execution of user-supplied code via msg.sender.call.value(amount), which can lead to Command Injection if the Ethereum node shell (e.g., Geth or Parity) has command injection vulnerabilities.\n\nImpact: Complete system compromise, data theft, privilege escalation, or service disruption\n\nRemediation: Replace msg.sender.call.value(amount)() with a secure, parameterized function call that sanitizes and validates input."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/clean/simple_dao_fixed.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "withdraw(uint amount) public {\n  if (credit[msg.sender]>= amount) {\n    credit[msg.sender]-=amount;\n    require(msg.sender.call.value(amount)());\n  }"
+                  },
+                  "startLine": 24,
+                  "endLine": 24
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "mistral:latest",
+            "oasisFileSimilarity": 0.564482430120034,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        }
+      ],
+      "properties": {
+        "oasisReportTitle": "Command Injection Security Analysis",
+        "oasisGeneratedAt": "2026-06-11 09:44:25",
+        "oasisVulnerabilityName": "Command Injection"
+      }
+    }
+  ]
+}

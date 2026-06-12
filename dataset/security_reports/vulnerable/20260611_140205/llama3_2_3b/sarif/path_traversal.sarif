@@ -1,0 +1,180 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "OASIS",
+          "version": "0.6.1",
+          "informationUri": "https://github.com/psyray/oasis",
+          "rules": [
+            {
+              "id": "path-traversal",
+              "name": "Path Traversal",
+              "shortDescription": {
+                "text": "Vulnerabilities allowing access to files outside intended directory"
+              },
+              "fullDescription": {
+                "text": "**Path Traversal**\n\nVulnerabilities allowing access to files outside intended directory\n\n**Impact (type metadata)**\nUnauthorized access to sensitive files, configuration data, or credentials\n\n**Mitigation (type metadata)**\nValidate file paths, use allowlists, avoid using user input in file operations"
+              },
+              "helpUri": "https://github.com/psyray/oasis"
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "path-traversal",
+          "level": "error",
+          "message": {
+            "text": "Path Traversal\n\nNo input validation is performed on the `msg.data` parameter, allowing an attacker to manipulate the path traversal vulnerability.\n\nImpact: Unauthorized access to sensitive data or functions\n\nRemediation: Add input validation and sanitization for the `msg.data` parameter"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_1.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "_walletLibrary.delegatecall(msg.data);"
+                  },
+                  "startLine": 445,
+                  "endLine": 445
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6050298847620202,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "path-traversal",
+          "level": "error",
+          "message": {
+            "text": "Path Traversal\n\nUsing msg.sender.call without parameter validation allows an attacker to manipulate the function call and access files outside the intended directory.\n\nImpact: Unauthorized access to sensitive files, configuration data, or credentials\n\nRemediation: Use parameter validation and sanitization, such as msg.sender.call.value(_weiToWithdraw, {gas: 20000})"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/reentrancy/etherstore.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "require(msg.sender.call.value(_weiToWithdraw)());"
+                  },
+                  "startLine": 35,
+                  "endLine": 35
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.5940324099221925,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "path-traversal",
+          "level": "error",
+          "message": {
+            "text": "Path Traversal\n\nThe `_am` parameter is not properly sanitized, allowing an attacker to traverse parent directories and potentially access sensitive files.\n\nImpact: Unauthorized access to configuration data or credentials.\n\nRemediation: Sanitize user input with `require(_am < balances[msg.sender])` and validate its format."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/reentrancy/0xbaf51e761510c1a11bf48dd87c0307ac8a8c8a4f.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function CashOut(uint _am) public payable { if(_am<=balances[msg.sender]) { balances[msg.sender]-=_am; } }"
+                  },
+                  "startLine": 1,
+                  "endLine": 85
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.5796277371665878,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "path-traversal",
+          "level": "warning",
+          "message": {
+            "text": "Path Traversal\n\nUses msg.sender to call value(), potentially allowing a user to read files outside the intended directory.\n\nImpact: Unauthorized access to sensitive files or configuration data\n\nRemediation: Use address[] to restrict sender and ensure only authorized addresses can call the function."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/reentrancy/simple_dao.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "bool res = msg.sender.call.value(amount)();"
+                  },
+                  "startLine": 27,
+                  "endLine": 27
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.5770879423645935,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "path-traversal",
+          "level": "error",
+          "message": {
+            "text": "Path Traversal in `getOwner` function\n\nThis function allows an attacker to access files outside the intended directory by manipulating the `ownerIndex` parameter.\n\nImpact: Unauthorized access to sensitive files or configuration data\n\nRemediation: Use a validated and sanitized input to ensure the `ownerIndex` parameter is within the intended directory."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_2.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function getOwner(uint ownerIndex) external constant returns (address) {\n  return address(m_owners[ownerIndex + 1]);\n}"
+                  },
+                  "startLine": 194,
+                  "endLine": 194
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.5764886865783785,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        }
+      ],
+      "properties": {
+        "oasisReportTitle": "Path Traversal Security Analysis",
+        "oasisGeneratedAt": "2026-06-12 00:48:54",
+        "oasisVulnerabilityName": "Path Traversal"
+      }
+    }
+  ]
+}

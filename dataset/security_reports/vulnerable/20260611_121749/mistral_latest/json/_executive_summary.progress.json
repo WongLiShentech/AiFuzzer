@@ -1,0 +1,74 @@
+{
+  "report_type": "executive_summary",
+  "model": "mistral:latest",
+  "deep_model": "mistral:latest",
+  "small_model": "llama3.2:3b",
+  "embedding_model": "nomic-embed-text",
+  "progress": {
+    "completed_vulnerabilities": 0,
+    "total_vulnerabilities": 25,
+    "is_partial": true,
+    "status": "in_progress",
+    "current_vulnerability": "Authentication Issues",
+    "tested_vulnerabilities": [],
+    "updated_at": "2026-06-11T13:25:41.655Z",
+    "active_phase": "graph_pipeline",
+    "scan_mode": "graph",
+    "vulnerability_types_total": 25,
+    "phases": [
+      {
+        "id": "embeddings",
+        "label": "Embeddings",
+        "row_kind": "summary",
+        "status": "complete",
+        "completed": 14,
+        "total": 14
+      },
+      {
+        "id": "graph_discover",
+        "label": "Discover candidates",
+        "row_kind": "summary",
+        "status": "complete",
+        "completed": 25,
+        "total": 25
+      },
+      {
+        "id": "graph_chunk_scan",
+        "label": "Structured chunk scan",
+        "row_kind": "summary",
+        "status": "complete",
+        "completed": 1,
+        "total": 1
+      },
+      {
+        "id": "graph_context_expand",
+        "label": "Context expansion",
+        "row_kind": "summary",
+        "status": "complete",
+        "completed": 1,
+        "total": 1
+      },
+      {
+        "id": "graph_deep",
+        "label": "Deep analysis",
+        "row_kind": "summary",
+        "status": "in_progress",
+        "completed": 0,
+        "total": 25
+      },
+      {
+        "id": "graph_verify",
+        "label": "Verify structured output",
+        "row_kind": "summary",
+        "status": "pending",
+        "completed": 0,
+        "total": 1
+      }
+    ],
+    "event_version": 3
+  },
+  "generated_at": "2026-06-11T13:25:42.224Z",
+  "oasis_version": "0.6.1",
+  "project": "vulnerable",
+  "analysis_root": "../vulnerable"
+}

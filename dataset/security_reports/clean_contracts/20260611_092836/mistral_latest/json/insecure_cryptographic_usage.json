@@ -1,0 +1,134 @@
+{
+  "schema_version": 5,
+  "report_type": "vulnerability",
+  "title": "Insecure Cryptographic Usage Security Analysis",
+  "generated_at": "2026-06-11 09:55:35",
+  "model_name": "mistral:latest",
+  "language": "en",
+  "vulnerability_name": "Insecure Cryptographic Usage",
+  "vulnerability": {
+    "name": "Insecure Cryptographic Usage",
+    "description": "Use of weak or deprecated cryptographic algorithms or practices",
+    "patterns": [
+      "weak encryption",
+      "insecure random number generation",
+      "weak hash algorithm",
+      "MD5 usage",
+      "SHA1 usage",
+      "ECB mode encryption",
+      "static initialization vector",
+      "hardcoded encryption key",
+      "insufficient key size",
+      "broken cipher implementation",
+      "predictable random generator",
+      "insufficient entropy",
+      "math.random for cryptography",
+      "cryptographic key reuse",
+      "non-cryptographic PRNG",
+      "CBC without MAC",
+      "missing key rotation",
+      "RC4 cipher usage",
+      "DES or 3DES usage",
+      "RSA with weak padding",
+      "incorrect certificate validation",
+      "custom cryptographic algorithms",
+      "use of broken cryptographic libraries",
+      "hardcoded salt values"
+    ],
+    "impact": "Data compromise through cryptographic attacks, leading to confidentiality breaches",
+    "mitigation": "Use modern encryption standards, secure key management, and proper cryptographic implementations"
+  },
+  "files": [
+    {
+      "file_path": "/work/project/dataset/clean/modifier_reentrancy_fixed.sol",
+      "similarity_score": 0.6278751321205654,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Insecure Cryptographic Usage",
+              "vulnerable_code": "keccak256(abi.encodePacked(\"Nu Token\")) == bank.supportsToken(),",
+              "explanation": "The 'keccak256' hash function should not be used as a comparison function to validate contract interactions.",
+              "severity": "Medium",
+              "impact": "Data breaches or unauthorized function calls if the contract is compromised.",
+              "entry_point": "",
+              "execution_path_diagram": "```\ncontract -> supportsToken()\n```",
+              "http_methods": [],
+              "manipulable_parameters": [],
+              "exploitation_steps": [
+                "Compromise the contract to call `supportsToken`",
+                "Replace 'Nu Token' with a different token and return true"
+              ],
+              "example_payloads": [
+                "attacker_token"
+              ],
+              "exploitation_conditions": "A malicious actor able to compromise the contract.",
+              "remediation": "Use a secure comparison method for validation, such as '==' when comparing strings or use ECDSA keys if possible.",
+              "secure_code_example": "require(abi.encodePacked(\"Nu Token\") == abi.encodePacked(bank.supportsToken()),)",
+              "snippet_start_line": 17,
+              "snippet_end_line": 20,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 42,
+          "notes": "No other issues were found in this code chunk",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    },
+    {
+      "file_path": "/work/project/dataset/clean/simple_dao_fixed.sol",
+      "similarity_score": 0.6245472662194775,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Vulnerability found",
+              "vulnerable_code": "'pragma solidity 0.4.24;', 'function donate(address to) payable public{\n    credit[to] += msg.value;\n}', 'function withdraw(uint amount) public {\n    if (credit[msg.sender]>= amount) {\n      credit[msg.sender]-=amount;\n      require(msg.sender.call.value(amount)());\n    }\n}'",
+              "explanation": "The code uses Ethereum's Solidity language without any cryptographic algorithms or hash functions, hence there are no insecure implementations of these to analyze.",
+              "severity": "Low",
+              "impact": "No confidentiality breaches as the contract does not handle sensitive data directly.",
+              "entry_point": "Solidity contract",
+              "execution_path_diagram": "```\nSolidity Contract\n  |_\n  |_\n    Functions: donate, withdraw\n```",
+              "http_methods": [],
+              "manipulable_parameters": [],
+              "exploitation_steps": [
+                "Interact with the smart contract functions"
+              ],
+              "example_payloads": [],
+              "exploitation_conditions": "None",
+              "remediation": "Review usage of cryptographic algorithms and hash functions within the Solidity contract.",
+              "secure_code_example": "",
+              "snippet_start_line": 1,
+              "snippet_end_line": 34,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 34,
+          "notes": "No issues",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    }
+  ],
+  "stats": {
+    "files_analyzed": 2,
+    "high_risk": 0,
+    "medium_risk": 1,
+    "low_risk": 1,
+    "critical_risk": 0,
+    "total_findings": 2,
+    "potential_findings": 0
+  },
+  "analysis_root": "../clean",
+  "embed_model": "nomic-embed-text",
+  "project": "clean_contracts"
+}

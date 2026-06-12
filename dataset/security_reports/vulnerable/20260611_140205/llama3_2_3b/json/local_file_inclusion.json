@@ -1,0 +1,197 @@
+{
+  "schema_version": 5,
+  "report_type": "vulnerability",
+  "title": "Local File Inclusion Security Analysis",
+  "generated_at": "2026-06-12 00:40:06",
+  "model_name": "llama3.2:3b",
+  "language": "en",
+  "vulnerability_name": "Local File Inclusion",
+  "vulnerability": {
+    "name": "Local File Inclusion",
+    "description": "Vulnerabilities that allow inclusion of local files through web application flaws",
+    "patterns": [
+      "file inclusion with user input",
+      "include with variable path",
+      "require with user parameter",
+      "file_get_contents with user input",
+      "readfile with dynamic path",
+      "fopen with user-controlled filename",
+      "include_once with variable",
+      "require_once with parameter",
+      "file inclusion without validation",
+      "unsafe file including",
+      "dynamic file inclusion",
+      "file wrapper exploitation",
+      "php://filter usage",
+      "php://input in include",
+      "data:// wrapper usage",
+      "expect:// wrapper abuse",
+      "zip:// wrapper exploitation",
+      "phar:// deserialization attack",
+      "file inclusion via HTTP parameter",
+      "unsafe template inclusion",
+      "server-side include vulnerability",
+      "config file inclusion",
+      "log file inclusion attack",
+      "proc filesystem access",
+      "etc/passwd file access",
+      "windows system file access",
+      "application source disclosure",
+      "configuration file exposure",
+      "credentials file access"
+    ],
+    "impact": "Source code disclosure, configuration exposure, credential theft, or potential remote code execution",
+    "mitigation": "Use allowlists for file paths, avoid user input in file operations, implement proper path validation"
+  },
+  "files": [
+    {
+      "file_path": "/work/project/dataset/vulnerable/reentrancy/etherstore.sol",
+      "similarity_score": 0.6238853064410864,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Local File Inclusion",
+              "vulnerable_code": "require(msg.sender.call.value(_weiToWithdraw)());",
+              "explanation": "The require statement allows for file inclusion via the msg.sender call.",
+              "severity": "Critical",
+              "impact": "Source code disclosure and potential remote code execution",
+              "entry_point": "/withdrawFunds",
+              "execution_path_diagram": "",
+              "http_methods": [
+                "POST"
+              ],
+              "manipulable_parameters": [
+                "_weiToWithdraw"
+              ],
+              "exploitation_steps": [
+                "Submit a large value for _weiToWithdraw to cause the require statement to expand the file inclusion.",
+                "Use a malicious path in the msg.sender call to include and execute arbitrary files."
+              ],
+              "example_payloads": [
+                "_weiToWithdraw = 'open(basedir)/etc/passwd'",
+                "_weiToWithdraw = '../etc/passwd'"
+              ],
+              "exploitation_conditions": "msg.sender is authenticated.",
+              "remediation": "Use the `file inclusion` guard to validate the path before including it.",
+              "secure_code_example": "require(file.inclusion);",
+              "snippet_start_line": 35,
+              "snippet_end_line": 35,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 39,
+          "notes": "Local File Inclusion vulnerability found in the require statement.",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    },
+    {
+      "file_path": "/work/project/dataset/vulnerable/reentrancy/0xbaf51e761510c1a11bf48dd87c0307ac8a8c8a4f.sol",
+      "similarity_score": 0.6185226599687722,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Local File Inclusion",
+              "vulnerable_code": "$(_am)()",
+              "explanation": "The `call` function is vulnerable to Local File Inclusion because it executes user-provided input without proper validation or sanitization.",
+              "severity": "Critical",
+              "impact": "Potential source code disclosure, configuration exposure, and credential theft.",
+              "entry_point": "/CashOut(uint _am)",
+              "execution_path_diagram": "GET /CashOut \\u003f\\_am()\\nPOST /CashOut \\u003f\\_am()\\n",
+              "http_methods": [
+                "GET",
+                "POST"
+              ],
+              "manipulable_parameters": [
+                "_am"
+              ],
+              "exploitation_steps": [
+                "Make a request to /CashOut \\u003f\\_am() with user-controlled input"
+              ],
+              "example_payloads": [
+                "$(_am) = 'C:\\Windows\\system32\\cmd.exe'"
+              ],
+              "exploitation_conditions": "",
+              "remediation": "",
+              "secure_code_example": "",
+              "snippet_start_line": null,
+              "snippet_end_line": null,
+              "http_raw_requests": [
+                "GET /CashOut?_am=C%3A%5Cwindows%5Csystem32cmd.exe HTTP/1.1\\r\\nHost: example.com\\r\\n\\r\\n\\u003f_%7Am"
+              ]
+            }
+          ],
+          "start_line": 1,
+          "end_line": 85,
+          "notes": "",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    },
+    {
+      "file_path": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_2.sol",
+      "similarity_score": 0.5913618475112326,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Local File Inclusion",
+              "vulnerable_code": "function confirm(bytes32 _h) onlymanyowners(_h) returns (bool o_success) {\nif (m_txs[_h].to != 0 || m_txs[_h].value != 0 || m_txs[_h].data.length != 0) {\naddress created;\nif (m_txs[_h].to == 0) {\ncreated = create(m_txs[_h].value, m_txs[_h].data);\n}\nelse\n{\ncreated = _to.call.value(m_txs[_h].value)(_txs[_h].data);\n}\nMultiTransact(msg.sender, _h, m_txs[_h].value, m_txs[_h].to, m_txs[_h].data, created);\ndelete m_txs[_h];\nreturn true;\n}",
+              "explanation": "The `confirm` function uses user-controlled input `_h` to access `m_txs`, which allows for potential Local File Inclusion attacks.",
+              "severity": "Critical",
+              "impact": "Source code disclosure and configuration exposure",
+              "entry_point": "/confirm(bytes32 _h)",
+              "execution_path_diagram": "confirm(bytes32 _h) {\nif (m_txs[_h].to != 0 || m_txs[_h].value != 0 || m_txs[_h].data.length != 0) {...\n}",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "_h"
+              ],
+              "exploitation_steps": [
+                "Pass a specially crafted `_h` value to `confirm` to access sensitive files."
+              ],
+              "example_payloads": [
+                "sha3('path/to/sensitive/file')"
+              ],
+              "exploitation_conditions": "",
+              "remediation": "",
+              "secure_code_example": "",
+              "snippet_start_line": 287,
+              "snippet_end_line": 287,
+              "http_raw_requests": [
+                "GET /confirm?_h=sha3%27%2Fpath%2Fto%2Fsensitive%2Ffile HTTP/1.1\nHost: example.com\nAccept: */*\n"
+              ]
+            }
+          ],
+          "start_line": 96,
+          "end_line": 414,
+          "notes": null,
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    }
+  ],
+  "stats": {
+    "files_analyzed": 3,
+    "high_risk": 0,
+    "medium_risk": 0,
+    "low_risk": 0,
+    "critical_risk": 3,
+    "total_findings": 3,
+    "potential_findings": 0
+  },
+  "analysis_root": "../vulnerable",
+  "embed_model": "nomic-embed-text",
+  "project": "vulnerable"
+}

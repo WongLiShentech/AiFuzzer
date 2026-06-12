@@ -1,0 +1,93 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "OASIS",
+          "version": "0.6.1",
+          "informationUri": "https://github.com/psyray/oasis",
+          "rules": [
+            {
+              "id": "session-management-issues",
+              "name": "Session Management Issues",
+              "shortDescription": {
+                "text": "Problems with how user sessions are created, maintained, and terminated"
+              },
+              "fullDescription": {
+                "text": "**Session Management Issues**\n\nProblems with how user sessions are created, maintained, and terminated\n\n**Impact (type metadata)**\nAccount takeover, session hijacking, and unauthorized access to user accounts\n\n**Mitigation (type metadata)**\nImplement secure session handling, use proper timeout settings, and protect session tokens"
+              },
+              "helpUri": "https://github.com/psyray/oasis"
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "session-management-issues",
+          "level": "warning",
+          "message": {
+            "text": "Session Management Issue found\n\nThe contract's state is dependant on the user's session (tokenBalance), but there is no session timeout set.\n\nImpact: Account takeover and unauthorized access to user accounts\n\nRemediation: Implement proper timeout settings for user sessions"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/clean/modifier_reentrancy_fixed.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "`requires(tokenBalance[msg.sender] == 0); _;`"
+                  },
+                  "startLine": 1,
+                  "endLine": 42
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "mistral:latest",
+            "oasisFileSimilarity": 0.5892934489290343,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "session-management-issues",
+          "level": "warning",
+          "message": {
+            "text": "Vulnerability found\n\nThe 'withdraw' function does not check for the existence of an active session, making it susceptible to session hijacking.\n\nImpact: Account takeover and unauthorized access to user accounts\n\nRemediation: Implement secure session handling, such as checking for an active session before executing sensitive functions."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/clean/simple_dao_fixed.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function withdraw(uint amount)"
+                  },
+                  "startLine": 24,
+                  "endLine": 24
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "mistral:latest",
+            "oasisFileSimilarity": 0.5553336320722061,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        }
+      ],
+      "properties": {
+        "oasisReportTitle": "Session Management Issues Security Analysis",
+        "oasisGeneratedAt": "2026-06-11 10:42:46",
+        "oasisVulnerabilityName": "Session Management Issues"
+      }
+    }
+  ]
+}

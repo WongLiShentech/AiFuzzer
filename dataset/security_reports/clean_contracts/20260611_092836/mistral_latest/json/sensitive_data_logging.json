@@ -1,0 +1,145 @@
+{
+  "schema_version": 5,
+  "report_type": "vulnerability",
+  "title": "Sensitive Data Logging Security Analysis",
+  "generated_at": "2026-06-11 10:27:49",
+  "model_name": "mistral:latest",
+  "language": "en",
+  "vulnerability_name": "Sensitive Data Logging",
+  "vulnerability": {
+    "name": "Sensitive Data Logging",
+    "description": "Exposure of sensitive information through application logs",
+    "patterns": [
+      "sensitive data in logs",
+      "password logging",
+      "PII in logs",
+      "credit card logging",
+      "token logging",
+      "unsafe error logging",
+      "debug logging in production",
+      "authentication data in logs",
+      "session identifiers logged",
+      "biometric data logging",
+      "health information logged",
+      "authorization tokens in logs",
+      "secret keys in log output",
+      "API keys in debug logs",
+      "query parameters logged",
+      "financial data in logs",
+      "unmasked credentials in traces",
+      "personal addresses logged",
+      "log files with excessive permissions",
+      "log data without anonymization"
+    ],
+    "impact": "Disclosure of sensitive user data, credentials, or security tokens via log files",
+    "mitigation": "Filter sensitive data from logs, use proper log levels, and implement secure logging practices"
+  },
+  "files": [
+    {
+      "file_path": "/work/project/dataset/clean/mycontract_fixed.sol",
+      "similarity_score": 0.5727172951445205,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Sensitive Data Logging vulnerability found",
+              "vulnerable_code": "owner = msg.sender;",
+              "explanation": "The owner address is being logged in the contract constructor.",
+              "severity": "Medium",
+              "impact": "Disclosure of user addresses via log files.",
+              "entry_point": "Constructor of MyContract",
+              "execution_path_diagram": "```\n",
+              "http_methods": [],
+              "manipulable_parameters": [],
+              "exploitation_steps": [],
+              "example_payloads": [],
+              "exploitation_conditions": "",
+              "remediation": "",
+              "secure_code_example": "",
+              "snippet_start_line": 23,
+              "snippet_end_line": 23,
+              "http_raw_requests": []
+            },
+            {
+              "title": "No issues found",
+              "vulnerable_code": "",
+              "explanation": "The code does not contain any other sensitive data logging vulnerabilities.",
+              "severity": "Low",
+              "impact": "None",
+              "entry_point": "",
+              "execution_path_diagram": "",
+              "http_methods": [],
+              "manipulable_parameters": [],
+              "exploitation_steps": [],
+              "example_payloads": [],
+              "exploitation_conditions": "",
+              "remediation": "",
+              "secure_code_example": "",
+              "snippet_start_line": null,
+              "snippet_end_line": null,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 31,
+          "notes": "The code is a simple contract and does not involve HTTP or any manipulable parameters.",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    },
+    {
+      "file_path": "/work/project/dataset/clean/modifier_reentrancy_fixed.sol",
+      "similarity_score": 0.563859575650173,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Vulnerability found",
+              "vulnerable_code": "tokenBalance[msg.sender] += 20;",
+              "explanation": "The tokenBalance is exposed through the contract state, which is logged whenever the contract state changes.",
+              "severity": "Medium",
+              "impact": "Disclosure of sensitive user data (token balance)",
+              "entry_point": "",
+              "execution_path_diagram": "```\n         Contract\n         └─────>\n           State Change Logging\n          └─────>\n            External Audience```",
+              "http_methods": [],
+              "manipulable_parameters": [],
+              "exploitation_steps": [
+                "Interact with the contract to trigger a state change",
+                "Observe the logged state changes"
+              ],
+              "example_payloads": [],
+              "exploitation_conditions": "None",
+              "remediation": "Implement proper logging practices that filter sensitive data from logs.",
+              "secure_code_example": "// Log events without exposing user data\n  event TokenBalanceChanged(address indexed _from, uint256 newTokenBalance);\n  function airDrop() supportsToken hasNoBalance public { // In the fixed version supportsToken comes before hasNoBalance\n    tokenBalance[msg.sender] += 20;\n    emit TokenBalanceChanged(_from, tokenBalance[msg.sender]);\n  }",
+              "snippet_start_line": 22,
+              "snippet_end_line": 22,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 42,
+          "notes": "No issues other than the sensitive data logging",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    }
+  ],
+  "stats": {
+    "files_analyzed": 2,
+    "high_risk": 0,
+    "medium_risk": 2,
+    "low_risk": 1,
+    "critical_risk": 0,
+    "total_findings": 3,
+    "potential_findings": 0
+  },
+  "analysis_root": "../clean",
+  "embed_model": "nomic-embed-text",
+  "project": "clean_contracts"
+}

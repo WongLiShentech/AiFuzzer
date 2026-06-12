@@ -1,0 +1,400 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "OASIS",
+          "version": "0.6.1",
+          "informationUri": "https://github.com/psyray/oasis",
+          "rules": [
+            {
+              "id": "jwt-implementation-flaws",
+              "name": "JWT Implementation Flaws",
+              "shortDescription": {
+                "text": "Vulnerabilities in JSON Web Token implementation and validation"
+              },
+              "fullDescription": {
+                "text": "**JWT Implementation Flaws**\n\nVulnerabilities in JSON Web Token implementation and validation\n\n**Impact (type metadata)**\nAuthentication bypass, privilege escalation, session hijacking, or unauthorized access\n\n**Mitigation (type metadata)**\nUse secure JWT libraries, validate all claims, implement proper key management and expiration"
+              },
+              "helpUri": "https://github.com/psyray/oasis"
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "jwt-implementation-flaws",
+          "level": "warning",
+          "message": {
+            "text": "Insecure JWT Algorithm\n\nThe contract uses a custom algorithm for quote, which is not secure.\n\nImpact: Unauthorized access to token claims\n\nRemediation: Use secure algorithm like HS256 or RS256"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/oracle-manipulation/PuppetV2Pool.sol"
+                },
+                "region": {
+                  "startLine": 1,
+                  "endLine": 70
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6720015047797396,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "jwt-implementation-flaws",
+          "level": "warning",
+          "message": {
+            "text": "Lack of Signature Verification\n\nThe `revoke` function does not verify the signature of the message sender.\n\nImpact: Authentication bypass\n\nRemediation: Implement signature verification using `require(msg.sender)` or similar"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_1.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function revoke(bytes32 _operation) external {\n  uint ownerIndex = m_ownerIndex[uint(msg.sender)];\n  // make sure they're an owner\n  if (ownerIndex == 0) return;\n  uint ownerIndexBit = 2**ownerIndex;\n  var pending = m_pending[_operation];\n  if (pending.ownersDone & ownerIndexBit > 0) {\n    pending.yetNeeded++;\n    pending.ownersDone -= ownerIndexBit;\n    Revoke(msg.sender, _operation);\n  }\n}"
+                  },
+                  "startLine": 134,
+                  "endLine": 134
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.629125752789399,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "jwt-implementation-flaws",
+          "level": "note",
+          "message": {
+            "text": "Weak JWT Secret\n\nUsing a hardcoded secret in plaintext makes it easily accessible to attackers.\n\nImpact: Unauthorized access to the wallet"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_1.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "\"_walletLibrary = 0xcafecafecafecafecafecafecafecafecafecafe;\""
+                  },
+                  "startLine": 126,
+                  "endLine": 467
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.629125752789399,
+            "oasisChunkIndex": 1,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "jwt-implementation-flaws",
+          "level": "warning",
+          "message": {
+            "text": "No JWT signature verification\n\nThe `confirm` function does not verify the JWT signature before proceeding with the transaction.\n\nImpact: Potential session hijacking or unauthorized access"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_1.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function confirm(bytes32 _h) onlymanyowners(_h) returns (bool o_success) {\n if (m_txs[_h].to != 0 || m_txs[_h].value != 0 || m_txs[_h].data.length != 0) {\n   address created;\n   if (m_txs[_h].to == 0) {\n     created = create(m_txs[_h].value, m_txs[_h].data);\n   } else {\n     if (!m_txs[_h].to.call.value(m_txs[_h].value)(m_txs[_h].data))\n       throw;\n   }\n\n   MultiTransact(msg.sender, _h, m_txs[_h].value, m_txs[_h].to, m_txs[_h].data, created);\n   delete m_txs[_h];\n   return true;\n }"
+                  },
+                  "startLine": 281,
+                  "endLine": 281
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.629125752789399,
+            "oasisChunkIndex": 2,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "jwt-implementation-flaws",
+          "level": "warning",
+          "message": {
+            "text": "JWT Algorithm Confusion Attack\n\nThe function uses `msg.sender.call.value()` which can be confused with the `msg.sender` in a Reentrancy attack.\n\nImpact: Potential privilege escalation or session hijacking.\n\nRemediation: Use the correct signature verification and algorithm selection."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/reentrancy/etherstore.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "require(msg.sender.call.value(_weiToWithdraw)())"
+                  },
+                  "startLine": 35,
+                  "endLine": 35
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6259169101502307,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "jwt-implementation-flaws",
+          "level": "warning",
+          "message": {
+            "text": "Insecure JWT signing\n\nThe contract uses the SHA-256 algorithm without proper key management, making it vulnerable to signature confusion attacks.\n\nImpact: Potential for unauthorized access"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/reentrancy/0xbaf51e761510c1a11bf48dd87c0307ac8a8c8a4f.sol"
+                },
+                "region": {
+                  "startLine": 1,
+                  "endLine": 85
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6228367685161231,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "jwt-implementation-flaws",
+          "level": "error",
+          "message": {
+            "text": "Insecure JWT signing\n\nThe contract uses a simple SHA-256 function for JWT signing without verification.\n\nImpact: Attacker could manipulate the JWT payload to gain unauthorized access."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_2.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function execute(address _to, uint _value, bytes _data) external returns (bytes32 o_hash);\nfunction confirm(bytes32 _h) returns (bool o_success);"
+                  },
+                  "startLine": 74,
+                  "endLine": 74
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6191849134776138,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "jwt-implementation-flaws",
+          "level": "error",
+          "message": {
+            "text": "Vulnerable Signature Verification\n\nThe revoke function does not verify the operation signature, allowing an attacker to manipulate the operation hash.\n\nImpact: An attacker can bypass authentication and execute arbitrary operations.\n\nRemediation: Implement signature verification for all operations."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_2.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function revoke(bytes32 _operation) external { ... }"
+                  },
+                  "startLine": 1,
+                  "endLine": 286
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6191849134776138,
+            "oasisChunkIndex": 1,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "jwt-implementation-flaws",
+          "level": "warning",
+          "message": {
+            "text": "Lack of JWT signature verification\n\nThis function does not verify the JWT signature before confirming the transaction.\n\nImpact: A malicious attacker could spoof a valid JWT and gain unauthorized access to the contract.\n\nRemediation: Verify the JWT signature before confirming the transaction using a secure library."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_2.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function confirm(bytes32 _h) onlymanyowners(_h) returns (bool o_success) {\nif (m_txs[_h].to != 0 || m_txs[_h].value != 0 || m_txs[_h].data.length != 0) {"
+                  },
+                  "startLine": 287,
+                  "endLine": 287
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6191849134776138,
+            "oasisChunkIndex": 2,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "jwt-implementation-flaws",
+          "level": "error",
+          "message": {
+            "text": "Lack of Signature Verification\n\nThe contract does not verify the JWT signature, making it vulnerable to algorithm confusion attacks.\n\nImpact: Authentication bypass and privilege escalation"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/reentrancy/simple_dao.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "bool res = msg.sender.call.value(amount)();"
+                  },
+                  "startLine": 27,
+                  "endLine": 27
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6144605789537702,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "jwt-implementation-flaws",
+          "level": "warning",
+          "message": {
+            "text": "Lack of JWT signature verification\n\nThe contract does not verify the JWT signature, making it vulnerable to algorithm confusion attacks.\n\nImpact: Session hijacking or unauthorized access\n\nRemediation: Verify the JWT signature using a secure library or custom implementation."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/mycontract.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "require(tx.origin == owner);"
+                  },
+                  "startLine": 27,
+                  "endLine": 27
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6127884706679811,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "jwt-implementation-flaws",
+          "level": "note",
+          "message": {
+            "text": "Weak JWT signing key\n\nThe contract uses a fixed string as its secret, making it vulnerable to brute-force attacks.\n\nImpact: Unauthorized access\n\nRemediation: Use a secure random number generator to generate keys."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/ordering-attacks/odds_and_evens.sol"
+                },
+                "region": {
+                  "startLine": 1,
+                  "endLine": 61
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.5969399621234625,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "jwt-implementation-flaws",
+          "level": "error",
+          "message": {
+            "text": "Vulnerability found\n\nMissing signature verification for JWT token, allowing potential attacks.\n\nImpact: Authentication bypass or unauthorized access\n\nRemediation: Implement proper JWT signature verification using a secure library or function."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/ordering-attacks/eth_tx_order_dependence_minimal.sol"
+                },
+                "region": {
+                  "startLine": 31,
+                  "endLine": 42
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.5892880169471878,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        }
+      ],
+      "properties": {
+        "oasisReportTitle": "JWT Implementation Flaws Security Analysis",
+        "oasisGeneratedAt": "2026-06-12 00:38:27",
+        "oasisVulnerabilityName": "JWT Implementation Flaws"
+      }
+    }
+  ]
+}

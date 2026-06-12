@@ -1,0 +1,105 @@
+{
+  "schema_version": 5,
+  "report_type": "vulnerability",
+  "title": "Open Redirect Security Analysis",
+  "generated_at": "2026-06-11 10:34:31",
+  "model_name": "mistral:latest",
+  "language": "en",
+  "vulnerability_name": "Open Redirect",
+  "vulnerability": {
+    "name": "Open Redirect",
+    "description": "Vulnerabilities that allow attackers to redirect users to malicious sites",
+    "patterns": [
+      "redirect with user input",
+      "location header with parameter",
+      "response.redirect with variable",
+      "header('Location:' with user input",
+      "window.location with user parameter",
+      "unsafe URL redirection",
+      "redirect without validation",
+      "user-controlled redirect destination",
+      "HTTP redirect with external URL",
+      "302 redirect vulnerability",
+      "meta refresh with user input",
+      "javascript redirect with parameter",
+      "redirect parameter not validated",
+      "returnUrl without validation",
+      "next parameter in redirect",
+      "continue parameter unsafe usage",
+      "callback URL without validation",
+      "redirect_uri parameter abuse",
+      "unsafe referrer-based redirect",
+      "domain validation bypass",
+      "protocol validation missing",
+      "subdomain redirect vulnerability",
+      "redirect chain exploitation",
+      "redirect without allowlist",
+      "external redirect without warning",
+      "redirect parameter pollution",
+      "redirect via HTTP header injection",
+      "OAuth redirect_uri validation bypass",
+      "SAML relay state manipulation"
+    ],
+    "impact": "Phishing attacks, credential theft, malware distribution, or reputation damage",
+    "mitigation": "Validate redirect URLs against allowlists, use relative URLs, implement proper URL validation"
+  },
+  "files": [
+    {
+      "file_path": "/work/project/dataset/clean/simple_dao_fixed.sol",
+      "similarity_score": 0.6368884968003802,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Vulnerability found",
+              "vulnerable_code": "function queryCredit(address to) view public returns (uint){ return credit[to]; }",
+              "explanation": "The function `queryCredit` uses the user input `to` in the URL without proper validation, potentially allowing an attacker to redirect users to a malicious site.",
+              "severity": "Medium",
+              "impact": "Phishing attacks, credential theft, or reputation damage",
+              "entry_point": "queryCredit function",
+              "execution_path_diagram": "```\nuser -> Solidity contract -> queryCredit function (with user input) -> redirect to malicious site\n```",
+              "http_methods": [
+                "GET"
+              ],
+              "manipulable_parameters": [
+                "to"
+              ],
+              "exploitation_steps": [
+                "Provide a crafted input `to` for queryCredit function",
+                "Redirect user to malicious site through unvalidated URL"
+              ],
+              "example_payloads": [
+                "0xMaliciousSite.com"
+              ],
+              "exploitation_conditions": "None",
+              "remediation": "Validate redirect URLs against allowlists, use relative URLs, or implement proper URL validation in the contract.",
+              "secure_code_example": "function queryCredit(address to) view public returns (uint){ require(to != address(0x0)); return credit[to]; }",
+              "snippet_start_line": 12,
+              "snippet_end_line": 19,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 34,
+          "notes": null,
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    }
+  ],
+  "stats": {
+    "files_analyzed": 1,
+    "high_risk": 0,
+    "medium_risk": 1,
+    "low_risk": 0,
+    "critical_risk": 0,
+    "total_findings": 1,
+    "potential_findings": 0
+  },
+  "analysis_root": "../clean",
+  "embed_model": "nomic-embed-text",
+  "project": "clean_contracts"
+}

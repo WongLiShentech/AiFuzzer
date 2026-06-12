@@ -1,0 +1,412 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "OASIS",
+          "version": "0.6.1",
+          "informationUri": "https://github.com/psyray/oasis",
+          "rules": [
+            {
+              "id": "insecure-deserialization",
+              "name": "Insecure Deserialization",
+              "shortDescription": {
+                "text": "Vulnerabilities in the deserialization of untrusted data leading to code execution"
+              },
+              "fullDescription": {
+                "text": "**Insecure Deserialization**\n\nVulnerabilities in the deserialization of untrusted data leading to code execution\n\n**Impact (type metadata)**\nRemote code execution, privilege escalation, denial of service, or data tampering\n\n**Mitigation (type metadata)**\nUse safe deserialization methods, validate object types, implement integrity checks"
+              },
+              "helpUri": "https://github.com/psyray/oasis"
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "insecure-deserialization",
+          "level": "error",
+          "message": {
+            "text": "Insecure Deserialization\n\nThis line allows arbitrary execution of a function by a sender, as `msg.sender` could be manipulated.\n\nImpact: Remote code execution\n\nRemediation: Use safe deserialization methods, validate object types, implement integrity checks."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/reentrancy/simple_dao.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "bool res = msg.sender.call.value(amount)();"
+                  },
+                  "startLine": 27,
+                  "endLine": 27
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6901729271618813,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "insecure-deserialization",
+          "level": "warning",
+          "message": {
+            "text": "Insecure Deserialization\n\nThe `_getOracleQuote` function uses `UniswapV2Library.getReserves` with user-input `tokenB` (address(_token)), which can be manipulated to inject arbitrary data.\n\nImpact: Remote code execution\n\nRemediation: Use safe deserialization methods, such as `UniswapV2Library.getReserves` with a constant tokenB value."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/oracle-manipulation/PuppetV2Pool.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function _getOracleQuote(uint256 amount) private view returns (uint256) {\n  (uint256 reservesWETH, uint256 reservesToken) = UniswapV2Library.getReserves({factory: _uniswapFactory, tokenA: address(_weth), tokenB: address(_token)});\n  return UniswapV2Library.quote({amountA: amount * 10 ** 18, reserveA: reservesToken, reserveB: reservesWETH});\n}"
+                  },
+                  "startLine": 64,
+                  "endLine": 64
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6840048291055844,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "insecure-deserialization",
+          "level": "error",
+          "message": {
+            "text": "Insecure Deserialization\n\nUnsafely calls msg.sender's function with user-provided input (_weiToWithdraw), potentially allowing arbitrary code execution.\n\nImpact: Remote code execution and privilege escalation\n\nRemediation: Use safe deserialization methods, validate object types, and implement integrity checks."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/reentrancy/etherstore.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "require(msg.sender.call.value(_weiToWithdraw)());"
+                  },
+                  "startLine": 35,
+                  "endLine": 35
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6682637161826622,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "insecure-deserialization",
+          "level": "error",
+          "message": {
+            "text": "Vulnerable Code Snippet\n\nThe contract uses a deserialization vulnerability by directly assigning user input to a struct without proper validation.\n\nImpact: Remote code execution and potential privilege escalation.\n\nRemediation: Validate and sanitize user input before deserializing it into the struct."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/reentrancy/0xbaf51e761510c1a11bf48dd87c0307ac8a8c8a4f.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function ETH_VAULT(address _log) public {\n TransferLog = Log(_log);\n}"
+                  },
+                  "startLine": 1,
+                  "endLine": 85
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.662651694391756,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "insecure-deserialization",
+          "level": "warning",
+          "message": {
+            "text": "Insecure Deserialization\n\nThe 'confirm' function uses the '_h' parameter directly without validation or sanitization, allowing potential malicious input.\n\nImpact: Remote code execution or privilege escalation possible through crafted '_h' values.\n\nRemediation: Use secure deserialization methods like safeLoad or validate and sanitize input values before using them in the 'confirm' function"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_1.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function confirm(bytes32 _h) onlymanyowners(sha3(msg.data)) returns (bool o_success) {"
+                  },
+                  "startLine": 1,
+                  "endLine": 281
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6562337982379426,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "insecure-deserialization",
+          "level": "warning",
+          "message": {
+            "text": "Insecure Deserialization\n\nThe `confirm` function directly loads `_h` from `m_txs`, which is user-provided input.\n\nImpact: Remote code execution"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_1.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function confirm(bytes32 _h) onlymanyowners(sha3(msg.data)) returns (bool o_success) {\n  if (m_txs[_h].to != 0 || m_txs[_h].value != 0 || m_txs[_h].data.length != 0) {\n    address created;\n    if (m_txs[_h].to == 0) {\n      created = create(m_txs[_h].value, m_txs[_h].data);\n    } else\n    {\n      if (!m_txs[_h].to.call.value(m_txs[_h].value)(m_txs[_h].data))\n        throw;\n    }\n\n    MultiTransact(msg.sender, _h, m_txs[_h].value, m_txs[_h].to, m_txs[_h].data, created);\n    delete m_txs[_h];\n    return true;\n  }"
+                  },
+                  "startLine": 27,
+                  "endLine": 358
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6562337982379426,
+            "oasisChunkIndex": 1,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "insecure-deserialization",
+          "level": "error",
+          "message": {
+            "text": "Insecure Deserialization\n\nThe contract uses SHA-3 to compute a signature for its initWallet function, but does not validate the input data.\n\nImpact: Remote code execution and privilege escalation\n\nRemediation: Use safe deserialization methods and validate user input"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_1.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "bytes4 sig = bytes4(sha3(\"initWallet(address[],uint256,uint256)\")); address target = _walletLibrary; // Compute the size of the call data : arrays has 2"
+                  },
+                  "startLine": 126,
+                  "endLine": 467
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6562337982379426,
+            "oasisChunkIndex": 2,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "insecure-deserialization",
+          "level": "error",
+          "message": {
+            "text": "Insecure Deserialization\n\nThe `confirm` function uses `m_txs[_h]`, which is deserialized from user input without proper validation or sanitization.\n\nImpact: Code execution\n\nRemediation: Use safe deserialization methods, such as `require(safeLoad(data))`, to validate user input."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_1.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function confirm(bytes32 _h) onlymanyowners(_h) returns (bool o_success) {\n  if (m_txs[_h].to != 0 || m_txs[_h].value != 0 || m_txs[_h].data.length != 0) {\n    address created;\n    if (m_txs[_h].to == 0) {\n      created = create(m_txs[_h].value, m_txs[_h].data);\n    } else {\n      if (!m_txs[_h].to.call.value(m_txs[_h].value)(m_txs[_h].data))\n        throw;\n    }\n\n    MultiTransact(msg.sender, _h, m_txs[_h].value, m_txs[_h].to, m_txs[_h].data, created);\n    delete m_txs[_h];\n    return true;\n  }"
+                  },
+                  "startLine": 281,
+                  "endLine": 281
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6562337982379426,
+            "oasisChunkIndex": 3,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "insecure-deserialization",
+          "level": "error",
+          "message": {
+            "text": "Insecure Deserialization\n\nThe `execute` function deserializes user input without proper validation or sanitization.\n\nImpact: Remote code execution and potential theft of funds.\n\nRemediation: Use safe deserialization methods and validate user input"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_2.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function execute(address _to, uint _value, bytes _data) external onlyowner returns (bytes32 o_hash)"
+                  },
+                  "startLine": 249,
+                  "endLine": 249
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6467081283352827,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "insecure-deserialization",
+          "level": "warning",
+          "message": {
+            "text": "Insecure Deserialization in initWallet\n\nThe initWallet function calls initMultiowned without validating the user input\n\nImpact: Potential for arbitrary code execution or data tampering\n\nRemediation: Validate user input before passing it to initMultiowned"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_2.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function initWallet(address[] _owners, uint _required, uint _daylimit) only_uninitialized { ... }"
+                  },
+                  "startLine": 96,
+                  "endLine": 414
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6467081283352827,
+            "oasisChunkIndex": 1,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "insecure-deserialization",
+          "level": "error",
+          "message": {
+            "text": "Insecure Deserialization\n\nThe `create` function uses `mload(_code)` to load the bytecode from a variable stored in memory. This allows an attacker to control the bytecode and potentially execute arbitrary code.\n\nImpact: Remote code execution\n\nRemediation: Use secure deserialization methods, such as using a trusted library or validating user input."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_2.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function create(uint _value, bytes _code) internal returns (address o_addr) { assembly { o_addr := create(_value, add(_code, 0x20), mload(_code)) jumpi(invalidJumpLabel, iszero(extcodesize(o_addr))) } }"
+                  },
+                  "startLine": 213,
+                  "endLine": 414
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6467081283352827,
+            "oasisChunkIndex": 2,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "insecure-deserialization",
+          "level": "error",
+          "message": {
+            "text": "Insecure Deserialization\n\nUntrusted data is deserialized without proper validation or sanitization.\n\nImpact: Remote code execution and privilege escalation.\n\nRemediation: Use safe deserialization methods, validate object types, and implement integrity checks."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/ordering-attacks/odds_and_evens.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "players[tot] = Player(msg.sender, number);"
+                  },
+                  "startLine": 36,
+                  "endLine": 36
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6434804234259811,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "insecure-deserialization",
+          "level": "error",
+          "message": {
+            "text": "Insecure Deserialization\n\nDirectly deserializes `amount` from untrusted data without validation, allowing for potential code execution.\n\nImpact: Remote code execution\n\nRemediation: Use safe deserialization methods or validate object types before passing user input."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/mycontract.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "receiver.transfer(amount);"
+                  },
+                  "startLine": 28,
+                  "endLine": 28
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.598190858963004,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        }
+      ],
+      "properties": {
+        "oasisReportTitle": "Insecure Deserialization Security Analysis",
+        "oasisGeneratedAt": "2026-06-12 00:02:58",
+        "oasisVulnerabilityName": "Insecure Deserialization"
+      }
+    }
+  ]
+}

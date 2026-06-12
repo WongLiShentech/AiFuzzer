@@ -1,0 +1,185 @@
+{
+  "schema_version": 5,
+  "report_type": "vulnerability",
+  "title": "Debug Information Exposure Security Analysis",
+  "generated_at": "2026-06-11 10:07:08",
+  "model_name": "mistral:latest",
+  "language": "en",
+  "vulnerability_name": "Debug Information Exposure",
+  "vulnerability": {
+    "name": "Debug Information Exposure",
+    "description": "Vulnerabilities exposing sensitive debugging information in production environments",
+    "patterns": [
+      "debug mode enabled in production",
+      "stack trace exposure",
+      "verbose error messages",
+      "debug console accessible",
+      "development mode in production",
+      "debugging endpoints exposed",
+      "sensitive debug output",
+      "error details disclosure",
+      "debug information in responses",
+      "development tools accessible",
+      "console.log with sensitive data",
+      "print statements with secrets",
+      "debug flags not disabled",
+      "verbose logging in production",
+      "exception details exposed",
+      "source code disclosure via debug",
+      "database query exposure in errors",
+      "internal path disclosure",
+      "server configuration exposure",
+      "application version disclosure",
+      "debug headers in responses",
+      "development endpoint accessible",
+      "test functions in production",
+      "debug breakpoints in code",
+      "development comments in production",
+      "debug routes not removed",
+      "diagnostic information exposure",
+      "performance profiling data exposed",
+      "memory dump information",
+      "debug symbols not stripped",
+      "source map files accessible",
+      "webpack dev server in production",
+      "Django debug toolbar enabled",
+      "Rails development mode"
+    ],
+    "impact": "Information disclosure, internal system exposure, or aid in further attacks",
+    "mitigation": "Disable debug modes in production, remove development code, implement proper error handling"
+  },
+  "files": [
+    {
+      "file_path": "/work/project/dataset/clean/simple_dao_fixed.sol",
+      "similarity_score": 0.5807370216381913,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Vulnerability found",
+              "vulnerable_code": "withdraw(uint amount) public {\n  if (credit[msg.sender]>= amount) {\n    credit[msg.sender]-=amount;\n    require(msg.sender.call.value(amount)());\n  }",
+              "explanation": "Debugging information is exposed through the use of 'require' statement, which includes a stack trace. In this specific case, the call to the msg.sender.call.value() function will disclose that it is calling a contract function.",
+              "severity": "Medium",
+              "impact": "Information disclosure",
+              "entry_point": "withdraw function",
+              "execution_path_diagram": "```\n    1. Call withdraw(uint)\n    2. Check if credit[msg.sender] is greater than or equal to the provided amount.\n    3. Decrease the credit value of msg.sender by the amount.\n    4. Call require(msg.sender.call.value(amount)()).\n    ```",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "amount"
+              ],
+              "exploitation_steps": [
+                "Call withdraw function with an arbitrary amount",
+                "Observe the exposed stack trace"
+              ],
+              "example_payloads": [],
+              "exploitation_conditions": "An attacker should have a means to call the 'withdraw' function.",
+              "remediation": "Remove unnecessary debugging statements like 'require(msg.sender.call.value(amount)())' in production.",
+              "secure_code_example": "// In secure code\nwithdraw(uint amount) internal {\n  require(credit[msg.sender] >= amount, \"Insufficient credit to withdraw\");\n  credit[msg.sender] -= amount;\n}",
+              "snippet_start_line": 24,
+              "snippet_end_line": 24,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 34,
+          "notes": "No issues",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    },
+    {
+      "file_path": "/work/project/dataset/clean/modifier_reentrancy_fixed.sol",
+      "similarity_score": 0.5637070728258796,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Vulnerability found",
+              "vulnerable_code": "supportsToken() external returns(bytes32){ return(keccak256(abi.encodePacked(\"Nu Token\")); }",
+              "explanation": "This function call exposes a hardcoded abi.encodePacked string, potentially leaking sensitive information in production.",
+              "severity": "Medium",
+              "impact": "Information disclosure",
+              "entry_point": "supportsToken() function",
+              "execution_path_diagram": "```\n\t1. Call supportsToken()\n\t2. Function call exposes hardcoded abi.encodePacked string\n```",
+              "http_methods": [],
+              "manipulable_parameters": [],
+              "exploitation_steps": [
+                "Call supportsToken function in production"
+              ],
+              "example_payloads": [],
+              "exploitation_conditions": "Function call is made in production environment",
+              "remediation": "Remove hardcoded abi.encodePacked strings or implement proper input handling",
+              "secure_code_example": "function supportsToken() internal returns(bytes32){ return(keccak256(abi.encodePacked(_tokenName))); }",
+              "snippet_start_line": null,
+              "snippet_end_line": null,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 42,
+          "notes": "No additional issues found in this code segment",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    },
+    {
+      "file_path": "/work/project/dataset/clean/mycontract_fixed.sol",
+      "similarity_score": 0.5484729383958573,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Vulnerability found",
+              "vulnerable_code": "msg.sender == owner",
+              "explanation": "The contract is comparing msg.sender with the owner variable, exposing the caller's address in production.",
+              "severity": "Medium",
+              "impact": "Disclosure of sensitive information",
+              "entry_point": "sendTo function",
+              "execution_path_diagram": "```\nstart -> sendTo -> require(msg.sender == owner) -> expose address\n```",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "receiver",
+                "amount"
+              ],
+              "exploitation_steps": [
+                "Call the sendTo function with any valid receiver and amount"
+              ],
+              "example_payloads": [],
+              "exploitation_conditions": "",
+              "remediation": "Replace msg.sender with owner before comparing.",
+              "secure_code_example": "require(msg.sender == owner.call().addr)",
+              "snippet_start_line": 27,
+              "snippet_end_line": 27,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 31,
+          "notes": "No other vulnerabilities were found",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    }
+  ],
+  "stats": {
+    "files_analyzed": 3,
+    "high_risk": 0,
+    "medium_risk": 3,
+    "low_risk": 0,
+    "critical_risk": 0,
+    "total_findings": 3,
+    "potential_findings": 0
+  },
+  "analysis_root": "../clean",
+  "embed_model": "nomic-embed-text",
+  "project": "clean_contracts"
+}

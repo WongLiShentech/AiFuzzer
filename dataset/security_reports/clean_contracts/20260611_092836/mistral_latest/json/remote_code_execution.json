@@ -1,0 +1,139 @@
+{
+  "schema_version": 5,
+  "report_type": "vulnerability",
+  "title": "Remote Code Execution Security Analysis",
+  "generated_at": "2026-06-11 10:32:53",
+  "model_name": "mistral:latest",
+  "language": "en",
+  "vulnerability_name": "Remote Code Execution",
+  "vulnerability": {
+    "name": "Remote Code Execution",
+    "description": "Vulnerabilities allowing execution of arbitrary code",
+    "patterns": [
+      "eval with user input",
+      "exec function with variables",
+      "system call with parameters",
+      "deserialization of untrusted data",
+      "child_process.exec",
+      "os.system with variables",
+      "subprocess module with user input",
+      "template rendering with code execution",
+      "shell command injection",
+      "dynamic code evaluation",
+      "unsafe reflection",
+      "unsafe use of Runtime.exec",
+      "popen in python",
+      "ProcessBuilder in Java",
+      "unsafe pickle loading",
+      "yaml.load without safe flag",
+      "json.loads with custom decoder",
+      "unserialize in PHP",
+      "eval in JavaScript",
+      "Function constructor with input",
+      "new Function with variable",
+      "Groovy script execution",
+      "template expression evaluation",
+      "JSP expression injection",
+      "code interpolation in string",
+      "RCE through SSTI"
+    ],
+    "impact": "Complete system compromise, data theft, or service disruption",
+    "mitigation": "Avoid dangerous functions, use allowlists for commands, validate and sanitize all inputs"
+  },
+  "files": [
+    {
+      "file_path": "/work/project/dataset/clean/modifier_reentrancy_fixed.sol",
+      "similarity_score": 0.6129926127374413,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Vulnerability found",
+              "vulnerable_code": "bank = new Bank();",
+              "explanation": "The constructor instantiates a contract (Bank) from an external address without validating the code first, potentially allowing an attacker to execute arbitrary code.",
+              "severity": "High",
+              "impact": "Complete system compromise",
+              "entry_point": "Constructor",
+              "execution_path_diagram": "```\n1. Call constructor ModifierEntrancy()\n2. Create new instance of Bank contract at 0x<hash>\n3. Attacker calls a function in the Bank contract containing Remote Code Execution vulnerability\n```",
+              "http_methods": [],
+              "manipulable_parameters": [],
+              "exploitation_steps": [
+                "Call constructor ModifierEntrancy()",
+                "Interact with the instantiated Bank contract containing RCE"
+              ],
+              "example_payloads": [],
+              "exploitation_conditions": "Attacker must interact with a vulnerable instance of the Bank contract",
+              "remediation": "Validate and sanitize all inputs, use allowlists for commands, and avoid instantiating external contracts without proper authorization.",
+              "secure_code_example": "// Instantiate Bank contract using a factory with proper validation and authorization checks",
+              "snippet_start_line": 17,
+              "snippet_end_line": 17,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 42,
+          "notes": null,
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    },
+    {
+      "file_path": "/work/project/dataset/clean/simple_dao_fixed.sol",
+      "similarity_score": 0.593167052285977,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Remote Code Execution vulnerability",
+              "vulnerable_code": "require(msg.sender.call.value(amount)());",
+              "explanation": "The contract calls 'msg.sender.call.value()' function without proper input validation, allowing arbitrary code execution.",
+              "severity": "Critical",
+              "impact": "Complete system compromise",
+              "entry_point": "withdraw function",
+              "execution_path_diagram": "```\nstart => donate => withdraw => require(msg.sender.call.value(amount)()) => RCE\n```",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "amount"
+              ],
+              "exploitation_steps": [
+                "Send a transaction with a custom function call as the 'amount'",
+                "The contract executes this arbitrary code"
+              ],
+              "example_payloads": [
+                "txnData: function() { selfdestruct(address(0xdeadbeef)); }"
+              ],
+              "exploitation_conditions": "An attacker must be able to interact with the contract",
+              "remediation": "Validate and sanitize all inputs, avoid dangerous functions like 'eval' or 'require', use allowlists for commands.",
+              "secure_code_example": "// Safe withdrawal implementation\nfunction withdrawSafe(uint amount) internal {\n  require(credit[msg.sender] >= amount);\n  credit[msg.sender] -= amount;\n}",
+              "snippet_start_line": 27,
+              "snippet_end_line": 27,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 34,
+          "notes": "No additional issues found in this code segment",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    }
+  ],
+  "stats": {
+    "files_analyzed": 2,
+    "high_risk": 1,
+    "medium_risk": 0,
+    "low_risk": 0,
+    "critical_risk": 1,
+    "total_findings": 2,
+    "potential_findings": 0
+  },
+  "analysis_root": "../clean",
+  "embed_model": "nomic-embed-text",
+  "project": "clean_contracts"
+}

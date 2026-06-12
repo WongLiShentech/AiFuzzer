@@ -1,0 +1,590 @@
+{
+  "schema_version": 5,
+  "report_type": "vulnerability",
+  "title": "JWT Implementation Flaws Security Analysis",
+  "generated_at": "2026-06-12 00:38:27",
+  "model_name": "llama3.2:3b",
+  "language": "en",
+  "vulnerability_name": "JWT Implementation Flaws",
+  "vulnerability": {
+    "name": "JWT Implementation Flaws",
+    "description": "Vulnerabilities in JSON Web Token implementation and validation",
+    "patterns": [
+      "JWT without signature verification",
+      "JWT algorithm confusion attack",
+      "JWT none algorithm accepted",
+      "weak JWT signing key",
+      "JWT secret in client-side code",
+      "JWT without expiration check",
+      "JWT replay attack vulnerability",
+      "insecure JWT storage",
+      "JWT in URL parameters",
+      "JWT in localStorage",
+      "missing JWT issuer validation",
+      "JWT audience validation missing",
+      "JWT claims not validated",
+      "custom JWT implementation flaws",
+      "JWT library with known vulnerabilities",
+      "symmetric key used for asymmetric JWT",
+      "RSA JWT with weak key",
+      "ECDSA JWT vulnerability",
+      "JWT header manipulation",
+      "JWT payload tampering",
+      "JWT signature stripping",
+      "JWT timing attack vulnerability",
+      "JWT key confusion attack",
+      "JWT with critical vulnerabilities",
+      "JWT without proper entropy",
+      "JWT cross-service confusion",
+      "JWT injection vulnerability",
+      "JWT information disclosure",
+      "JWT privilege escalation",
+      "JWT session fixation",
+      "JWT refresh token issues",
+      "JWT blacklist bypass",
+      "JWT with dangerous claims"
+    ],
+    "impact": "Authentication bypass, privilege escalation, session hijacking, or unauthorized access",
+    "mitigation": "Use secure JWT libraries, validate all claims, implement proper key management and expiration"
+  },
+  "files": [
+    {
+      "file_path": "/work/project/dataset/vulnerable/oracle-manipulation/PuppetV2Pool.sol",
+      "similarity_score": 0.6720015047797396,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Insecure JWT Algorithm",
+              "vulnerable_code": "",
+              "explanation": "The contract uses a custom algorithm for quote, which is not secure.",
+              "severity": "Medium",
+              "impact": "Unauthorized access to token claims",
+              "entry_point": "/_getOracleQuote",
+              "execution_path_diagram": "",
+              "http_methods": [
+                "GET"
+              ],
+              "manipulable_parameters": [],
+              "exploitation_steps": [
+                "Get oracle quote using custom algorithm"
+              ],
+              "example_payloads": [],
+              "exploitation_conditions": "",
+              "remediation": "Use secure algorithm like HS256 or RS256",
+              "secure_code_example": "",
+              "snippet_start_line": null,
+              "snippet_end_line": null,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 70,
+          "notes": "No other JWT implementation flaws found",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    },
+    {
+      "file_path": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_1.sol",
+      "similarity_score": 0.629125752789399,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Lack of Signature Verification",
+              "vulnerable_code": "function revoke(bytes32 _operation) external {\n  uint ownerIndex = m_ownerIndex[uint(msg.sender)];\n  // make sure they're an owner\n  if (ownerIndex == 0) return;\n  uint ownerIndexBit = 2**ownerIndex;\n  var pending = m_pending[_operation];\n  if (pending.ownersDone & ownerIndexBit > 0) {\n    pending.yetNeeded++;\n    pending.ownersDone -= ownerIndexBit;\n    Revoke(msg.sender, _operation);\n  }\n}",
+              "explanation": "The `revoke` function does not verify the signature of the message sender.",
+              "severity": "Medium",
+              "impact": "Authentication bypass",
+              "entry_point": "/WalletAbi/revoke(bytes32)",
+              "execution_path_diagram": "",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "msg.sender"
+              ],
+              "exploitation_steps": [
+                "Send a revoked bytes32 value with a random signature"
+              ],
+              "example_payloads": [],
+              "exploitation_conditions": " msg.sender is an owner",
+              "remediation": "Implement signature verification using `require(msg.sender)` or similar",
+              "secure_code_example": "function revoke(bytes32 _operation) external requires(msg.sender) {\n  // ... }\n",
+              "snippet_start_line": 134,
+              "snippet_end_line": 134,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 225,
+          "notes": null,
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        },
+        {
+          "findings": [
+            {
+              "title": "Weak JWT Secret",
+              "vulnerable_code": "\"_walletLibrary = 0xcafecafecafecafecafecafecafecafecafecafe;\"",
+              "explanation": "Using a hardcoded secret in plaintext makes it easily accessible to attackers.",
+              "severity": "Low",
+              "impact": "Unauthorized access to the wallet",
+              "entry_point": "/initWallet(address[],uint256,uint256)",
+              "execution_path_diagram": "Delegatecall(msg.data, 0x0, add(argsize, 0x4), 0x0, 0x0) -> _walletLibrary.delegatecall(msg.data);",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "_walletLibrary"
+              ],
+              "exploitation_steps": [
+                "Obtain the value of `_walletLibrary` through any means."
+              ],
+              "example_payloads": [],
+              "exploitation_conditions": "",
+              "remediation": "",
+              "secure_code_example": "",
+              "snippet_start_line": null,
+              "snippet_end_line": null,
+              "http_raw_requests": [
+                "GET /initWallet(address[],uint256,uint256) HTTP/1.1",
+                "Host: example.com",
+                "Accept: application/json",
+                ""
+              ]
+            }
+          ],
+          "start_line": 126,
+          "end_line": 467,
+          "notes": null,
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        },
+        {
+          "findings": [
+            {
+              "title": "No JWT signature verification",
+              "vulnerable_code": "function confirm(bytes32 _h) onlymanyowners(_h) returns (bool o_success) {\n if (m_txs[_h].to != 0 || m_txs[_h].value != 0 || m_txs[_h].data.length != 0) {\n   address created;\n   if (m_txs[_h].to == 0) {\n     created = create(m_txs[_h].value, m_txs[_h].data);\n   } else {\n     if (!m_txs[_h].to.call.value(m_txs[_h].value)(m_txs[_h].data))\n       throw;\n   }\n\n   MultiTransact(msg.sender, _h, m_txs[_h].value, m_txs[_h].to, m_txs[_h].data, created);\n   delete m_txs[_h];\n   return true;\n }",
+              "explanation": "The `confirm` function does not verify the JWT signature before proceeding with the transaction.",
+              "severity": "Medium",
+              "impact": "Potential session hijacking or unauthorized access",
+              "entry_point": "/execute",
+              "execution_path_diagram": " confirm -> MultiTransact -> delete m_txs[_h]",
+              "http_methods": [
+                "POST"
+              ],
+              "manipulable_parameters": [
+                "_h",
+                "_to",
+                "_value",
+                "_data"
+              ],
+              "exploitation_steps": [
+                "Send a malicious JWT token to the `/execute` endpoint",
+                "Obtain the address of the target contract"
+              ],
+              "example_payloads": [
+                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaGFuIjoiMjExNDQyNzg4NCIsImV4cCI6MTYxNzU2OTg5OX0.eJxL0RnB1KgHw8sT8Dk7w=="
+              ],
+              "exploitation_conditions": "",
+              "remediation": "",
+              "secure_code_example": "",
+              "snippet_start_line": 281,
+              "snippet_end_line": 281,
+              "http_raw_requests": [
+                "POST /execute HTTP/1.1\r\nHost: example.com\r\nContent-Type: application/json\r\n\r\neyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaGFuIjoiMjExNDQyNzg4NCIsImV4cCI6MTYxNzU2OTg5OX0.eJxL0RnB1KgHw8sT8Dk7w=="
+              ]
+            }
+          ],
+          "start_line": 207,
+          "end_line": 477,
+          "notes": null,
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    },
+    {
+      "file_path": "/work/project/dataset/vulnerable/reentrancy/etherstore.sol",
+      "similarity_score": 0.6259169101502307,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "JWT Algorithm Confusion Attack",
+              "vulnerable_code": "require(msg.sender.call.value(_weiToWithdraw)())",
+              "explanation": "The function uses `msg.sender.call.value()` which can be confused with the `msg.sender` in a Reentrancy attack.",
+              "severity": "Medium",
+              "impact": "Potential privilege escalation or session hijacking.",
+              "entry_point": "withdrawFunds (uint256 _weiToWithdraw) public",
+              "execution_path_diagram": "",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "_weiToWithdraw"
+              ],
+              "exploitation_steps": [
+                "Attacker sends a call to `msg.sender` with a malicious function pointer."
+              ],
+              "example_payloads": [],
+              "exploitation_conditions": "Authenticated user",
+              "remediation": "Use the correct signature verification and algorithm selection.",
+              "secure_code_example": "require(msg.sender.call.value(_weiToWithdraw, _signature))",
+              "snippet_start_line": 35,
+              "snippet_end_line": 35,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 39,
+          "notes": "",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    },
+    {
+      "file_path": "/work/project/dataset/vulnerable/reentrancy/0xbaf51e761510c1a11bf48dd87c0307ac8a8c8a4f.sol",
+      "similarity_score": 0.6228367685161231,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Insecure JWT signing",
+              "vulnerable_code": "",
+              "explanation": "The contract uses the SHA-256 algorithm without proper key management, making it vulnerable to signature confusion attacks.",
+              "severity": "Medium",
+              "impact": "Potential for unauthorized access",
+              "entry_point": "/CashOut(uint _am)",
+              "execution_path_diagram": "```\n 1. Call \"/CashOut(uint _am)\"\n 2. Verify signature\n 3. Update balance\n```",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "_am"
+              ],
+              "exploitation_steps": [
+                "Get the contract address"
+              ],
+              "example_payloads": [],
+              "exploitation_conditions": "",
+              "remediation": "",
+              "secure_code_example": "",
+              "snippet_start_line": null,
+              "snippet_end_line": null,
+              "http_raw_requests": [
+                "POST /CashOut(uint) HTTP/1.1\r\nHost: <contract_address>\r\nContent-Type: application/json\r\n\r\n{\n  \"_am\": 10\n}\r\n"
+              ]
+            }
+          ],
+          "start_line": 1,
+          "end_line": 85,
+          "notes": null,
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    },
+    {
+      "file_path": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_2.sol",
+      "similarity_score": 0.6191849134776138,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Insecure JWT signing",
+              "vulnerable_code": "function execute(address _to, uint _value, bytes _data) external returns (bytes32 o_hash);\nfunction confirm(bytes32 _h) returns (bool o_success);",
+              "explanation": "The contract uses a simple SHA-256 function for JWT signing without verification.",
+              "severity": "High",
+              "impact": "Attacker could manipulate the JWT payload to gain unauthorized access.",
+              "entry_point": "/execute",
+              "execution_path_diagram": "execute -> confirm -> o_hash\nconfirm -> o_success",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "_data"
+              ],
+              "exploitation_steps": [
+                "Obtain a valid JWT payload"
+              ],
+              "example_payloads": [
+                "{'op': 'transfer'}\n"
+              ],
+              "exploitation_conditions": "",
+              "remediation": "",
+              "secure_code_example": "",
+              "snippet_start_line": 74,
+              "snippet_end_line": 74,
+              "http_raw_requests": [
+                "POST /execute HTTP/1.1\nHost: <address>\nContent-Length: 0\n\n"
+              ]
+            }
+          ],
+          "start_line": 1,
+          "end_line": 227,
+          "notes": null,
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        },
+        {
+          "findings": [
+            {
+              "title": "Vulnerable Signature Verification",
+              "vulnerable_code": "function revoke(bytes32 _operation) external { ... }",
+              "explanation": "The revoke function does not verify the operation signature, allowing an attacker to manipulate the operation hash.",
+              "severity": "Critical",
+              "impact": "An attacker can bypass authentication and execute arbitrary operations.",
+              "entry_point": "/revoke",
+              "execution_path_diagram": "function revoke(bytes32 _operation) { if (_operation != sha3(_msg.data)) throw; }",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "_operation"
+              ],
+              "exploitation_steps": [
+                "Manipulate the operation hash to bypass verification"
+              ],
+              "example_payloads": [
+                "sha3(' invalid ')"
+              ],
+              "exploitation_conditions": "Contract owner has access and is authenticated.",
+              "remediation": "Implement signature verification for all operations.",
+              "secure_code_example": "function revoke(bytes32 _operation) external { require(_operation == sha3(msg.data)); }",
+              "snippet_start_line": null,
+              "snippet_end_line": null,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 286,
+          "notes": null,
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        },
+        {
+          "findings": [
+            {
+              "title": "Lack of JWT signature verification",
+              "vulnerable_code": "function confirm(bytes32 _h) onlymanyowners(_h) returns (bool o_success) {\nif (m_txs[_h].to != 0 || m_txs[_h].value != 0 || m_txs[_h].data.length != 0) {",
+              "explanation": "This function does not verify the JWT signature before confirming the transaction.",
+              "severity": "Medium",
+              "impact": "A malicious attacker could spoof a valid JWT and gain unauthorized access to the contract.",
+              "entry_point": "/confirm",
+              "execution_path_diagram": " confirm() {\n  // ... (no signature verification)\n}",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "m_txs[_h].to",
+                "m_txs[_h].value",
+                "m_txs[_h].data"
+              ],
+              "exploitation_steps": [
+                "Calculate a new JWT with the same payload and header but a different signature",
+                "Send the new JWT to the contract"
+              ],
+              "example_payloads": [
+                "new JWT with spoofed signature"
+              ],
+              "exploitation_conditions": "Contract is not properly initialized or configured.",
+              "remediation": "Verify the JWT signature before confirming the transaction using a secure library.",
+              "secure_code_example": "function confirm(bytes32 _h) onlymanyowners(_h) returns (bool o_success) {\n  require(verify(_h));\n}",
+              "snippet_start_line": 287,
+              "snippet_end_line": 287,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 96,
+          "end_line": 414,
+          "notes": "",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    },
+    {
+      "file_path": "/work/project/dataset/vulnerable/reentrancy/simple_dao.sol",
+      "similarity_score": 0.6144605789537702,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Lack of Signature Verification",
+              "vulnerable_code": "bool res = msg.sender.call.value(amount)();",
+              "explanation": "The contract does not verify the JWT signature, making it vulnerable to algorithm confusion attacks.",
+              "severity": "Critical",
+              "impact": "Authentication bypass and privilege escalation",
+              "entry_point": "/withdraw(uint)",
+              "execution_path_diagram": "",
+              "http_methods": [
+                "POST"
+              ],
+              "manipulable_parameters": [],
+              "exploitation_steps": [
+                "Reconstructing the JWT header and payload to forge a valid signature"
+              ],
+              "example_payloads": [],
+              "exploitation_conditions": "",
+              "remediation": "",
+              "secure_code_example": "bool res = verifyJWT(msg.sender.call.value(amount)()) || msg.sender == owner;",
+              "snippet_start_line": 27,
+              "snippet_end_line": 27,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 35,
+          "notes": "",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    },
+    {
+      "file_path": "/work/project/dataset/vulnerable/access-control/mycontract.sol",
+      "similarity_score": 0.6127884706679811,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Lack of JWT signature verification",
+              "vulnerable_code": "require(tx.origin == owner);",
+              "explanation": "The contract does not verify the JWT signature, making it vulnerable to algorithm confusion attacks.",
+              "severity": "Medium",
+              "impact": "Session hijacking or unauthorized access",
+              "entry_point": "/sendTo",
+              "execution_path_diagram": "tx.origin == owner; receiver.transfer(amount);",
+              "http_methods": [
+                "POST"
+              ],
+              "manipulable_parameters": [
+                "amount"
+              ],
+              "exploitation_steps": [
+                "Send a malicious JWT with a different signature",
+                "Use an intermediary contract to swap the ownership"
+              ],
+              "example_payloads": [],
+              "exploitation_conditions": "tx.origin == owner",
+              "remediation": "Verify the JWT signature using a secure library or custom implementation.",
+              "secure_code_example": "require(tx.origin.verify());",
+              "snippet_start_line": 27,
+              "snippet_end_line": 27,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 31,
+          "notes": "",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    },
+    {
+      "file_path": "/work/project/dataset/vulnerable/ordering-attacks/odds_and_evens.sol",
+      "similarity_score": 0.5969399621234625,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Weak JWT signing key",
+              "vulnerable_code": "",
+              "explanation": "The contract uses a fixed string as its secret, making it vulnerable to brute-force attacks.",
+              "severity": "Low",
+              "impact": "Unauthorized access",
+              "entry_point": "/play(uint number)",
+              "execution_path_diagram": "getProfit() -> andTheWinnerIs() -> delete players; play() -> play()",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "number",
+                "msg.value"
+              ],
+              "exploitation_steps": [
+                "Get the current secret value from memory"
+              ],
+              "example_payloads": [
+                ""
+              ],
+              "exploitation_conditions": "Contract has a weak signing key",
+              "remediation": "Use a secure random number generator to generate keys.",
+              "secure_code_example": "",
+              "snippet_start_line": null,
+              "snippet_end_line": null,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 61,
+          "notes": "No other JWT Implementation Flaws issues found",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    },
+    {
+      "file_path": "/work/project/dataset/vulnerable/ordering-attacks/eth_tx_order_dependence_minimal.sol",
+      "similarity_score": 0.5892880169471878,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Vulnerability found",
+              "vulnerable_code": "",
+              "explanation": "Missing signature verification for JWT token, allowing potential attacks.",
+              "severity": "Critical",
+              "impact": "Authentication bypass or unauthorized access",
+              "entry_point": "/setReward() public payable",
+              "execution_path_diagram": "sig1 -> checkSig -> if ok -> transfer owner msg.value; else return invalid",
+              "http_methods": [
+                "POST"
+              ],
+              "manipulable_parameters": [],
+              "exploitation_steps": [
+                "Use a tool to inject a malicious signature"
+              ],
+              "example_payloads": [],
+              "exploitation_conditions": "Authenticated user can reach /setReward() with a valid token",
+              "remediation": "Implement proper JWT signature verification using a secure library or function.",
+              "secure_code_example": "",
+              "snippet_start_line": 31,
+              "snippet_end_line": 42,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 42,
+          "notes": "No other issues found",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    }
+  ],
+  "stats": {
+    "files_analyzed": 9,
+    "high_risk": 1,
+    "medium_risk": 7,
+    "low_risk": 2,
+    "critical_risk": 3,
+    "total_findings": 13,
+    "potential_findings": 0
+  },
+  "analysis_root": "../vulnerable",
+  "embed_model": "nomic-embed-text",
+  "project": "vulnerable"
+}

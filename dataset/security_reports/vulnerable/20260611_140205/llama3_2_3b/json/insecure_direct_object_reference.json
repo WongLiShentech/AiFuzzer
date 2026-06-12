@@ -1,0 +1,651 @@
+{
+  "schema_version": 5,
+  "report_type": "vulnerability",
+  "title": "Insecure Direct Object Reference Security Analysis",
+  "generated_at": "2026-06-12 00:12:54",
+  "model_name": "llama3.2:3b",
+  "language": "en",
+  "vulnerability_name": "Insecure Direct Object Reference",
+  "vulnerability": {
+    "name": "Insecure Direct Object Reference",
+    "description": "Vulnerabilities exposing direct references to internal objects",
+    "patterns": [
+      "user ID in URL parameters",
+      "missing access control checks",
+      "direct object reference in request",
+      "lack of authorization validation",
+      "resource ID manipulation vulnerability",
+      "authorization bypass risk",
+      "direct reference to database records",
+      "object level authorization missing",
+      "unsafe parameter handling",
+      "insufficient permission checking",
+      "horizontal privilege escalation risk",
+      "account enumeration vulnerability",
+      "numeric identifier manipulation",
+      "UUID predictability issue",
+      "missing row-level security",
+      "incremental reference exploitation",
+      "API endpoint without ownership check",
+      "user data access without verification",
+      "mass assignment vulnerability",
+      "blind IDOR vulnerability",
+      "parameter tampering vulnerability",
+      "access control matrix missing",
+      "insufficient object property filtering",
+      "user impersonation through reference",
+      "cross-tenant data access"
+    ],
+    "impact": "Unauthorized access to data, privilege escalation, or data theft",
+    "mitigation": "Implement proper access controls, use indirect references, validate user authorization"
+  },
+  "files": [
+    {
+      "file_path": "/work/project/dataset/vulnerable/oracle-manipulation/PuppetV2Pool.sol",
+      "similarity_score": 0.7179003455796759,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Insecure Direct Object Reference",
+              "vulnerable_code": "function borrow(uint256 borrowAmount) external {\n  // ...\n  deposits[msg.sender] += amount;\n}\n\nfunction calculateDepositOfWETHRequired(uint256 tokenAmount) public view returns (uint256) {\n  return _getOracleQuote(tokenAmount) * depositFactor / 1 ether;\n}",
+              "explanation": "The `deposits` mapping directly references the user's address, allowing an attacker to manipulate it and gain unauthorized access.",
+              "severity": "Medium",
+              "impact": "Unauthorized access to deposits mapping",
+              "entry_point": "/borrow(uint256)",
+              "execution_path_diagram": " borrow -> calculateDepositOfWETHRequired -> deposits[msg.sender] += amount; \n deposit -> borrow",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "msg.sender"
+              ],
+              "exploitation_steps": [
+                "Manipulate the `deposits` mapping to gain unauthorized access"
+              ],
+              "example_payloads": [],
+              "exploitation_conditions": "User has write access to the contract",
+              "remediation": "Use a indirect reference to the deposits mapping, such as a unique identifier or a derived value.",
+              "secure_code_example": "",
+              "snippet_start_line": 43,
+              "snippet_end_line": 43,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 70,
+          "notes": "Direct object reference in the `deposits` mapping allows manipulation",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    },
+    {
+      "file_path": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_1.sol",
+      "similarity_score": 0.682344063164602,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Insecure Direct Object Reference",
+              "vulnerable_code": "function revoke(bytes32 _operation) external { ... }",
+              "explanation": "The function 'revoke' does not validate its input parameter '_operation', making it vulnerable to direct object reference attacks.",
+              "severity": "Critical",
+              "impact": "Unauthorized access to wallet data",
+              "entry_point": "/Wallet/Abi/revoke",
+              "execution_path_diagram": "Revoke -> Get Owner Index -> Update Pending State -> Emit Revoke Event",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "_operation"
+              ],
+              "exploitation_steps": [
+                "Send a fake operation hash to the 'revoke' function"
+              ],
+              "example_payloads": [
+                "0x1234567890abcdef"
+              ],
+              "exploitation_conditions": "The '_operation' parameter is not validated.",
+              "remediation": "Validate the input parameter '_operation' before passing it to the 'revoke' function",
+              "secure_code_example": "function revoke(bytes32 _operation) external { require(msg.sender == ownerOf(_operation)); ... }",
+              "snippet_start_line": null,
+              "snippet_end_line": null,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 281,
+          "notes": null,
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        },
+        {
+          "findings": [
+            {
+              "title": "Vulnerability found",
+              "vulnerable_code": "function revoke(bytes32 _operation) external { ... }",
+              "explanation": "Direct object reference vulnerability: `_operation` is directly referenced without proper validation or access control checks.",
+              "severity": "High",
+              "impact": "Unauthorized access to operation data",
+              "entry_point": "/revoke",
+              "execution_path_diagram": "",
+              "http_methods": [
+                "POST"
+              ],
+              "manipulable_parameters": [
+                "_operation"
+              ],
+              "exploitation_steps": [
+                "Send a request with a malicious _operation value"
+              ],
+              "example_payloads": [
+                "\u0000\u0001"
+              ],
+              "exploitation_conditions": "User has permission to revoke operations.",
+              "remediation": "Use indirect references or validation checks for operation parameters",
+              "secure_code_example": "function revoke(bytes32 _hash) external { ... }",
+              "snippet_start_line": null,
+              "snippet_end_line": null,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 27,
+          "end_line": 358,
+          "notes": null,
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        },
+        {
+          "findings": [
+            {
+              "title": "Insecure Direct Object Reference",
+              "vulnerable_code": "function execute(address _to, uint _value, bytes _data) external onlyowner returns (bytes32 o_hash) {\n  // ...",
+              "explanation": "The `_to`, `_value`, and `_data` parameters are directly referenced in the function call without proper validation or sanitization.",
+              "severity": "High",
+              "impact": "Unauthorized access to data, privilege escalation, or data theft",
+              "entry_point": "execute(address _to, uint _value, bytes _data)",
+              "execution_path_diagram": "",
+              "http_methods": [],
+              "manipulable_parameters": [],
+              "exploitation_steps": [],
+              "example_payloads": [],
+              "exploitation_conditions": "",
+              "remediation": "",
+              "secure_code_example": "",
+              "snippet_start_line": 245,
+              "snippet_end_line": 245,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 72,
+          "end_line": 421,
+          "notes": null,
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        },
+        {
+          "findings": [
+            {
+              "title": "Vulnerability found",
+              "vulnerable_code": "function getOwner(uint ownerIndex) external constant returns (address) {\n  return address(m_owners[ownerIndex + 1]);\n}",
+              "explanation": "Direct object reference in `getOwner` function allows an attacker to access any owner without proper authorization.",
+              "severity": "Medium",
+              "impact": "An attacker can potentially impersonate a legitimate owner and perform unauthorized actions.",
+              "entry_point": "/getOwner(uint)",
+              "execution_path_diagram": "GET /getOwner(ownerIndex) -> m_owners[ownerIndex + 1] -> address()",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "ownerIndex"
+              ],
+              "exploitation_steps": [
+                "Find a way to manipulate `ownerIndex`",
+                "Use the manipulated value to access any owner"
+              ],
+              "example_payloads": [
+                "0"
+              ],
+              "exploitation_conditions": "Access to `m_owners` array without proper authorization.",
+              "remediation": "Validate and sanitize user input before using it as an index into `m_owners`",
+              "secure_code_example": "uint ownerIndex = uint(msg.sender);\nreturn address(m_owners[ownerIndex + 1]);",
+              "snippet_start_line": 194,
+              "snippet_end_line": 194,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 126,
+          "end_line": 467,
+          "notes": null,
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        },
+        {
+          "findings": [
+            {
+              "title": "Insecure Direct Object Reference",
+              "vulnerable_code": "uint ownerIndex = m_ownerIndex[uint(msg.sender)];\nreturn !(pending.ownersDone & ownerIndexBit == 0);",
+              "explanation": "The use of `m_ownerIndex[uint(msg.sender)]` without proper validation allows an attacker to manipulate the owner index and access unauthorized data.",
+              "severity": "High",
+              "impact": "Unauthorized access to data or privilege escalation",
+              "entry_point": "execute",
+              "execution_path_diagram": "execute -> confirmAndCheck -> m_ownerIndex[uint(msg.sender)]\nexecute -> hasConfirmed\nconfirmAndCheck",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "msg.sender"
+              ],
+              "exploitation_steps": [
+                "Manipulate the owner index to access unauthorized data"
+              ],
+              "example_payloads": [
+                " attacker controlled msg.sender index"
+              ],
+              "exploitation_conditions": "Owner index is directly accessible",
+              "remediation": "Validate and sanitize user input before accessing owner indices.",
+              "secure_code_example": "uint ownerIndex = uint(msg.sender) ? 0 : m_ownerIndex[uint(msg.sender)];\nreturn !(pending.ownersDone & ownerIndexBit == 0);",
+              "snippet_start_line": 301,
+              "snippet_end_line": 301,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 207,
+          "end_line": 477,
+          "notes": "None",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    },
+    {
+      "file_path": "/work/project/dataset/vulnerable/reentrancy/simple_dao.sol",
+      "similarity_score": 0.6783357955512727,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Insecure Direct Object Reference",
+              "vulnerable_code": "function withdraw(uint amount) {\n  if (credit[msg.sender] >= amount) {\n    bool res = msg.sender.call.value(amount)();\n    credit[msg.sender] -= amount;\n  }\n}",
+              "explanation": "The contract uses `msg.sender.call.value(amount)()` without proper access control checks, allowing an attacker to manipulate the `to` parameter and gain unauthorized access.",
+              "severity": "High",
+              "impact": "Unauthorized transfer of funds",
+              "entry_point": "/withdraw",
+              "execution_path_diagram": "",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "amount"
+              ],
+              "exploitation_steps": [
+                "An attacker can manipulate the `to` parameter in the `withdraw` function call to steal funds."
+              ],
+              "example_payloads": [
+                "malicious_address"
+              ],
+              "exploitation_conditions": "Authenticated user with high balance.",
+              "remediation": "Use a validated ID or a whitelist of approved addresses for transfers.",
+              "secure_code_example": "function withdraw(uint amount, address to) {\n  require(to != address(0), \"Invalid recipient address\");\n  if (credit[msg.sender] >= amount) {\n    credit[to] += amount;\n  }\n}",
+              "snippet_start_line": 24,
+              "snippet_end_line": 24,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 35,
+          "notes": "The contract uses a mapping of addresses to balances, which can be exploited by manipulating the `to` parameter.",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    },
+    {
+      "file_path": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_2.sol",
+      "similarity_score": 0.6588814312189141,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Insecure Direct Object Reference",
+              "vulnerable_code": "function revoke(bytes32 _operation) external { uint ownerIndex = m_ownerIndex[uint(msg.sender)]; var pending = m_pending[_operation]; if (pending.ownersDone & ownerIndex > 0) { pending.yetNeeded++; pending.ownersDone -= ownerIndex; Revoke(msg.sender, _operation); } }",
+              "explanation": "The `revoke` function directly accesses the `_operation` parameter without validation or sanitization, allowing an attacker to manipulate the operation ID to revoke a different owner's confirmation.",
+              "severity": "Critical",
+              "impact": "Unauthorized access to data and potential privilege escalation",
+              "entry_point": "WalletAbi.revoke(bytes32 _operation)",
+              "execution_path_diagram": "",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "_operation"
+              ],
+              "exploitation_steps": [
+                "Send a revoke request for an operation ID that is not owned by the current sender.",
+                "Observe the revocation of another owner's confirmation."
+              ],
+              "example_payloads": [
+                "Revoke a confirmation for operation 'foo' owned by user2"
+              ],
+              "exploitation_conditions": "Access to operations owned by other users",
+              "remediation": "Validate and sanitize the `_operation` parameter using a whitelist or other security measure.",
+              "secure_code_example": "function revoke(bytes32 _operation) external { require(_operation in approvedOperations); // validated operation ID }",
+              "snippet_start_line": null,
+              "snippet_end_line": null,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 227,
+          "notes": "",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        },
+        {
+          "findings": [
+            {
+              "title": "Vulnerability found",
+              "vulnerable_code": "function revoke(bytes32 _operation) external { uint ownerIndex = m_ownerIndex[uint(msg.sender)]; // make sure they're an owner if (ownerIndex == 0) return; uint ownerIndexBit = 2**ownerIndex; var pending = m_pending[_operation]; if (pending.ownersDone & ownerIndexBit > 0) { pending.yetNeeded++; pending.ownersDone -= ownerIndexBit; Revoke(msg.sender, _operation); } }",
+              "explanation": "Direct object reference vulnerability due to hardcoding the `msg.sender` value in the `_ownerIndex` calculation without proper validation or access control checks.",
+              "severity": "High",
+              "impact": "Unauthorized access to wallet functionality and potential privilege escalation.",
+              "entry_point": "revoke(bytes32 _operation) external",
+              "execution_path_diagram": "```\n 1. revoke(bytes32 _operation) external \n    - gets called when no other function matches\n    - uses m_ownerIndex[uint(msg.sender)] to determine owner index\n    - if ownerIndex == 0, returns without executing anything\n    - otherwise, updates pending state and emits Revoke event\n 2. update pending state and emit Revoke event\n```",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "_operation",
+                "msg.sender"
+              ],
+              "exploitation_steps": [
+                "Find a way to manipulate the `_operation` parameter to bypass access control checks"
+              ],
+              "example_payloads": [
+                " sha3('example_operation')"
+              ],
+              "exploitation_conditions": "Owner is not authenticated or authorized.",
+              "remediation": "Use indirect references and proper access control checks to validate `msg.sender` and `_operation` parameters.",
+              "secure_code_example": "",
+              "snippet_start_line": null,
+              "snippet_end_line": null,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 286,
+          "notes": null,
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        },
+        {
+          "findings": [
+            {
+              "title": "Insecure Direct Object Reference",
+              "vulnerable_code": "function revoke(bytes32 _operation) external {\n  uint ownerIndex = m_ownerIndex[uint(msg.sender)];\n  // ...",
+              "explanation": "The `_ownerIndex` variable is directly computed from the message sender's address, making it vulnerable to an Insecure Direct Object Reference attack.",
+              "severity": "High",
+              "impact": "Unauthorized access to pending operations",
+              "entry_point": "/revoke",
+              "execution_path_diagram": "revoke(bytes32 _operation) -> calculate ownerIndex from msg.sender -> revoke(msg.sender, _operation)",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "msg.sender"
+              ],
+              "exploitation_steps": [
+                "Get current owner index for msg.sender",
+                "Use the owner index to access pending operations"
+              ],
+              "example_payloads": [],
+              "exploitation_conditions": "Attacker can access ownerIndex using msg.sender's address.",
+              "remediation": "Validate and sanitize user input, or use indirect references to access internal data.",
+              "secure_code_example": "uint ownerIndex = _ownerIndex(uint(msg.sender));\nif (ownerIndex > 0) {\n  // ...}",
+              "snippet_start_line": 134,
+              "snippet_end_line": 134,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 96,
+          "end_line": 414,
+          "notes": null,
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    },
+    {
+      "file_path": "/work/project/dataset/vulnerable/reentrancy/etherstore.sol",
+      "similarity_score": 0.6539800119357385,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Insecure Direct Object Reference",
+              "vulnerable_code": "require(msg.sender.call.value(_weiToWithdraw)());",
+              "explanation": "The function call allows an attacker to manipulate the msg.sender, potentially bypassing access controls.",
+              "severity": "Critical",
+              "impact": "Unauthorized access to funds and potential privilege escalation.",
+              "entry_point": "withdrawFunds(uint256 _weiToWithdraw) public",
+              "execution_path_diagram": "",
+              "http_methods": [
+                "POST"
+              ],
+              "manipulable_parameters": [
+                "_weiToWithdraw",
+                "msg.sender"
+              ],
+              "exploitation_steps": [
+                "An attacker sends a withdrawal request with the attacker's address as msg.sender.",
+                "The contract calls msg.sender.call.value(_weiToWithdraw)()."
+              ],
+              "example_payloads": [
+                "100 ether"
+              ],
+              "exploitation_conditions": "An authenticated attacker can reach the withdrawFunds function.",
+              "remediation": "Use indirect references to external functions and validate user authorization.",
+              "secure_code_example": "",
+              "snippet_start_line": 35,
+              "snippet_end_line": 35,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 39,
+          "notes": "No other Insecure Direct Object Reference vulnerabilities found in this code snippet.",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    },
+    {
+      "file_path": "/work/project/dataset/vulnerable/access-control/mycontract.sol",
+      "similarity_score": 0.6477313315669924,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Insecure Direct Object Reference",
+              "vulnerable_code": "receiver.transfer(amount);",
+              "explanation": "tx.origin is directly used without proper access control checks.",
+              "severity": "High",
+              "impact": "Unauthorized transfer of funds to malicious recipients.",
+              "entry_point": "/transfer",
+              "execution_path_diagram": "",
+              "http_methods": [
+                "POST"
+              ],
+              "manipulable_parameters": [
+                "amount",
+                "receiver"
+              ],
+              "exploitation_steps": [
+                "Send fake tx.origin from an intermediary contract"
+              ],
+              "example_payloads": [],
+              "exploitation_conditions": "",
+              "remediation": "",
+              "secure_code_example": "",
+              "snippet_start_line": 28,
+              "snippet_end_line": 28,
+              "http_raw_requests": [
+                "POST /transfer HTTP/1.1\r\nHost: 0x1234567890123456789012345678901234567890\r\nContent-Length: 0\r\n\r\n"
+              ]
+            }
+          ],
+          "start_line": 1,
+          "end_line": 31,
+          "notes": "Direct tx.origin usage is insecure.",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    },
+    {
+      "file_path": "/work/project/dataset/vulnerable/reentrancy/0xbaf51e761510c1a11bf48dd87c0307ac8a8c8a4f.sol",
+      "similarity_score": 0.6445567174685496,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Insecure Direct Object Reference",
+              "vulnerable_code": "function ETH_VAULT(address _log) public { TransferLog = Log(_log); }",
+              "explanation": "Direct object reference vulnerability in the function `ETH_VAULT` where `_log` is not validated.",
+              "severity": "Critical",
+              "impact": "Unauthorized access to internal objects",
+              "entry_point": "/transfer",
+              "execution_path_diagram": "",
+              "http_methods": [
+                "POST"
+              ],
+              "manipulable_parameters": [],
+              "exploitation_steps": [
+                "Attackers can execute arbitrary code by manipulating the `_log` address."
+              ],
+              "example_payloads": [
+                "`logAddress: 0x1234567890123456789012345678901234567890'`"
+              ],
+              "exploitation_conditions": "",
+              "remediation": "",
+              "secure_code_example": "",
+              "snippet_start_line": null,
+              "snippet_end_line": null,
+              "http_raw_requests": [
+                "POST /transfer HTTP/1.1\nHost: example.com\nContent-Length: 70\n\nlogAddress: 0x1234567890123456789012345678901234567890'"
+              ]
+            }
+          ],
+          "start_line": 1,
+          "end_line": 85,
+          "notes": null,
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    },
+    {
+      "file_path": "/work/project/dataset/vulnerable/ordering-attacks/eth_tx_order_dependence_minimal.sol",
+      "similarity_score": 0.6085617191649227,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Vulnerability found",
+              "vulnerable_code": "require(msg.sender == owner); owner.transfer(reward);",
+              "explanation": "Direct object reference: msg.sender is used to access the owner's address without proper validation.",
+              "severity": "High",
+              "impact": "Privilege escalation and unauthorized data transfer",
+              "entry_point": "/setReward()",
+              "execution_path_diagram": "",
+              "http_methods": [
+                "POST"
+              ],
+              "manipulable_parameters": [
+                "msg.value",
+                "reward"
+              ],
+              "exploitation_steps": [
+                "Repeating the function with a crafted msg.value to bypass owner check"
+              ],
+              "example_payloads": [
+                "large amount of Ether"
+              ],
+              "exploitation_conditions": "Authenticated sender can transfer reward.",
+              "remediation": "Use indirect references (e.g., keccak256(msg.sender)) and validate user authorization.",
+              "secure_code_example": "",
+              "snippet_start_line": null,
+              "snippet_end_line": null,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 42,
+          "notes": null,
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    },
+    {
+      "file_path": "/work/project/dataset/vulnerable/ordering-attacks/odds_and_evens.sol",
+      "similarity_score": 0.5808831595082337,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Insecure Direct Object Reference",
+              "vulnerable_code": "players[tot] = Player(msg.sender, number);",
+              "explanation": "Direct reference to internal object 'players' without proper access controls.",
+              "severity": "Critical",
+              "impact": "Unauthorized access to data and potential privilege escalation.",
+              "entry_point": "play(uint number) payable",
+              "execution_path_diagram": "play -> players[tot] = Player(msg.sender, number); -> andTheWinnerIs() -> transfer",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "number",
+                "msg.sender"
+              ],
+              "exploitation_steps": [
+                "Attacker manipulates 'tot' to gain access to any player's data."
+              ],
+              "example_payloads": [],
+              "exploitation_conditions": "Attacker can reach play function with a crafted 'number'.",
+              "remediation": "Validate and sanitize user input before accessing internal objects.",
+              "secure_code_example": "players[tot] = Player(msg.sender, number); if (msg.value == 1 ether) { ... }",
+              "snippet_start_line": 36,
+              "snippet_end_line": 36,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 61,
+          "notes": "No other potential Insecure Direct Object Reference vulnerabilities found.",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    }
+  ],
+  "stats": {
+    "files_analyzed": 9,
+    "high_risk": 8,
+    "medium_risk": 2,
+    "low_risk": 0,
+    "critical_risk": 5,
+    "total_findings": 15,
+    "potential_findings": 0
+  },
+  "analysis_root": "../vulnerable",
+  "embed_model": "nomic-embed-text",
+  "project": "vulnerable"
+}

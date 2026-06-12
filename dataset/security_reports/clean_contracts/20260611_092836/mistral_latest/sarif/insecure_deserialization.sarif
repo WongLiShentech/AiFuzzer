@@ -1,0 +1,122 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "OASIS",
+          "version": "0.6.1",
+          "informationUri": "https://github.com/psyray/oasis",
+          "rules": [
+            {
+              "id": "insecure-deserialization",
+              "name": "Insecure Deserialization",
+              "shortDescription": {
+                "text": "Vulnerabilities in the deserialization of untrusted data leading to code execution"
+              },
+              "fullDescription": {
+                "text": "**Insecure Deserialization**\n\nVulnerabilities in the deserialization of untrusted data leading to code execution\n\n**Impact (type metadata)**\nRemote code execution, privilege escalation, denial of service, or data tampering\n\n**Mitigation (type metadata)**\nUse safe deserialization methods, validate object types, implement integrity checks"
+              },
+              "helpUri": "https://github.com/psyray/oasis"
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "insecure-deserialization",
+          "level": "warning",
+          "message": {
+            "text": "Vulnerability found\n\nThe use of `msg.sender.call` can lead to deserialization vulnerabilities if the sender's contract is malicious and contains code that can manipulate data.\n\nImpact: Denial of Service, Data tampering\n\nRemediation: Implement safe deserialization methods or validate object types when handling user input."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/clean/simple_dao_fixed.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "credit[msg.sender]-=amount; require(msg.sender.call.value(amount)());"
+                  },
+                  "startLine": 1,
+                  "endLine": 34
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "mistral:latest",
+            "oasisFileSimilarity": 0.6467311935332846,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "insecure-deserialization",
+          "level": "warning",
+          "message": {
+            "text": "Vulnerability found\n\nFunction deserializes user input (keccak256(abi.encodePacked(\"Nu Token\"))) without validation, making it vulnerable to Insecure Deserialization.\n\nImpact: Arbitrary code execution or data tampering\n\nRemediation: Validate user input before deserializing, or use a safe deserialization method."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/clean/modifier_reentrancy_fixed.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function supportsToken() external returns(bytes32){ return(keccak256(abi.encodePacked(\"Nu Token\"))); }"
+                  },
+                  "startLine": 19,
+                  "endLine": 25
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "mistral:latest",
+            "oasisFileSimilarity": 0.645726847601478,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "insecure-deserialization",
+          "level": "note",
+          "message": {
+            "text": "Vulnerability found\n\nThe contract does not handle user input, so it does not have an insecure deserialization vulnerability.\n\nImpact: None (contract does not accept or deserialize user data)\n\nRemediation: None (contract does not accept or deserialize user data)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/clean/mycontract_fixed.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "none"
+                  },
+                  "startLine": 3,
+                  "endLine": 3
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "mistral:latest",
+            "oasisFileSimilarity": 0.5971554365203597,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        }
+      ],
+      "properties": {
+        "oasisReportTitle": "Insecure Deserialization Security Analysis",
+        "oasisGeneratedAt": "2026-06-11 10:12:05",
+        "oasisVulnerabilityName": "Insecure Deserialization"
+      }
+    }
+  ]
+}

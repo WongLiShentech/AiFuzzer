@@ -1,0 +1,496 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "OASIS",
+          "version": "0.6.1",
+          "informationUri": "https://github.com/psyray/oasis",
+          "rules": [
+            {
+              "id": "insecure-cryptographic-usage",
+              "name": "Insecure Cryptographic Usage",
+              "shortDescription": {
+                "text": "Use of weak or deprecated cryptographic algorithms or practices"
+              },
+              "fullDescription": {
+                "text": "**Insecure Cryptographic Usage**\n\nUse of weak or deprecated cryptographic algorithms or practices\n\n**Impact (type metadata)**\nData compromise through cryptographic attacks, leading to confidentiality breaches\n\n**Mitigation (type metadata)**\nUse modern encryption standards, secure key management, and proper cryptographic implementations"
+              },
+              "helpUri": "https://github.com/psyray/oasis"
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "insecure-cryptographic-usage",
+          "level": "note",
+          "message": {
+            "text": "Insecure SHA1 Usage\n\nUsing SHA1 for message integrity is insecure. Modern applications should use more secure algorithms like SHA256 or BLAKE2.\n\nImpact: Potential message tampering attacks using SHA1 collision flaws\n\nRemediation: Use SHA256 or BLAKE2 instead of SHA1 for message integrity"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/oracle-manipulation/PuppetV2Pool.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function _getOracleQuote(uint256 amount) private view returns (uint256) {\n  (uint256 reservesWETH, uint256 reservesToken) = UniswapV2Library.getReserves({factory: _uniswapFactory, tokenA: address(_weth), tokenB: address(_token)});\n  return UniswapV2Library.quote({amountA: amount * 10 ** 18, reserveA: reservesToken, reserveB: reservesWETH});\n}"
+                  },
+                  "startLine": 64,
+                  "endLine": 64
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6646336623183162,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "insecure-cryptographic-usage",
+          "level": "note",
+          "message": {
+            "text": "Weak Hash Algorithm\n\nsha3() is a weak hash algorithm that can be vulnerable to collisions.\n\nImpact: Potential for successful hash collision attacks.\n\nRemediation: Use a stronger hash function like Keccak-256 or BLAKE2b."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/ordering-attacks/FindThisHash.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "require(hash == sha3(solution));"
+                  },
+                  "startLine": 25,
+                  "endLine": 25
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6504511904502943,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "insecure-cryptographic-usage",
+          "level": "error",
+          "message": {
+            "text": "Insecure Hash Algorithm\n\nUsing SHA1 is deprecated and considered insecure.\n\nImpact: Data compromise through collision attacks\n\nRemediation: Use a secure hash algorithm like SHA256 or Argon2"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/reentrancy/etherstore.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "require(balances[msg.sender] >= _weiToWithdraw) && require(msg.sender.call.value(_weiToWithdraw)());"
+                  },
+                  "startLine": 1,
+                  "endLine": 39
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6432781881037576,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "insecure-cryptographic-usage",
+          "level": "error",
+          "message": {
+            "text": "SHA1 Usage\n\nUsing SHA1 for cryptographic purposes is insecure.\n\nImpact: Potential for forging transactions.\n\nRemediation: Use a secure hash function like SHA-256."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/reentrancy/simple_dao.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function withdraw(uint amount) {\n  if (credit[msg.sender] >= amount) {\n    bool res = msg.sender.call.value(amount)(\"SHA-256 hash\");\n    credit[msg.sender] -= amount;\n  }\n}"
+                  },
+                  "startLine": 24,
+                  "endLine": 24
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.64050079340143,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "insecure-cryptographic-usage",
+          "level": "error",
+          "message": {
+            "text": "Vulnerability found\n\nThe use of `msg.sender.call.value(_am)` is vulnerable to reentrancy attacks because it allows an attacker to drain the contract's funds by repeatedly calling `CashOut` and then cancelling the transaction before the previous one is processed.\n\nImpact: Draining of funds from the contract\n\nRemediation: Use a reentrancy protection mechanism such as a modifier that checks for and prevents reentrancy."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/reentrancy/0xbaf51e761510c1a11bf48dd87c0307ac8a8c8a4f.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function CashOut(uint _am) public payable { if(_am<=balances[msg.sender]) { // <yes> <report> REENTRANCY if(msg.sender.call.value(_am)()) { ... } } }"
+                  },
+                  "startLine": 1,
+                  "endLine": 85
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6298501756465343,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "insecure-cryptographic-usage",
+          "level": "warning",
+          "message": {
+            "text": "Weak Hash Algorithm\n\nThe use of sha3() without a secure salt or iteration is weak and vulnerable to collisions.\n\nImpact: An attacker could potentially calculate the hash using brute force and cause the wallet to incorrectly determine its required signatures.\n\nRemediation: Use a secure hash algorithm like Keccak-256 and provide a salt and iteration count to prevent collisions."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_1.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "event RequirementChanged(uint newRequirement) onlymanyowners(sha3(msg.data)) external {\n  if (newRequirement > m_numOwners) return;\n  m_required = newRequirement;\n  clearPending();\n  RequirementChanged(newRequired);\n}"
+                  },
+                  "startLine": 1,
+                  "endLine": 320
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6164164018877265,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "insecure-cryptographic-usage",
+          "level": "warning",
+          "message": {
+            "text": "Weak SHA3 Usage\n\nUsing SHA3 without specifying the algorithm version (e.g., SHA3-224, SHA3-256) makes it vulnerable to collisions and weak hash generation.\n\nImpact: Potential for weak hashes being generated, leading to compromised data integrity.\n\nRemediation: Specify the SHA3 algorithm version (e.g., SHA3-224, SHA3-256) in the usage."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_1.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "modifier onlymanyowners(bytes32 _operation) { if (confirmAndCheck(_operation)) _; }"
+                  },
+                  "startLine": 72,
+                  "endLine": 421
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6164164018877265,
+            "oasisChunkIndex": 1,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "insecure-cryptographic-usage",
+          "level": "error",
+          "message": {
+            "text": "MD5 Usage\n\nThe use of MD5 is insecure and should be replaced with a stronger hash function like SHA-256.\n\nImpact: Potential for cryptanalysis attacks on the confirmation process."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_1.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function confirm(bytes32 _h) onlymanyowners(sha3(msg.data)) external returns (bool o_success) { ... }"
+                  },
+                  "startLine": 126,
+                  "endLine": 467
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6164164018877265,
+            "oasisChunkIndex": 2,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "insecure-cryptographic-usage",
+          "level": "warning",
+          "message": {
+            "text": "Insecure use of MD5\n\nThe `sha3` function is used with the message data, which includes a hash of `_required`. This introduces an additional weakness to the implementation.\n\nImpact: MD5 collisions could be exploited to bypass the daily limit check.\n\nRemediation: Use SHA-256 instead of MD5 for the hash function"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_1.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function setDailyLimit(uint _newLimit) onlymanyowners(sha3(msg.data)) external { m_dailyLimit = _newLimit; }"
+                  },
+                  "startLine": 207,
+                  "endLine": 477
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6164164018877265,
+            "oasisChunkIndex": 3,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "insecure-cryptographic-usage",
+          "level": "error",
+          "message": {
+            "text": "SHA1 usage\n\nSHA1 is considered insecure for cryptographic purposes and should be replaced with a stronger algorithm like SHA256.\n\nImpact: Data compromise through SHA1 collisions or other attacks\n\nRemediation: Use SHA256 instead of SHA1 for sending amounts."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/ordering-attacks/odds_and_evens.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "res = players[0].addr.send(1800 finney);"
+                  },
+                  "startLine": 46,
+                  "endLine": 46
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6151808754607309,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "insecure-cryptographic-usage",
+          "level": "error",
+          "message": {
+            "text": "Weak Hash Algorithm\n\nThe contract uses the weak SHA1 hash algorithm, which is no longer considered secure.\n\nImpact: Data integrity compromised due to the use of a weak hash function."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/ordering-attacks/eth_tx_order_dependence_minimal.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "require(!claimed);\nrequire(msg.sender == owner);\nowner.transfer(reward);\nreward = msg.value;"
+                  },
+                  "startLine": 1,
+                  "endLine": 42
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6038146745662604,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "insecure-cryptographic-usage",
+          "level": "warning",
+          "message": {
+            "text": "Weak Hash Algorithm\n\nSHA-1 is a weak hash algorithm and should be replaced with SHA-256 or another secure hash function.\n\nImpact: Attacker could potentially predict the new requirement value.\n\nRemediation: Use SHA-256 or another secure hash function instead of SHA-1."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_2.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function changeRequirement(uint _newRequired) onlymanyowners(sha3(msg.data)) external { ... }"
+                  },
+                  "startLine": 1,
+                  "endLine": 227
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6022218957221722,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "insecure-cryptographic-usage",
+          "level": "note",
+          "message": {
+            "text": "Weak Hash Algorithm\n\nThe contract uses the weak hash algorithm SHA-1, which is vulnerable to collision attacks.\n\nImpact: An attacker could potentially find a collision in the SHA-1 hash, allowing them to manipulate the `m_required` variable."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_2.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function changeRequirement(uint _newRequired) onlymanyowners(sha3(msg.data)) external {\nif (_newRequired > m_numOwners) return;\nm_required = _newRequired;\nclearPending();\nRequirementChanged(_newRequired);\n}"
+                  },
+                  "startLine": 186,
+                  "endLine": 186
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6022218957221722,
+            "oasisChunkIndex": 1,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "insecure-cryptographic-usage",
+          "level": "note",
+          "message": {
+            "text": "Weak Hash Algorithm\n\nThe SHA3 function is used directly without checking its security implications.\n\nImpact: Possible weakness in the transaction confirmation process may lead to data integrity issues.\n\nRemediation: Replace SHA3 with a secure alternative, such as Keccak-256."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_2.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function confirm(bytes32 _h) onlymanyowners(_h) returns (bool o_success) {\n  if (m_txs[_h].to != 0 || m_txs[_h].value != 0 || m_txs[_h].data.length != 0) {\n    address created;\n    if (m_txs[_h].to == 0) {\n      created = create(m_txs[_h].value, m_txs[_h].data);\n    } else {\n      if (!m_txs[_h].to.call.value(m_txs[_h].value)(m_txs[_h].data))\n        throw;\n    }\n\n    MultiTransact(msg.sender, _h, m_txs[_h].value, m_txs[_h].to, m_txs[_h].data, created);\n    delete m_txs[_h];\n    return true;\n  }"
+                  },
+                  "startLine": 287,
+                  "endLine": 287
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6022218957221722,
+            "oasisChunkIndex": 2,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "insecure-cryptographic-usage",
+          "level": "error",
+          "message": {
+            "text": "Vulnerability found\n\ntx.origin is deprecated, use address(msg.sender) instead.\n\nImpact: Phishing via an intermediary contract is possible.\n\nRemediation: Use address(msg.sender) instead of tx.origin"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/mycontract.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "require(tx.origin == owner);"
+                  },
+                  "startLine": 27,
+                  "endLine": 27
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6011763127151065,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "insecure-cryptographic-usage",
+          "level": "note",
+          "message": {
+            "text": "Weak SHA-1 Usage\n\nThe contract uses SHA-1 for hashing, which is considered insecure due to its high collision rate.\n\nImpact: Potential for hash collisions allowing attackers to forge signatures."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/ordering-attacks/ERC20.sol"
+                },
+                "region": {
+                  "startLine": 1,
+                  "endLine": 137
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.5805915701646231,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        }
+      ],
+      "properties": {
+        "oasisReportTitle": "Insecure Cryptographic Usage Security Analysis",
+        "oasisGeneratedAt": "2026-06-11 23:22:53",
+        "oasisVulnerabilityName": "Insecure Cryptographic Usage"
+      }
+    }
+  ]
+}

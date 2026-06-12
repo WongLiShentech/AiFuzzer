@@ -1,0 +1,656 @@
+{
+  "schema_version": 5,
+  "report_type": "vulnerability",
+  "title": "Session Management Issues Security Analysis",
+  "generated_at": "2026-06-12 01:23:57",
+  "model_name": "llama3.2:3b",
+  "language": "en",
+  "vulnerability_name": "Session Management Issues",
+  "vulnerability": {
+    "name": "Session Management Issues",
+    "description": "Problems with how user sessions are created, maintained, and terminated",
+    "patterns": [
+      "session fixation",
+      "insecure session handling",
+      "session hijacking risk",
+      "missing session timeout",
+      "weak session ID generation",
+      "session token exposure",
+      "cookie security missing",
+      "insufficient session expiration",
+      "missing secure flag",
+      "missing httpOnly flag",
+      "session data in URL",
+      "no session validation",
+      "predictable session tokens",
+      "persistent session without verification",
+      "client-side session storage",
+      "missing SameSite attribute",
+      "cross-domain cookie sharing",
+      "CSRF token missing",
+      "insecure JWT handling",
+      "JWT without expiration",
+      "JWT signature validation missing",
+      "session reuse vulnerability",
+      "lack of session regeneration",
+      "concurrent session control missing",
+      "session token in logs",
+      "insecure cookie attributes",
+      "cookie without path restriction",
+      "OAuth state parameter missing",
+      "cookie prefixing missing",
+      "session token in referrer header"
+    ],
+    "impact": "Account takeover, session hijacking, and unauthorized access to user accounts",
+    "mitigation": "Implement secure session handling, use proper timeout settings, and protect session tokens"
+  },
+  "files": [
+    {
+      "file_path": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_1.sol",
+      "similarity_score": 0.6579055143249387,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Insecure Session ID Generation",
+              "vulnerable_code": "function initMultiowned(address[] _owners, uint _required) { ... }",
+              "explanation": "The contract uses a fixed value (0x1) as the session ID in the `initMultiowned` function, which is not cryptographically secure.",
+              "severity": "Low",
+              "impact": "An attacker could potentially manipulate the session ID to gain unauthorized access to the wallet.",
+              "entry_point": "/contracts/snippets/enhanced-wallet.sol: initMultiowned",
+              "execution_path_diagram": "",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "_owners",
+                "_required"
+              ],
+              "exploitation_steps": [
+                "Find a way to manipulate the session ID"
+              ],
+              "example_payloads": [],
+              "exploitation_conditions": "Access to contract's storage.",
+              "remediation": "Use a cryptographically secure method to generate unique session IDs, such as using a salt and a random number.",
+              "secure_code_example": "function initMultiowned(address[] _owners, uint _required) { ... uint sessionId = keccak256(abi.encodePacked(_owners, _required)); ... }",
+              "snippet_start_line": null,
+              "snippet_end_line": null,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 281,
+          "notes": "No other Session Management Issues vulnerabilities were found in this code segment.",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        },
+        {
+          "findings": [
+            {
+              "title": "Vulnerability found",
+              "vulnerable_code": "function revoke(bytes32 _operation) external {\n  \\u0002\n  uint ownerIndex = m_ownerIndex[uint(msg.sender)];\n  \\u0003\\n  if (ownerIndex == 0) return;\n  \\u0005\\n  var pending = m_pending[_operation];\n  \\u0007\\n  if (pending.ownersDone & ownerIndexBit > 0) {\n    pending.yetNeeded++;\n    pending.ownersDone -= ownerIndexBit;\n    Revoke(msg.sender, _operation);\n  }\n}",
+              "explanation": "The revoke function does not properly handle the case when an owner tries to revoke a transaction that has already been confirmed by another owner.",
+              "severity": "Medium",
+              "impact": "An attacker could exploit this vulnerability by sending a revoke request for a transaction that has already been confirmed by another owner.",
+              "entry_point": "revoke(bytes32 _operation) external",
+              "execution_path_diagram": "",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "_operation",
+                "_owner"
+              ],
+              "exploitation_steps": [
+                "An attacker sends a revoke request for a transaction that has already been confirmed by another owner.",
+                "The attacker exploits the fact that the revoke function does not properly handle confirmed transactions."
+              ],
+              "example_payloads": [],
+              "exploitation_conditions": "The revoke function is called with an operation that has already been confirmed by another owner.",
+              "remediation": "The revoke function should be modified to properly handle confirmed transactions.",
+              "secure_code_example": "",
+              "snippet_start_line": 134,
+              "snippet_end_line": 134,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 320,
+          "notes": null,
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        },
+        {
+          "findings": [
+            {
+              "title": "Vulnerability found",
+              "vulnerable_code": "function confirm(bytes32 _h) onlymanyowners(sha3(msg.data)) returns (bool o_success) { ... }",
+              "explanation": "The use of `onlymanyowners` with SHA-3 hash from `msg.data` makes the contract vulnerable to session hijacking. An attacker can manipulate the `msg.data` to get a valid signature, allowing them to confirm transactions without actually owning the wallet.",
+              "severity": "High",
+              "impact": "Account takeover and unauthorized access to user accounts",
+              "entry_point": "/confirm",
+              "execution_path_diagram": "Confirm -> Check if owner has signed -> Check if transaction hash matches -> Confirm/Reject",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "msg.data"
+              ],
+              "exploitation_steps": [
+                "Manipulate msg.data to get a valid signature"
+              ],
+              "example_payloads": [
+                "Invalid data to trick the contract"
+              ],
+              "exploitation_conditions": "Contract requires owner's signature to confirm transactions",
+              "remediation": "Use `onlymanyowners` with a fixed, predictable transaction hash instead of relying on SHA-3 from user input.",
+              "secure_code_example": "function confirm(bytes32 _h) returns (bool o_success) { return _h == sha3('fixed_transaction_hash'); }",
+              "snippet_start_line": null,
+              "snippet_end_line": null,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 27,
+          "end_line": 358,
+          "notes": "No additional notes.",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        },
+        {
+          "findings": [
+            {
+              "title": "Missing Session Timeout",
+              "vulnerable_code": "if (m_required > m_numOwners - 1) return;",
+              "explanation": "This line prevents the owner index from being reset to a new value after removal, allowing an attacker to manipulate session IDs.",
+              "severity": "Medium",
+              "impact": "An attacker could create multiple valid session IDs and gain unauthorized access to user accounts.",
+              "entry_point": "/removeOwner(address _owner)",
+              "execution_path_diagram": "removing owner -> updating m_ownerIndex -> returning without resetting index",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "_owner"
+              ],
+              "exploitation_steps": [
+                "Manipulate session ID by removing the owner with the desired ID before removal"
+              ],
+              "example_payloads": [],
+              "exploitation_conditions": "Owner is removed from the system",
+              "remediation": "Implement a proper timeout mechanism to update m_ownerIndex after removal.",
+              "secure_code_example": "m_owners[ownerIndex] = 0;\nm_ownerIndex[uint(_from)] = 0;\nupdate owner index",
+              "snippet_start_line": 177,
+              "snippet_end_line": 177,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 126,
+          "end_line": 467,
+          "notes": "No additional notes",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        },
+        {
+          "findings": [
+            {
+              "title": "Vulnerability found",
+              "vulnerable_code": "uint ownerIndexBit = 2**ownerIndex;\nreturn !(pending.ownersDone & ownerIndexBit == 0);",
+              "explanation": "This code is vulnerable to session fixation because it stores the index of the current user in a variable called `ownerIndex`. If an attacker can manipulate this value, they can fixate the session and gain unauthorized access.",
+              "severity": "Medium",
+              "impact": "Unauthorized access to user accounts",
+              "entry_point": "/execute",
+              "execution_path_diagram": "GET /execute\n  1. Store current user index in `ownerIndex`\n  2. Use `ownerIndex` to check if session is fixed.",
+              "http_methods": [
+                "POST"
+              ],
+              "manipulable_parameters": [
+                "_to",
+                "_value",
+                "_data"
+              ],
+              "exploitation_steps": [
+                "Manipulate `_to` value to fixate the session"
+              ],
+              "example_payloads": [
+                "GET /execute?_to=0x1234567890123456789012345678901234567890&_value=100&_data=\\n\\n\\n"
+              ],
+              "exploitation_conditions": "Attacker can reach POST /execute while authenticated.",
+              "remediation": "Use a secure random number generator to generate the session ID and store it securely.",
+              "secure_code_example": "uint ownerIndex = uint256(randomNumber);\nreturn !(pending.ownersDone & ownerIndex == 0);",
+              "snippet_start_line": 210,
+              "snippet_end_line": 210,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 207,
+          "end_line": 477,
+          "notes": "",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    },
+    {
+      "file_path": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_2.sol",
+      "similarity_score": 0.6489949094002326,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Missing Session Timeout",
+              "vulnerable_code": "",
+              "explanation": "The contract does not have a session timeout set, allowing an attacker to remain active indefinitely.",
+              "severity": "Medium",
+              "impact": "Account takeover and unauthorized access",
+              "entry_point": "/initMultiowned",
+              "execution_path_diagram": "initMultiowned() -> initDaylimit()",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "_owners",
+                "_required"
+              ],
+              "exploitation_steps": [
+                "Send a large number of confirmations to exhaust the daily limit"
+              ],
+              "example_payloads": [],
+              "exploitation_conditions": "No daily limit set",
+              "remediation": "Implement a session timeout with a reasonable value (e.g., 1 day)",
+              "secure_code_example": "",
+              "snippet_start_line": null,
+              "snippet_end_line": null,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 227,
+          "notes": null,
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        },
+        {
+          "findings": [
+            {
+              "title": "Insecure Session Handling",
+              "vulnerable_code": "function revoke(bytes32 _operation) external { ... }",
+              "explanation": "The `revoke` function does not check if the sender is an owner before revoking a confirmation, making it vulnerable to session fixation attacks.",
+              "severity": "Medium",
+              "impact": "Unauthorized access to user accounts",
+              "entry_point": "/WalletAbi/revoke",
+              "execution_path_diagram": "Revoke -> Check ownership -> Revoke operation\nCheck ownership -> Owner is not found -> Throw error\nRevoke operation -> Operation hash -> Revoke confirmation",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "_operation",
+                "_from",
+                "_to"
+              ],
+              "exploitation_steps": [
+                "Attack by submitting a valid operation and sender to revoke"
+              ],
+              "example_payloads": [],
+              "exploitation_conditions": "Sender is an owner",
+              "remediation": "Add checks for ownership before revoking a confirmation.",
+              "secure_code_example": "function revoke(bytes32 _operation) external { require(isOwner(msg.sender)); ... }",
+              "snippet_start_line": null,
+              "snippet_end_line": null,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 286,
+          "notes": null,
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        },
+        {
+          "findings": [
+            {
+              "title": "Insecure session ID generation",
+              "vulnerable_code": "function initDaylimit(uint _limit) only_uninitialized { ... }",
+              "explanation": "The contract uses a fixed value for the daily limit index, which can lead to predictable session IDs.",
+              "severity": "Medium",
+              "impact": "Session hijacking and unauthorized access",
+              "entry_point": "/initDaylimit(uint)",
+              "execution_path_diagram": "",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "_limit"
+              ],
+              "exploitation_steps": [
+                "Find a session ID in the daily limit index.",
+                "Use this predictable ID to impersonate another user's session."
+              ],
+              "example_payloads": [],
+              "exploitation_conditions": "Fixed value used for daily limit index",
+              "remediation": "Generate unique and unpredictable session IDs using a secure random number generator.",
+              "secure_code_example": " uint m_lastDay; function initDaylimit(uint _limit) only_uninitialized { m_lastDay = now(); }",
+              "snippet_start_line": null,
+              "snippet_end_line": null,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 96,
+          "end_line": 414,
+          "notes": null,
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    },
+    {
+      "file_path": "/work/project/dataset/vulnerable/reentrancy/etherstore.sol",
+      "similarity_score": 0.6086996818931248,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Insecure Session Handling",
+              "vulnerable_code": "require(msg.sender.call.value(_weiToWithdraw)())",
+              "explanation": "The call() function does not check if the message sender is authorized to withdraw funds.",
+              "severity": "Medium",
+              "impact": "An attacker could impersonate a user and withdraw funds without being detected.",
+              "entry_point": "/withdrawFunds(uint256 _weiToWithdraw)",
+              "execution_path_diagram": "Deposit Funds -> Withdraw Funds (require balances[msg.sender] >= _weiToWithdraw; limit the withdrawal)",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "_weiToWithdraw"
+              ],
+              "exploitation_steps": [
+                "User calls depositFunds() with a large amount to increase their balance.",
+                "Then, user calls withdrawFunds() with a smaller amount to avoid detection."
+              ],
+              "example_payloads": [],
+              "exploitation_conditions": "User is authenticated and has a high balance.",
+              "remediation": "Use a secure authentication mechanism, such as a private key or a token-based system.",
+              "secure_code_example": "require(msg.sender.call.value(_weiToWithdraw)(verifyMessage(msg.sender)))",
+              "snippet_start_line": 35,
+              "snippet_end_line": 35,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 39,
+          "notes": "",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    },
+    {
+      "file_path": "/work/project/dataset/vulnerable/reentrancy/simple_dao.sol",
+      "similarity_score": 0.5889910034889423,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Insecure Session Handling",
+              "vulnerable_code": "bool res = msg.sender.call.value(amount)(); credit[msg.sender]-=amount;",
+              "explanation": "The `call` function is used without proper verification, allowing an attacker to manipulate the session.",
+              "severity": "Medium",
+              "impact": "Unauthorized access to user accounts",
+              "entry_point": "/withdraw(uint amount)",
+              "execution_path_diagram": "msg.sender -> call.value(amount)() -> credit[msg.sender]-=amount",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "amount"
+              ],
+              "exploitation_steps": [
+                "Attacker sends a large amount to drain the session"
+              ],
+              "example_payloads": [
+                "10000000000000000000000 ether"
+              ],
+              "exploitation_conditions": "msg.sender is authenticated",
+              "remediation": "Use `require` statements to verify the sender's identity and ensure proper session handling.",
+              "secure_code_example": "bool res = require(msg.sender.call.value(amount)()) && credit[msg.sender] >= amount; credit[msg.sender]-=amount;",
+              "snippet_start_line": null,
+              "snippet_end_line": null,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 35,
+          "notes": "No additional notes",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    },
+    {
+      "file_path": "/work/project/dataset/vulnerable/reentrancy/0xbaf51e761510c1a11bf48dd87c0307ac8a8c8a4f.sol",
+      "similarity_score": 0.587344992334363,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Insecure Session Handling",
+              "vulnerable_code": "function ETH_VAULT(address _log) public { TransferLog = Log(_log); }",
+              "explanation": "The contract exposes its internal state (TransferLog) directly to the user, allowing an attacker to manipulate it.",
+              "severity": "Medium",
+              "impact": "An attacker could modify the transfer log, potentially revealing sensitive information about transactions.",
+              "entry_point": "/transfer",
+              "execution_path_diagram": "",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "_log"
+              ],
+              "exploitation_steps": [
+                "Obtain a valid Log instance"
+              ],
+              "example_payloads": [
+                "Invalid Log instance"
+              ],
+              "exploitation_conditions": "No authentication required for this function.",
+              "remediation": "Use a secure session management mechanism, such as encryption or secure storage.",
+              "secure_code_example": "function ETH_VAULT(address _log) public { address[] logs = TransferLog.getLogs(); }",
+              "snippet_start_line": null,
+              "snippet_end_line": null,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 85,
+          "notes": "No Session Management Issues found",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    },
+    {
+      "file_path": "/work/project/dataset/vulnerable/access-control/mycontract.sol",
+      "similarity_score": 0.5865707876615741,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Vulnerable Session Handling",
+              "vulnerable_code": "receiver.transfer(amount);",
+              "explanation": "The contract uses `tx.origin` to authorize transfers, allowing an attacker to hijack a session by impersonating the owner.",
+              "severity": "High",
+              "impact": "Unauthorized transfers can occur if an attacker intercepts a legitimate transaction.",
+              "entry_point": "/transfer",
+              "execution_path_diagram": "A -> B (tx.origin == owner) -> C (receiver.transfer())",
+              "http_methods": [
+                "POST"
+              ],
+              "manipulable_parameters": [
+                "tx.origin",
+                "owner"
+              ],
+              "exploitation_steps": [
+                "An attacker intercepts a legitimate transaction from the owner.",
+                "The attacker impersonates the owner using tx.origin."
+              ],
+              "example_payloads": [
+                "A malicious tx.origin"
+              ],
+              "exploitation_conditions": "",
+              "remediation": "",
+              "secure_code_example": "",
+              "snippet_start_line": 28,
+              "snippet_end_line": 28,
+              "http_raw_requests": [
+                "POST /transfer HTTP/1.1",
+                "Host: mycontract.sol",
+                "tx.origin: owner"
+              ]
+            }
+          ],
+          "start_line": 1,
+          "end_line": 31,
+          "notes": "The contract uses `tx.origin` to authorize transfers, which can be vulnerable to session fixation and hijacking attacks.",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    },
+    {
+      "file_path": "/work/project/dataset/vulnerable/ordering-attacks/FindThisHash.sol",
+      "similarity_score": 0.5807681061864267,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Vulnerable Session ID Generation",
+              "vulnerable_code": "bytes32 constant public hash = 0xb5b5b97fafd9855eec9b41f74dfb6c38f5951141f9a3ecd7f44d5479b630ee0a;",
+              "explanation": "The session ID (hash) is generated using a fixed, non-secure value.",
+              "severity": "Medium",
+              "impact": "An attacker could potentially obtain the pre-image of the hash to access the account.",
+              "entry_point": "/solve(string solution)",
+              "execution_path_diagram": "",
+              "http_methods": [],
+              "manipulable_parameters": [],
+              "exploitation_steps": [
+                "Obtain the pre-image of the hash"
+              ],
+              "example_payloads": [],
+              "exploitation_conditions": "The attacker has access to the winning solution.",
+              "remediation": "Use a secure random number generator to generate session IDs.",
+              "secure_code_example": "",
+              "snippet_start_line": 18,
+              "snippet_end_line": 18,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 28,
+          "notes": "Insecure session ID generation could allow an attacker to guess or calculate the pre-image of the hash.",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    },
+    {
+      "file_path": "/work/project/dataset/vulnerable/ordering-attacks/odds_and_evens.sol",
+      "similarity_score": 0.5702884572014075,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Insecure Session Handling",
+              "vulnerable_code": "function play(uint number) payable{ players[tot] = Player(msg.sender, number); tot++; }",
+              "explanation": "The `players` array is not cleared or updated after a winner is declared, allowing an attacker to reuse session IDs.",
+              "severity": "Medium",
+              "impact": "Unauthorized access to user accounts",
+              "entry_point": "/play",
+              "execution_path_diagram": "play() -> declareWinner() -> clearPlayers()",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "number",
+                "msg.sender"
+              ],
+              "exploitation_steps": [
+                "Get the current value of `tot`",
+                "Reuse the same `players[tot]` to send Ether to a different address"
+              ],
+              "example_payloads": [],
+              "exploitation_conditions": "",
+              "remediation": "",
+              "secure_code_example": "",
+              "snippet_start_line": null,
+              "snippet_end_line": null,
+              "http_raw_requests": [
+                "POST /play HTTP/1.1",
+                "Host: example.com",
+                ""
+              ]
+            }
+          ],
+          "start_line": 1,
+          "end_line": 61,
+          "notes": null,
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    },
+    {
+      "file_path": "/work/project/dataset/vulnerable/ordering-attacks/eth_tx_order_dependence_minimal.sol",
+      "similarity_score": 0.5656152862312687,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Session Fixation",
+              "vulnerable_code": "function EthTxOrderDependenceMinimal() public {\nowner = msg.sender;\n}",
+              "explanation": "The owner is set to the sender of the constructor, which can be exploited to fix the session.",
+              "severity": "Medium",
+              "impact": "Account takeover",
+              "entry_point": "/EthTxOrderDependenceMinimal() public {\nowner = msg.sender;\n}",
+              "execution_path_diagram": "msg.sender -> owner\n",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "msg.sender"
+              ],
+              "exploitation_steps": [
+                "Get the owner's address.",
+                "Create a new contract instance with the same owner address."
+              ],
+              "example_payloads": [
+                "owner address"
+              ],
+              "exploitation_conditions": "The sender of the constructor is the owner.",
+              "remediation": "Use a secure random number generator to generate the owner's address.",
+              "secure_code_example": "pragma solidity ^0.4.16;\ncontract EthTxOrderDependenceMinimal {\naddress public owner;\nfunction EthTxOrderDependenceMinimal() public {\nowner = address(0x...) ;\n}\n}",
+              "snippet_start_line": 22,
+              "snippet_end_line": 22,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 42,
+          "notes": "Session fixation vulnerability exists due to the construction of the owner variable.",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    }
+  ],
+  "stats": {
+    "files_analyzed": 9,
+    "high_risk": 2,
+    "medium_risk": 12,
+    "low_risk": 1,
+    "critical_risk": 0,
+    "total_findings": 15,
+    "potential_findings": 0
+  },
+  "analysis_root": "../vulnerable",
+  "embed_model": "nomic-embed-text",
+  "project": "vulnerable"
+}

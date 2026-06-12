@@ -1,0 +1,184 @@
+{
+  "schema_version": 5,
+  "report_type": "vulnerability",
+  "title": "Cross-Site Scripting (XSS) Security Analysis",
+  "generated_at": "2026-06-12 01:34:12",
+  "model_name": "llama3.2:3b",
+  "language": "en",
+  "vulnerability_name": "Cross-Site Scripting (XSS)",
+  "vulnerability": {
+    "name": "Cross-Site Scripting (XSS)",
+    "description": "Vulnerabilities that allow attackers to inject client-side scripts",
+    "patterns": [
+      "unescaped output to HTML",
+      "innerHTML with user input",
+      "document.write with variables",
+      "eval with user content",
+      "rendering content without sanitization",
+      "dangerous DOM operations",
+      "raw user data in templates",
+      "bypass content sanitization",
+      "script injection vulnerability",
+      "missing HTML encoding",
+      "dangerouslySetInnerHTML",
+      "template literals with user data",
+      "attribute injection vulnerability",
+      "data-* attribute with user input",
+      "event handler assignment",
+      "href with javascript: protocol",
+      "DOM manipulation with createElement",
+      "React props sanitization missing",
+      "Vue v-html directive with data",
+      "Angular [innerHTML] binding",
+      "svg onload attribute",
+      "CSS expression with user input",
+      "postMessage without origin check"
+    ],
+    "impact": "Can lead to session hijacking, credential theft, or delivery of malware to users",
+    "mitigation": "Apply context-aware output encoding, use Content-Security-Policy, validate and sanitize all inputs"
+  },
+  "files": [
+    {
+      "file_path": "/work/project/dataset/vulnerable/access-control/mycontract.sol",
+      "similarity_score": 0.6498998474998544,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Cross-Site Scripting (XSS)",
+              "vulnerable_code": "receiver.transfer(amount);",
+              "explanation": "Unescaped output to HTML can lead to XSS vulnerabilities. The `transfer` function is used directly with user input without proper sanitization.",
+              "severity": "High",
+              "impact": "Potential session hijacking or credential theft via an intermediary contract",
+              "entry_point": "/sendTo",
+              "execution_path_diagram": "require(tx.origin == owner); receiver.transfer(amount);",
+              "http_methods": [
+                "POST"
+              ],
+              "manipulable_parameters": [
+                "amount"
+              ],
+              "exploitation_steps": [
+                "User sends a malicious tx to the contract with an amount containing JavaScript code"
+              ],
+              "example_payloads": [
+                "javascript:alert('XSS')"
+              ],
+              "exploitation_conditions": "Contract has `tx.origin` authorization enabled",
+              "remediation": "Use a safer function like `transfer() { require(tx.origin == owner); }` or sanitize user input before passing it to the `transfer()` function",
+              "secure_code_example": "require(tx.origin == owner); transfer(amount);\n// Sanitize input\namount = uint128(unsafe_input);\nrequire(tx.origin == owner); transfer(amount);",
+              "snippet_start_line": 28,
+              "snippet_end_line": 28,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 31,
+          "notes": "",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    },
+    {
+      "file_path": "/work/project/dataset/vulnerable/reentrancy/0xbaf51e761510c1a11bf48dd87c0307ac8a8c8a4f.sol",
+      "similarity_score": 0.6368721658556715,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Vulnerability found",
+              "vulnerable_code": "function CashOut(uint _am) public payable { if(_am<=balances[msg.sender]) { // <yes> <report> REENTRANCY if(msg.sender.call.value(_am)()) { ... } } }",
+              "explanation": "The use of msg.sender.call.value() with user input allows an attacker to inject arbitrary JavaScript code.",
+              "severity": "Critical",
+              "impact": "Can lead to session hijacking, credential theft, or delivery of malware to users",
+              "entry_point": "function CashOut(uint _am) public payable { ... }",
+              "execution_path_diagram": "CashOut(_am)\n  - msg.sender.call.value(_am)\n    - execution of user-provided code",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "_am"
+              ],
+              "exploitation_steps": [
+                "Get _am value from user input"
+              ],
+              "example_payloads": [
+                "malicious JavaScript code"
+              ],
+              "exploitation_conditions": "msg.sender authenticated and balances[msg.sender] > 0",
+              "remediation": "Use msg.sender.call.value with strict encoding (e.g. encode(_am) instead of _am)",
+              "secure_code_example": "function CashOut(uint _am) public payable { if(_am<=balances[msg.sender]) { balances[msg.sender] -= _am; } else { require(_am == 0); } }",
+              "snippet_start_line": null,
+              "snippet_end_line": null,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 85,
+          "notes": "",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    },
+    {
+      "file_path": "/work/project/dataset/vulnerable/reentrancy/etherstore.sol",
+      "similarity_score": 0.6307406390579039,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Cross-Site Scripting (XSS) Vulnerability",
+              "vulnerable_code": "require(msg.sender.call.value(_weiToWithdraw)());",
+              "explanation": "Using msg.sender.call.value() with a user-input variable _weiToWithdraw allows an attacker to inject malicious JavaScript code.",
+              "severity": "High",
+              "impact": "An attacker could steal sensitive data or perform unauthorized actions on behalf of the user.",
+              "entry_point": "/withdrawFunds(uint256 _weiToWithdraw)",
+              "execution_path_diagram": "depositFunds -> withdrawFunds -> msg.sender.call.value(_weiToWithdraw())",
+              "http_methods": [
+                "POST"
+              ],
+              "manipulable_parameters": [
+                "_weiToWithdraw"
+              ],
+              "exploitation_steps": [
+                "An attacker sends a request to /withdrawFunds with a malicious _weiToWithdraw value containing JavaScript code."
+              ],
+              "example_payloads": [
+                "<script>alert('XSS')</script>"
+              ],
+              "exploitation_conditions": "The user is authenticated and the withdrawal amount is sufficient.",
+              "remediation": "Use msg.sender.call.value(_weiToWithdraw, 'approved') instead of msg.sender.call.value(_weiToWithdraw).",
+              "secure_code_example": "require(msg.sender.call.value(_weiToWithdraw, 'approved'));",
+              "snippet_start_line": 35,
+              "snippet_end_line": 35,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 39,
+          "notes": "This contract uses a vulnerable function call to allow user-input values to be executed as JavaScript code.",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    }
+  ],
+  "stats": {
+    "files_analyzed": 3,
+    "high_risk": 2,
+    "medium_risk": 0,
+    "low_risk": 0,
+    "critical_risk": 1,
+    "total_findings": 3,
+    "potential_findings": 0
+  },
+  "analysis_root": "../vulnerable",
+  "embed_model": "nomic-embed-text",
+  "project": "vulnerable"
+}

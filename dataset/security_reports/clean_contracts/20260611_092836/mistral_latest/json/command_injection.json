@@ -1,0 +1,146 @@
+{
+  "schema_version": 5,
+  "report_type": "vulnerability",
+  "title": "Command Injection Security Analysis",
+  "generated_at": "2026-06-11 09:44:25",
+  "model_name": "mistral:latest",
+  "language": "en",
+  "vulnerability_name": "Command Injection",
+  "vulnerability": {
+    "name": "Command Injection",
+    "description": "Vulnerabilities allowing injection of arbitrary operating system commands",
+    "patterns": [
+      "system() with user input",
+      "shell_exec with variables",
+      "exec() with user parameter",
+      "passthru with user input",
+      "popen with user data",
+      "proc_open with user command",
+      "backticks with user input",
+      "command execution with variables",
+      "os.system with user parameter",
+      "subprocess.call with user input",
+      "subprocess.run with shell=True",
+      "Runtime.getRuntime().exec",
+      "ProcessBuilder with user input",
+      "cmd /c with user parameter",
+      "bash -c with user input",
+      "sh -c with variable",
+      "eval in shell context",
+      "system call concatenation",
+      "command with unsafe interpolation",
+      "pipe operator with user input",
+      "command chaining vulnerability",
+      "shell metacharacter injection",
+      "command separator injection",
+      "environment variable injection",
+      "command substitution vulnerability",
+      "unsafe command building",
+      "system() without escaping",
+      "shell injection via parameters",
+      "command line argument injection"
+    ],
+    "impact": "Complete system compromise, data theft, privilege escalation, or service disruption",
+    "mitigation": "Use parameterized commands, avoid shell execution, validate and sanitize command inputs"
+  },
+  "files": [
+    {
+      "file_path": "/work/project/dataset/clean/modifier_reentrancy_fixed.sol",
+      "similarity_score": 0.5664100708204771,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Vulnerability found",
+              "vulnerable_code": "'supportsToken() external returns(bytes32){ return(keccak256(abi.encodePacked(\"Nu Token\"))); }'",
+              "explanation": "The function 'supportsToken' does not sanitize the user input (the abi encoded packed string), making it vulnerable to command injection.",
+              "severity": "Medium",
+              "impact": "Arbitrary OS command execution",
+              "entry_point": "'supportsToken()'",
+              "execution_path_diagram": "```\nmodifierEntrancy \n  | \n  v \nBank    \n   | \n supportsToken() --> vulnerable code --> system()```",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "the abi encoded packed string"
+              ],
+              "exploitation_steps": [
+                "Send a specially crafted input to the 'supportsToken' function",
+                "The crafted input is passed to the system() call, executing an arbitrary OS command"
+              ],
+              "example_payloads": [
+                "`0x68747470733a2f2a2c696e6b65646572616d742e636f6d2f696e6b65646572616d742e636f6d2f6261646765`"
+              ],
+              "exploitation_conditions": "None",
+              "remediation": "'supportsToken' function should sanitize user input before passing it to system()",
+              "secure_code_example": "```solidity\nsafeSupportsToken() external returns(bytes32){ require(keccak256(abi.encodePacked(\"Nu Token\")) == keccak256(abi.encodePacked(_token))); return(keccak256(abi.encodePacked(\"Nu Token\")));}\n\nfunction safeSupportsToken(uint _token) private { requires(_token != address(0) && _token == keccak256(abi.encodePacked(\"Nu Token\"))); }\n```",
+              "snippet_start_line": 18,
+              "snippet_end_line": 30,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 42,
+          "notes": null,
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    },
+    {
+      "file_path": "/work/project/dataset/clean/simple_dao_fixed.sol",
+      "similarity_score": 0.564482430120034,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Command Injection vulnerability",
+              "vulnerable_code": "withdraw(uint amount) public {\n  if (credit[msg.sender]>= amount) {\n    credit[msg.sender]-=amount;\n    require(msg.sender.call.value(amount)());\n  }",
+              "explanation": "The contract allows execution of user-supplied code via msg.sender.call.value(amount), which can lead to Command Injection if the Ethereum node shell (e.g., Geth or Parity) has command injection vulnerabilities.",
+              "severity": "Critical",
+              "impact": "Complete system compromise, data theft, privilege escalation, or service disruption",
+              "entry_point": "/withdraw",
+              "execution_path_diagram": "functionWithdraw(amount) \n   |                          |-\n   |  msg.sender.call.value(amount)()\n   v                          |\n   Shell (Geth/Parity)",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "amount"
+              ],
+              "exploitation_steps": [
+                "Send a transaction with the withdraw function",
+                "Supply user-defined code in the 'amount' parameter"
+              ],
+              "example_payloads": [
+                "0x6874747432302f6b6579"
+              ],
+              "exploitation_conditions": "Attacker can trigger the withdraw function with a malicious payload.",
+              "remediation": "Replace msg.sender.call.value(amount)() with a secure, parameterized function call that sanitizes and validates input.",
+              "secure_code_example": "",
+              "snippet_start_line": 24,
+              "snippet_end_line": 24,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 34,
+          "notes": "Code segment corresponds to lines 1-34 in the provided file",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    }
+  ],
+  "stats": {
+    "files_analyzed": 2,
+    "high_risk": 0,
+    "medium_risk": 1,
+    "low_risk": 0,
+    "critical_risk": 1,
+    "total_findings": 2,
+    "potential_findings": 0
+  },
+  "analysis_root": "../clean",
+  "embed_model": "nomic-embed-text",
+  "project": "clean_contracts"
+}

@@ -1,0 +1,104 @@
+{
+  "schema_version": 5,
+  "report_type": "vulnerability",
+  "title": "Local File Inclusion Security Analysis",
+  "generated_at": "2026-06-11 10:24:41",
+  "model_name": "mistral:latest",
+  "language": "en",
+  "vulnerability_name": "Local File Inclusion",
+  "vulnerability": {
+    "name": "Local File Inclusion",
+    "description": "Vulnerabilities that allow inclusion of local files through web application flaws",
+    "patterns": [
+      "file inclusion with user input",
+      "include with variable path",
+      "require with user parameter",
+      "file_get_contents with user input",
+      "readfile with dynamic path",
+      "fopen with user-controlled filename",
+      "include_once with variable",
+      "require_once with parameter",
+      "file inclusion without validation",
+      "unsafe file including",
+      "dynamic file inclusion",
+      "file wrapper exploitation",
+      "php://filter usage",
+      "php://input in include",
+      "data:// wrapper usage",
+      "expect:// wrapper abuse",
+      "zip:// wrapper exploitation",
+      "phar:// deserialization attack",
+      "file inclusion via HTTP parameter",
+      "unsafe template inclusion",
+      "server-side include vulnerability",
+      "config file inclusion",
+      "log file inclusion attack",
+      "proc filesystem access",
+      "etc/passwd file access",
+      "windows system file access",
+      "application source disclosure",
+      "configuration file exposure",
+      "credentials file access"
+    ],
+    "impact": "Source code disclosure, configuration exposure, credential theft, or potential remote code execution",
+    "mitigation": "Use allowlists for file paths, avoid user input in file operations, implement proper path validation"
+  },
+  "files": [
+    {
+      "file_path": "/work/project/dataset/clean/modifier_reentrancy_fixed.sol",
+      "similarity_score": 0.5799773617553101,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Vulnerability found",
+              "vulnerable_code": "supportsToken hasNoBalance functions",
+              "explanation": "The function call order allows arbitrary inclusion of files by manipulating the contract 'Nu Token' through the supportsToken() function, potentially exposing sensitive information or allowing unauthorized operations.",
+              "severity": "Medium",
+              "impact": "Potential source code disclosure or configuration exposure",
+              "entry_point": "",
+              "execution_path_diagram": "```\n1. Attacker calls supportsToken() -> 2. Function returns keccak256 hash of 'Nu Token' -> 3. Comparison with 'msg.sender's local file system for 'Nu Token' contract -> 4. Potential Local File Inclusion vulnerability if attacker provides matching 'Nu Token'\n```",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "contract 'Nu Token'"
+              ],
+              "exploitation_steps": [
+                "Call supportsToken() function",
+                "Provide manipulated contract name 'Nu Token'",
+                "If the system is vulnerable, include arbitrary local files"
+              ],
+              "example_payloads": [
+                "attackerContractName"
+              ],
+              "exploitation_conditions": "Attacker has ability to call supportsToken() function",
+              "remediation": "Use allowlists for contract names and validate input properly.",
+              "secure_code_example": "",
+              "snippet_start_line": 17,
+              "snippet_end_line": 30,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 42,
+          "notes": "No issues",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    }
+  ],
+  "stats": {
+    "files_analyzed": 1,
+    "high_risk": 0,
+    "medium_risk": 1,
+    "low_risk": 0,
+    "critical_risk": 0,
+    "total_findings": 1,
+    "potential_findings": 0
+  },
+  "analysis_root": "../clean",
+  "embed_model": "nomic-embed-text",
+  "project": "clean_contracts"
+}

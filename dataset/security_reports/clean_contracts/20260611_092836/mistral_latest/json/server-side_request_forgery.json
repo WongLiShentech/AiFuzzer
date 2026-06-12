@@ -1,0 +1,142 @@
+{
+  "schema_version": 5,
+  "report_type": "vulnerability",
+  "title": "Server-Side Request Forgery Security Analysis",
+  "generated_at": "2026-06-11 10:49:23",
+  "model_name": "mistral:latest",
+  "language": "en",
+  "vulnerability_name": "Server-Side Request Forgery",
+  "vulnerability": {
+    "name": "Server-Side Request Forgery",
+    "description": "Vulnerabilities that allow attackers to induce the server to make requests",
+    "patterns": [
+      "URL fetching from user input",
+      "request module with variable URL",
+      "http client with dynamic endpoint",
+      "webhook implementation",
+      "remote file inclusion",
+      "dynamic API requests",
+      "URL parsing without validation",
+      "fetch with user-provided URL",
+      "unsafe URL redirection",
+      "axios.get with variable",
+      "curl functions with parameters",
+      "http.get with user input",
+      "urllib request with variable",
+      "requests.post with dynamic URL",
+      "guzzle client with user URL",
+      "java URL connection with variable",
+      "open redirect to internal hosts",
+      "no URL schema validation",
+      "IP address filtering bypass",
+      "DNS rebinding vulnerability",
+      "localhost access through SSRF",
+      "cloud metadata API access",
+      "internal service discovery",
+      "webhook callback without validation",
+      "file:// protocol allowed"
+    ],
+    "impact": "Access to internal services, data theft, or system compromise via internal network",
+    "mitigation": "Validate and sanitize URLs, use allowlists, block private IPs and local hostnames"
+  },
+  "files": [
+    {
+      "file_path": "/work/project/dataset/clean/simple_dao_fixed.sol",
+      "similarity_score": 0.6332584177877687,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Server-Side Request Forgery vulnerability",
+              "vulnerable_code": "`msg.sender.call.value(amount)()`",
+              "explanation": "The contract allows a user to initiate an external call, which can be exploited for Server-Side Request Forgery.",
+              "severity": "Medium",
+              "impact": "Potential access to internal services or data theft via the Solidity smart contract",
+              "entry_point": "`withdraw` function",
+              "execution_path_diagram": "```\n    user > withdraw() > msg.sender.call() > external contract\n```",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "amount"
+              ],
+              "exploitation_steps": [
+                "Call the `withdraw` function",
+                "Replace the external contract with an attacker-controlled contract"
+              ],
+              "example_payloads": [],
+              "exploitation_conditions": "An attacker needs to have Ethereum to execute transactions and must be able to interact with the smart contract",
+              "remediation": "Validate and sanitize URLs used in external calls, use allowlists, block private IPs and local hostnames",
+              "secure_code_example": "",
+              "snippet_start_line": 13,
+              "snippet_end_line": 16,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 34,
+          "notes": "This Solidity smart contract demonstrates a Server-Side Request Forgery vulnerability when interacting with external contracts.",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    },
+    {
+      "file_path": "/work/project/dataset/clean/modifier_reentrancy_fixed.sol",
+      "similarity_score": 0.6326577697046136,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Server-Side Request Forgery vulnerability found",
+              "vulnerable_code": "function airDrop() supportsToken hasNoBalance public{\n}",
+              "explanation": "The function 'airDrop' allows user input to call the 'supportsToken' function, which can be manipulated to perform SSRF attacks.",
+              "severity": "Medium",
+              "impact": "Potential data theft or access to internal services via SSRF.",
+              "entry_point": "/airDrop",
+              "execution_path_diagram": "```\n\t+---> airDrop (caller input)\n\t   |                 |\n\t   |                 | supportsToken\n\t   v                 v|\n\t   Bank.supportsToken() (user-controlled argument) ---- SSRF vulnerability ---\n```",
+              "http_methods": [
+                "POST"
+              ],
+              "manipulable_parameters": [
+                "function arguments"
+              ],
+              "exploitation_steps": [
+                "Call 'airDrop' function with a crafted URL as an argument to 'supportsToken'",
+                "Exploit SSRF vulnerability in the Bank.supportsToken() call"
+              ],
+              "example_payloads": [
+                "http://10.0.0.1/leak"
+              ],
+              "exploitation_conditions": "Attacker has the ability to call 'airDrop' function.",
+              "remediation": "Validate and sanitize all URL inputs and use allowlists.",
+              "secure_code_example": "function airDrop() public supportsToken requires (hasNoBalance) {\n...\n}",
+              "snippet_start_line": null,
+              "snippet_end_line": null,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 42,
+          "notes": "Check other functions for potential SSRF vulnerabilities.",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    }
+  ],
+  "stats": {
+    "files_analyzed": 2,
+    "high_risk": 0,
+    "medium_risk": 2,
+    "low_risk": 0,
+    "critical_risk": 0,
+    "total_findings": 2,
+    "potential_findings": 0
+  },
+  "analysis_root": "../clean",
+  "embed_model": "nomic-embed-text",
+  "project": "clean_contracts"
+}

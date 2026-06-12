@@ -1,0 +1,406 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "OASIS",
+          "version": "0.6.1",
+          "informationUri": "https://github.com/psyray/oasis",
+          "rules": [
+            {
+              "id": "sensitive-data-logging",
+              "name": "Sensitive Data Logging",
+              "shortDescription": {
+                "text": "Exposure of sensitive information through application logs"
+              },
+              "fullDescription": {
+                "text": "**Sensitive Data Logging**\n\nExposure of sensitive information through application logs\n\n**Impact (type metadata)**\nDisclosure of sensitive user data, credentials, or security tokens via log files\n\n**Mitigation (type metadata)**\nFilter sensitive data from logs, use proper log levels, and implement secure logging practices"
+              },
+              "helpUri": "https://github.com/psyray/oasis"
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "sensitive-data-logging",
+          "level": "error",
+          "message": {
+            "text": "Sensitive Data Logging\n\nLogs the owner's address when sending funds, potentially exposing it.\n\nImpact: Disclosure of sender's address to receiver."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/mycontract.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "receiver.transfer(amount);"
+                  },
+                  "startLine": 28,
+                  "endLine": 28
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6008089462223353,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "sensitive-data-logging",
+          "level": "error",
+          "message": {
+            "text": "Sensitive Data Logging\n\nDirect logging of address and value without sanitization.\n\nImpact: Disclose sensitive user data, including addresses and values."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/reentrancy/0xbaf51e761510c1a11bf48dd87c0307ac8a8c8a4f.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "TransferLog = Log(_log);"
+                  },
+                  "startLine": 28,
+                  "endLine": 28
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.5972528524831786,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "sensitive-data-logging",
+          "level": "warning",
+          "message": {
+            "text": "Deposit() logs the sender and value without proper validation.\n\nImpact: Potential disclosure of user data, including sender addresses."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/reentrancy/0xbaf51e761510c1a11bf48dd87c0307ac8a8c8a4f.sol"
+                },
+                "region": {
+                  "startLine": 1,
+                  "endLine": 85
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.5972528524831786,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 1
+          }
+        },
+        {
+          "ruleId": "sensitive-data-logging",
+          "level": "note",
+          "message": {
+            "text": "CashOut() logs the sender and amount without proper validation.\n\nImpact: Potential disclosure of user data, including sender addresses and amounts."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/reentrancy/0xbaf51e761510c1a11bf48dd87c0307ac8a8c8a4f.sol"
+                },
+                "region": {
+                  "startLine": 1,
+                  "endLine": 85
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.5972528524831786,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 2
+          }
+        },
+        {
+          "ruleId": "sensitive-data-logging",
+          "level": "warning",
+          "message": {
+            "text": "Sensitive Data Logging\n\nLog of execution and confirmation events contains sensitive data.\n\nImpact: Sensitive user data or credentials may be logged in the event logs."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_1.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function execute(address _to, uint _value, bytes _data) external returns (bytes32 o_hash); function confirm(bytes32 _h) returns (bool o_success);"
+                  },
+                  "startLine": 1,
+                  "endLine": 225
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.5966652024432008,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "sensitive-data-logging",
+          "level": "warning",
+          "message": {
+            "text": "Sensitive Data Logging: Information Disclosure\n\nThis function logs the owner index of an address in the contract's state variable, potentially exposing sensitive data.\n\nImpact: Potential disclosure of user information without consent.\n\nRemediation: Use a secure data storage mechanism, such as encryption or access control lists."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_1.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function isOwner(address _addr) constant returns (bool) { return m_ownerIndex[uint(_addr)] > 0; }"
+                  },
+                  "startLine": 126,
+                  "endLine": 467
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.5966652024432008,
+            "oasisChunkIndex": 1,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "sensitive-data-logging",
+          "level": "error",
+          "message": {
+            "text": "Sensitive Data Logging\n\nThe contract logs the value of `credit[msg.sender]` before updating it, exposing sensitive user data.\n\nImpact: Disclosure of sensitive user data\n\nRemediation: Filter sensitive data from logs, use proper log levels, and implement secure logging practices."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/reentrancy/simple_dao.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "bool res = msg.sender.call.value(amount)(\n credit[msg.sender]-=amount;\n);"
+                  },
+                  "startLine": 27,
+                  "endLine": 27
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.5877491051919453,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "sensitive-data-logging",
+          "level": "warning",
+          "message": {
+            "text": "Sensitive Data Logging\n\nLogs the transaction value, potentially exposing sensitive user data or credentials.\n\nImpact: Disclosure of sensitive user data or credentials via log files.\n\nRemediation: Filter transaction values from logs, use secure logging practices."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/reentrancy/etherstore.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "require(msg.sender.call.value(_weiToWithdraw)())"
+                  },
+                  "startLine": 35,
+                  "endLine": 35
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.586248490589584,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "sensitive-data-logging",
+          "level": "error",
+          "message": {
+            "text": "Sensitive Data Logging\n\nThe `Deposit` function logs the sender and value without proper filtering or sanitization, potentially exposing sensitive user data.\n\nImpact: Disclosure of sensitive user data, such as wallet addresses and transaction amounts.\n\nRemediation: Properly filter and sanitize sensitive data in logs."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_2.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function() payable { Deposit(msg.sender, msg.value); }"
+                  },
+                  "startLine": 1,
+                  "endLine": 227
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.57771347403573,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "sensitive-data-logging",
+          "level": "error",
+          "message": {
+            "text": "Unlogged Multi-Sig Owner Changes\n\nThe `changeOwner` function does not log the `_to` address, making it vulnerable to unauthorized access if logs are enabled.\n\nImpact: An attacker could exploit this vulnerability by changing an owner to gain access to funds or transactions.\n\nRemediation: Implement logging for all `onlymanyowners` function calls and ensure that logs are protected by the same authorization mechanisms as the rest of the contract."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_2.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function changeOwner(address _from, address _to) onlymanyowners(sha3(msg.data)) external {\nif (isOwner(_to)) return;\nuint ownerIndex = m_ownerIndex[uint(_from)];\nif (ownerIndex == 0) return;\n...\n}"
+                  },
+                  "startLine": 148,
+                  "endLine": 148
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.57771347403573,
+            "oasisChunkIndex": 1,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "sensitive-data-logging",
+          "level": "warning",
+          "message": {
+            "text": "Sensitive Data Logging\n\nSensitive data (e.g., owner addresses, operation hashes) is logged without proper filtering or masking.\n\nImpact: Disclosure of sensitive user data, credentials, or security tokens via log files."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_2.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function execute(address _to, uint _value, bytes _data) external onlyowner returns (bytes32 o_hash) {\n  // ..."
+                  },
+                  "startLine": 249,
+                  "endLine": 249
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.57771347403573,
+            "oasisChunkIndex": 2,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "sensitive-data-logging",
+          "level": "error",
+          "message": {
+            "text": "Sensitive Data Logging\n\nTransfers sensitive data (reward) to owner via `transfer()` function.\n\nImpact: Disclosure of reward amount and potentially owner's address."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/ordering-attacks/eth_tx_order_dependence_minimal.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "owner.transfer(reward);"
+                  },
+                  "startLine": 31,
+                  "endLine": 31
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.5618956581778782,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "sensitive-data-logging",
+          "level": "error",
+          "message": {
+            "text": "Sensitive Data Logging\n\nLog of player's address is stored without proper filtering.\n\nImpact: Disclosed sensitive user data (addresses) via logs.\n\nRemediation: Properly filter sensitive data from logs."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/ordering-attacks/odds_and_evens.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "players[tot] = Player(msg.sender, number);\n tot++;"
+                  },
+                  "startLine": 36,
+                  "endLine": 36
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.5406296770763037,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        }
+      ],
+      "properties": {
+        "oasisReportTitle": "Sensitive Data Logging Security Analysis",
+        "oasisGeneratedAt": "2026-06-12 00:46:10",
+        "oasisVulnerabilityName": "Sensitive Data Logging"
+      }
+    }
+  ]
+}

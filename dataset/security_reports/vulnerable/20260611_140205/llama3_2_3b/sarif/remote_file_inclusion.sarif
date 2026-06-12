@@ -1,0 +1,206 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "OASIS",
+          "version": "0.6.1",
+          "informationUri": "https://github.com/psyray/oasis",
+          "rules": [
+            {
+              "id": "remote-file-inclusion",
+              "name": "Remote File Inclusion",
+              "shortDescription": {
+                "text": "Vulnerabilities allowing inclusion of remote files that can lead to code execution"
+              },
+              "fullDescription": {
+                "text": "**Remote File Inclusion**\n\nVulnerabilities allowing inclusion of remote files that can lead to code execution\n\n**Impact (type metadata)**\nRemote code execution, complete system compromise, or malicious script injection\n\n**Mitigation (type metadata)**\nDisable remote file inclusion, validate all file sources, use allowlists for trusted domains"
+              },
+              "helpUri": "https://github.com/psyray/oasis"
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "remote-file-inclusion",
+          "level": "error",
+          "message": {
+            "text": "Vulnerable Code\n\nThe call() function is used to execute a remote script without proper validation, making it vulnerable to Remote File Inclusion.\n\nImpact: Remote code execution and complete system compromise.\n\nRemediation: Validate the _am value before executing the call() function."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/reentrancy/0xbaf51e761510c1a11bf48dd87c0307ac8a8c8a4f.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function CashOut(uint _am) public payable { if(_am<=balances[msg.sender]) { // <yes> <report> REENTRANCY if(msg.sender.call.value(_am)()) { \\ balances[msg.sender]-=_am; \\ TransferLog.AddMessage(msg.sender,_am,\"CashOut\"); } }}"
+                  },
+                  "startLine": 1,
+                  "endLine": 85
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6264942012910664,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "remote-file-inclusion",
+          "level": "error",
+          "message": {
+            "text": "Vulnerability found\n\nThe 'require(msg.sender.call.value(_weiToWithdraw)())' line includes a remote script call without proper validation.\n\nImpact: Malicious script execution could lead to full system compromise.\n\nRemediation: Use a safer function like require(bytes memory(_data), _data.length) to validate and sanitize user input."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/reentrancy/etherstore.sol"
+                },
+                "region": {
+                  "startLine": 1,
+                  "endLine": 39
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6162398064303127,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "remote-file-inclusion",
+          "level": "error",
+          "message": {
+            "text": "Remote File Inclusion\n\nThe `file_get_contents` function is used with a user-provided URL without proper validation, allowing an attacker to include remote files.\n\nImpact: Code execution and potential system compromise"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_1.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "`require(file_get_contents('http://example.com/${_data}'))`;"
+                  },
+                  "startLine": 126,
+                  "endLine": 467
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.603777867129511,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "remote-file-inclusion",
+          "level": "error",
+          "message": {
+            "text": "Remote File Inclusion\n\nDelegates to a remote URL without proper validation, allowing Remote File Inclusion vulnerabilities.\n\nImpact: Code execution and potential system compromise.\n\nRemediation: Properly validate and sanitize input data before delegating to a remote URL."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_1.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function _walletLibrary.delegatecall(msg.data);"
+                  },
+                  "startLine": 207,
+                  "endLine": 477
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.603777867129511,
+            "oasisChunkIndex": 1,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "remote-file-inclusion",
+          "level": "error",
+          "message": {
+            "text": "Remote File Inclusion\n\nThe execute function allows remote file inclusion through the use of sha3(msg.data, block.number), which can be manipulated to reference a malicious file.\n\nImpact: Remote code execution and potential compromise of the entire system.\n\nRemediation: Validate and sanitize user input to prevent sha3(msg.data, block.number) from referencing malicious files."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_2.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function execute(address _to, uint _value, bytes _data) external onlyowner returns (bytes32 o_hash) {\n  if ((_data.length == 0 && underLimit(_value)) || m_required == 1) {\n    // yes - just execute the call.\n    address created;\n    if (_to == 0) {\n      created = create(_value, _data);\n    } else {\n      if (!_to.call.value(_value)(_data)) throw;\n    }\n    SingleTransact(msg.sender, _value, _to, _data, created);\n  } else {\n    // determine our operation hash.\n    o_hash = sha3(msg.data, block.number);\n    // store if it's new\n    if (m_txs[o_hash].to == 0 && m_txs[o_hash].value == 0 && m_txs[o_hash].data.length == 0) {\n      m_txs[o_hash].to = _to;\n      m_txs[o_hash].value = _value;\n      m_txs[o_hash].data = _data;\n    }\n    if (!confirm(o_hash)) {\n      ConfirmationNeeded(o_hash, msg.sender, _value, _to, _data);\n    }\n  }\n}"
+                  },
+                  "startLine": 249,
+                  "endLine": 249
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.5799988928070823,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "remote-file-inclusion",
+          "level": "error",
+          "message": {
+            "text": "Vulnerability found\n\nInsecure use of `require()` function with unvalidated user input (`url`). This allows remote file inclusion.\n\nImpact: Potential code execution and compromise of the system."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_2.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "`require(url) require('./include.php');` or `require(url + '/index.php');`"
+                  },
+                  "startLine": 96,
+                  "endLine": 414
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.5799988928070823,
+            "oasisChunkIndex": 1,
+            "oasisFindingIndex": 0
+          }
+        }
+      ],
+      "properties": {
+        "oasisReportTitle": "Remote File Inclusion Security Analysis",
+        "oasisGeneratedAt": "2026-06-12 01:05:16",
+        "oasisVulnerabilityName": "Remote File Inclusion"
+      }
+    }
+  ]
+}

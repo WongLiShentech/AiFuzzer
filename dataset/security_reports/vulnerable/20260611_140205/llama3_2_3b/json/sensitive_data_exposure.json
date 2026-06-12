@@ -1,0 +1,754 @@
+{
+  "schema_version": 5,
+  "report_type": "vulnerability",
+  "title": "Sensitive Data Exposure Security Analysis",
+  "generated_at": "2026-06-11 23:44:34",
+  "model_name": "llama3.2:3b",
+  "language": "en",
+  "vulnerability_name": "Sensitive Data Exposure",
+  "vulnerability": {
+    "name": "Sensitive Data Exposure",
+    "description": "Instances where sensitive information is not properly protected",
+    "patterns": [
+      "sensitive data exposure",
+      "plaintext credentials",
+      "hardcoded secrets",
+      "API keys in code",
+      "unencrypted sensitive data",
+      "information disclosure",
+      "data leakage",
+      "sensitive data in client-side code",
+      "personal data mishandling",
+      "insufficient data protection",
+      "cleartext transmission of data",
+      "missing data encryption",
+      "PII exposure risk",
+      "credentials in config files",
+      "insufficient access controls",
+      "sensitive data caching",
+      "insecure data storage",
+      "PCI data mishandling",
+      "health information exposure",
+      "social security numbers unprotected",
+      "email addresses unsecured",
+      "financial data in plaintext",
+      "credentials in URL parameters",
+      "debug information disclosure",
+      "internal IP disclosure",
+      "server version exposure",
+      "technology stack disclosure",
+      "database connection string exposure",
+      "sensitive data in error messages",
+      "sensitive data in HTML comments"
+    ],
+    "impact": "Exposure of confidential information, credentials, or personal data leading to unauthorized access",
+    "mitigation": "Encrypt sensitive data, use secure storage solutions, and avoid hardcoding secrets"
+  },
+  "files": [
+    {
+      "file_path": "/work/project/dataset/vulnerable/oracle-manipulation/PuppetPool.sol",
+      "similarity_score": 0.6834629546828394,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "API Key Hardcoded",
+              "vulnerable_code": "\nfunction borrow(uint256 amount, address recipient) external payable nonReentrant {\n    ...\n    unchecked {\n        deposits[msg.sender] += depositRequired;\n    }\n\n    // Fails if the pool doesn't have enough tokens in liquidity\n    if (!token.transfer(recipient, amount)) {\n        revert TransferFailed();\n    }\n\n    emit Borrowed(msg.sender, recipient, depositRequired, amount);\n}",
+              "explanation": "The `token` object's address is hardcoded as `DamnValuableToken(tokenAddress)`, making it vulnerable to exposure.",
+              "severity": "Medium",
+              "impact": "Unauthorized access to the token balance or transfer functions.",
+              "entry_point": "/borrow(uint256 amount, address recipient)",
+              "execution_path_diagram": "",
+              "http_methods": [
+                "POST"
+              ],
+              "manipulable_parameters": [],
+              "exploitation_steps": [
+                "Get the hardcoded `token` object's address."
+              ],
+              "example_payloads": [],
+              "exploitation_conditions": "Hardcoded API key is used.",
+              "remediation": "Use environment variables or secure storage solutions for sensitive data.",
+              "secure_code_example": "const tokenAddress = process.env.TOKEN_ADDRESS;\nDamnValuableToken public immutable token;\n",
+              "snippet_start_line": 38,
+              "snippet_end_line": 38,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 71,
+          "notes": "No additional notes needed.",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    },
+    {
+      "file_path": "/work/project/dataset/vulnerable/oracle-manipulation/PuppetV2Pool.sol",
+      "similarity_score": 0.6747566829862008,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Hardcoded Secret",
+              "vulnerable_code": "_weth = IERC20(wethAddress); _token = IERC20(tokenAddress);",
+              "explanation": "The addresses of WETH and token are hardcoded, making it vulnerable to exposure.",
+              "severity": "High",
+              "impact": "Unauthorized access to the contract's functionality",
+              "entry_point": "/constructor/",
+              "execution_path_diagram": "````WETH_ADDRESS = _wethAddress; TOKEN_ADDRESS = _tokenAddress;```\n\n_contract().constructor(WETH_ADDRESS, TOKEN_ADDRESS)",
+              "http_methods": [],
+              "manipulable_parameters": [],
+              "exploitation_steps": [],
+              "example_payloads": [],
+              "exploitation_conditions": "",
+              "remediation": "",
+              "secure_code_example": "",
+              "snippet_start_line": null,
+              "snippet_end_line": null,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 70,
+          "notes": "",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    },
+    {
+      "file_path": "/work/project/dataset/vulnerable/reentrancy/0xbaf51e761510c1a11bf48dd87c0307ac8a8c8a4f.sol",
+      "similarity_score": 0.6551874751571704,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Hardcoded Secret",
+              "vulnerable_code": "`pragma solidity ^0.4.19;`",
+              "explanation": "The hardcoded contract version could allow an attacker to target specific vulnerabilities.",
+              "severity": "Medium",
+              "impact": "Potential exposure of private contract data.",
+              "entry_point": "/main",
+              "execution_path_diagram": "",
+              "http_methods": [],
+              "manipulable_parameters": [],
+              "exploitation_steps": [
+                "Recover hardcoded contract version"
+              ],
+              "example_payloads": [
+                "Old contract version"
+              ],
+              "exploitation_conditions": "",
+              "remediation": "Update the contract to use environment variables for sensitive data.",
+              "secure_code_example": "pragma solidity ^<version>;\ncontract ETH_VAULT ...\n",
+              "snippet_start_line": 41,
+              "snippet_end_line": 85,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 85,
+          "notes": "",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    },
+    {
+      "file_path": "/work/project/dataset/vulnerable/access-control/mycontract.sol",
+      "similarity_score": 0.6548623775312815,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Hardcoded Secret",
+              "vulnerable_code": "address owner = msg.sender;\nreceiver.transfer(amount);\nrequire(tx.origin == owner);",
+              "explanation": "The `owner` variable is hardcoded and can be accessed directly, allowing for potential manipulation.",
+              "severity": "Medium",
+              "impact": "Unauthorized access to the contract's state",
+              "entry_point": "MyContract() public function MyContract() public function sendTo(address receiver, uint amount) public",
+              "execution_path_diagram": "",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "owner"
+              ],
+              "exploitation_steps": [
+                "An attacker can access the owner address and perform actions on behalf of the contract"
+              ],
+              "example_payloads": [],
+              "exploitation_conditions": "No access controls are in place to restrict tx.origin",
+              "remediation": "Use a secure storage solution, such as an externally owned account or a modifier function.",
+              "secure_code_example": "",
+              "snippet_start_line": null,
+              "snippet_end_line": null,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 31,
+          "notes": "Sensitive data exposure vulnerability found due to hardcoded secret.",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    },
+    {
+      "file_path": "/work/project/dataset/vulnerable/reentrancy/etherstore.sol",
+      "similarity_score": 0.6547460571363096,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Plaintext Credentials",
+              "vulnerable_code": "function depositFunds() public payable {\n balances[msg.sender] += msg.value;\n}",
+              "explanation": "The contract stores user balances in a mapping, exposing them to unauthorized access.",
+              "severity": "High",
+              "impact": "Potential for theft of funds or sensitive information.",
+              "entry_point": "/depositFunds",
+              "execution_path_diagram": "",
+              "http_methods": [
+                "POST"
+              ],
+              "manipulable_parameters": [
+                "msg.value",
+                "msg.sender"
+              ],
+              "exploitation_steps": [
+                "Send a large value to overflow the user's balance."
+              ],
+              "example_payloads": [
+                "Large amount of ether"
+              ],
+              "exploitation_conditions": "User has sufficient Ether.",
+              "remediation": "Store balances in encrypted form using secure storage solutions like Solidity's `keccak256` function.",
+              "secure_code_example": "balances[msg.sender] = keccak256(balances[msg.sender].toString());",
+              "snippet_start_line": 24,
+              "snippet_end_line": 24,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 39,
+          "notes": "No other issues found.",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    },
+    {
+      "file_path": "/work/project/dataset/vulnerable/ordering-attacks/FindThisHash.sol",
+      "similarity_score": 0.6429012197080717,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Hardcoded Secret",
+              "vulnerable_code": "bytes32 constant public hash = 0xb5b5b97fafd9855eec9b41f74dfb6c38f5951141f9a3ecd7f44d5479b630ee0a;",
+              "explanation": "The 'hash' variable is hardcoded with a plaintext value, making it vulnerable to exposure.",
+              "severity": "High",
+              "impact": "An attacker can access the hardcoded hash value.",
+              "entry_point": "/contract/FindThisHash/solve",
+              "execution_path_diagram": "",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "solution"
+              ],
+              "exploitation_steps": [
+                "Get the value of 'hash' from the contract"
+              ],
+              "example_payloads": [],
+              "exploitation_conditions": "Contract is deployed and accessible.",
+              "remediation": "Replace hardcoded hash with a secure storage solution.",
+              "secure_code_example": "",
+              "snippet_start_line": 18,
+              "snippet_end_line": 18,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 28,
+          "notes": "",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    },
+    {
+      "file_path": "/work/project/dataset/vulnerable/reentrancy/simple_dao.sol",
+      "similarity_score": 0.6321714679199798,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Hardcoded API Key",
+              "vulnerable_code": "pragma solidity ^0.4.2;\ncontract SimpleDAO {\n  mapping (address => uint) public credit;\n  function donate(address to) payable {\n    credit[to] += msg.value;\n  }\n  function withdraw(uint amount) {\n    if (credit[msg.sender]>= amount) {\n      bool res = msg.sender.call.value(amount)();\n      credit[msg.sender]-=amount;\n    }\n  }\n  function queryCredit(address to) returns (uint){\n    return credit[to];\n  }\n}",
+              "explanation": "The API key is hardcoded as `pragma solidity ^0.4.2;` which can be easily accessed and used by an attacker.",
+              "severity": "Low",
+              "impact": "An attacker could use the hardcoded API key to make unauthorized transactions.",
+              "entry_point": "/withdraw(uint)",
+              "execution_path_diagram": "",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "amount"
+              ],
+              "exploitation_steps": [
+                "Attackers can exploit the hardcoded API key by making a withdrawal request."
+              ],
+              "example_payloads": [
+                "invalid payload"
+              ],
+              "exploitation_conditions": "API key is hardcoded in the contract.",
+              "remediation": "The API key should be stored securely, such as using an environment variable or a secrets manager.",
+              "secure_code_example": "pragma solidity ^0.8.0;\ncontract SimpleDAO {\n  mapping (address => uint) public credit;\n  function donate(address to) payable {\n    credit[to] += msg.value;\n  }\n  function withdraw(uint amount) {\n    if (credit[msg.sender]>= amount) {\n      bool res = msg.sender.call.value(amount)();\n      credit[msg.sender]-=amount;\n    }\n  }\n  function queryCredit(address to) returns (uint){\n    return credit[to];\n  }\n}",
+              "snippet_start_line": 15,
+              "snippet_end_line": 15,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 35,
+          "notes": "None",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    },
+    {
+      "file_path": "/work/project/dataset/vulnerable/ordering-attacks/eth_tx_order_dependence_minimal.sol",
+      "similarity_score": 0.6198378001741832,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Hardcoded API Key",
+              "vulnerable_code": "address public owner;\nbool public claimed;\nuint public reward;\n\nfunction EthTxOrderDependenceMinimal() public {\n\towner = msg.sender;\n}\nfungtion setReward() public payable {\n\trequire (!claimed);\n\n\trequire(msg.sender == owner);\n\towner.transfer(reward);\n\treward = msg.value;\n}",
+              "explanation": "The contract hardcodes the `owner` variable, making it accessible to anyone who can read or modify the contract.",
+              "severity": "High",
+              "impact": "An attacker could modify the `owner` variable to gain unauthorized access to the contract.",
+              "entry_point": "setReward() function",
+              "execution_path_diagram": "Owner -> Set Reward -> Transfer -> Reward",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "owner"
+              ],
+              "exploitation_steps": [
+                "Modify the `owner` variable to gain access to the contract."
+              ],
+              "example_payloads": [],
+              "exploitation_conditions": "Owner is set before execution.",
+              "remediation": "Store the owner address in a secure storage mechanism, such as a private key or a trusted dependency.",
+              "secure_code_example": "address public owner;\naddress privateOwnerAddress = 0x...;\nfungction setReward() public payable {\n\trequire (!claimed);\n\towner = privateOwnerAddress;\n\towner.transfer(reward);\n\treward = msg.value;\n}\n",
+              "snippet_start_line": 18,
+              "snippet_end_line": 18,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 42,
+          "notes": "",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    },
+    {
+      "file_path": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_1.sol",
+      "similarity_score": 0.5987787659191394,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Hardcoded API key",
+              "vulnerable_code": "pragma solidity ^0.4.9; contract WalletEvents {\n function initMultiowned(address[] _owners, uint _required) {\n // ... hardcoded api key here ...\n }",
+              "explanation": "The `initMultiowned` function contains a hardcoded API key.",
+              "severity": "High",
+              "impact": "Exposure of sensitive data to unauthorized parties.",
+              "entry_point": "/contract/WalletEvents/initMultiowned(address[], uint)",
+              "execution_path_diagram": "",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "_owners",
+                "_required"
+              ],
+              "exploitation_steps": [
+                "Get the address array and API key."
+              ],
+              "example_payloads": [],
+              "exploitation_conditions": "",
+              "remediation": "",
+              "secure_code_example": "",
+              "snippet_start_line": null,
+              "snippet_end_line": null,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 225,
+          "notes": null,
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        },
+        {
+          "findings": [
+            {
+              "title": "Hardcoded Secret",
+              "vulnerable_code": "pragma solidity 0.4.9; //sol Wallet\ncontract WalletEvents {\n...",
+              "explanation": "The wallet contract contains a hardcoded secret in the `pragma solidity` directive.",
+              "severity": "Low",
+              "impact": "An attacker with access to the contract's source code could potentially extract the hardcoded secret.",
+              "entry_point": "/pragma solidity 0.4.9;",
+              "execution_path_diagram": "",
+              "http_methods": [],
+              "manipulable_parameters": [],
+              "exploitation_steps": [
+                "Read the contract's source code."
+              ],
+              "example_payloads": [],
+              "exploitation_conditions": "",
+              "remediation": "Use a secure configuration file or environment variable to store sensitive data.",
+              "secure_code_example": "",
+              "snippet_start_line": null,
+              "snippet_end_line": null,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 281,
+          "notes": null,
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        },
+        {
+          "findings": [
+            {
+              "title": "Hardcoded secret",
+              "vulnerable_code": "function initDaylimit(uint _limit) {\n m_dailyLimit = _limit;\nm_lastDay = today();\n}",
+              "explanation": "The daily limit is hardcoded, making it vulnerable to exposure.",
+              "severity": "Medium",
+              "impact": "An attacker could potentially modify the daily limit.",
+              "entry_point": "initDaylimit(uint _limit)",
+              "execution_path_diagram": "DailyLimit -> initDaylimit() -> setDailyLimit(uint _newLimit) -> m_dailyLimit = _limit;",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "_limit"
+              ],
+              "exploitation_steps": [
+                "Modify the daily limit value"
+              ],
+              "example_payloads": [
+                "uint256 newLimit = 1000000;\nsetDailyLimit(newLimit);"
+              ],
+              "exploitation_conditions": "The user has administrative privileges.",
+              "remediation": "Use environment variables or secure storage for sensitive data.",
+              "secure_code_example": "import os\nm_dailyLimit = os.getenv('DAILY_LIMIT')\nm_lastDay = today()",
+              "snippet_start_line": 215,
+              "snippet_end_line": 215,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 320,
+          "notes": null,
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        },
+        {
+          "findings": [
+            {
+              "title": "Hardcoded API Keys",
+              "vulnerable_code": "function revoke(bytes32 _operation) external {\n  // make sure they're an owner\n  if (ownerIndex == 0) return;\n  uint ownerIndexBit = 2**ownerIndex;\n  var pending = m_pending[_operation];\n  if (pending.ownersDone & ownerIndexBit > 0) {\n    pending.yetNeeded++;\n    pending.ownersDone -= ownerIndexBit;\n    Revoke(msg.sender, _operation);\n  }\n}",
+              "explanation": "The revoke function does not check for hardcoded API keys or sensitive data exposure",
+              "severity": "Medium",
+              "impact": "Exposure of confidential information through hardcoded API keys",
+              "entry_point": "revoke(bytes32)",
+              "execution_path_diagram": "",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "_operation"
+              ],
+              "exploitation_steps": [
+                "Send a revoke request with the correct operation hash"
+              ],
+              "example_payloads": [],
+              "exploitation_conditions": "Hardcoded API keys are not validated or secured",
+              "remediation": "Use secure storage solutions for sensitive data and validate API keys",
+              "secure_code_example": "function revoke(bytes32 _operation) external {\n  // use secure storage for sensitive data\n  uint ownerIndex = m_ownerIndex[uint(msg.sender)];\n  var pending = m_pending[_operation];\n  if (pending.ownersDone & ownerIndex > 0) {\n    pending.yetNeeded++;\n    pending.ownersDone -= ownerIndex;\n    Revoke(msg.sender, _operation);\n  }\n}",
+              "snippet_start_line": 134,
+              "snippet_end_line": 134,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 27,
+          "end_line": 358,
+          "notes": "",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        },
+        {
+          "findings": [
+            {
+              "title": "Hardcoded API Key",
+              "vulnerable_code": "\"_walletLibrary\" = 0xcafecafecafecafecafecafecafecafecafecafe;",
+              "explanation": "The wallet library's address is hardcoded, making it accessible to anyone who can view the code.",
+              "severity": "Critical",
+              "impact": "An attacker with access to the contract's source code can exploit this vulnerability.",
+              "entry_point": "initWallet(address[] _owners, uint _required, uint _daylimit)",
+              "execution_path_diagram": "Hardcoded API Key -> initWallet() -> _walletLibrary = ...",
+              "http_methods": [],
+              "manipulable_parameters": [],
+              "exploitation_steps": [
+                "Read the hardcoded API key from the contract's source code"
+              ],
+              "example_payloads": [
+                "0xcafecafecafecafecafecafecafecafecafecafe"
+              ],
+              "exploitation_conditions": "Contract source code is publicly accessible.",
+              "remediation": "Replace hardcoded API key with an environment variable or secure storage solution.",
+              "secure_code_example": "const _walletLibrary = process.env.WALLET_LIBRARY_ADDRESS || '...';",
+              "snippet_start_line": null,
+              "snippet_end_line": null,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 126,
+          "end_line": 467,
+          "notes": "No sensitive data exposure issues were found.",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        },
+        {
+          "findings": [
+            {
+              "title": "Hardcoded API Key",
+              "vulnerable_code": "function initWallet(address[] _owners, uint _required, uint _daylimit) { ... function setDailyLimit(uint _newLimit) onlymanyowners(sha3(msg.data)) external { m_dailyLimit = _newLimit; ... } ... }",
+              "explanation": "The contract uses hardcoded API keys and sensitive data without proper protection.",
+              "severity": "High",
+              "impact": "Exposure of confidential information, such as API keys.",
+              "entry_point": "/initWallet(address[],uint256,uint256)",
+              "execution_path_diagram": "",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "_owners",
+                "_required",
+                "_daylimit"
+              ],
+              "exploitation_steps": [
+                "Obtain the hardcoded API key and sensitive data."
+              ],
+              "example_payloads": [],
+              "exploitation_conditions": "",
+              "remediation": "Use secure storage solutions, such as encrypted variables or environment variables.",
+              "secure_code_example": "const uint _api_key = 0x1234567890abcdef;\nconst address[] _owners = [...];\ncontract Wallet(...) { ... }",
+              "snippet_start_line": null,
+              "snippet_end_line": null,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 207,
+          "end_line": 477,
+          "notes": null,
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    },
+    {
+      "file_path": "/work/project/dataset/vulnerable/ordering-attacks/odds_and_evens.sol",
+      "similarity_score": 0.5872764465338205,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Plaintext Credentials",
+              "vulnerable_code": "function OddsAndEvens() {\nowner = msg.sender;\n}",
+              "explanation": "The owner address is stored in plaintext, making it vulnerable to exposure.",
+              "severity": "Critical",
+              "impact": "Exposure of the owner's Ethereum wallet address.",
+              "entry_point": "/contract/owner",
+              "execution_path_diagram": "msg.sender -> owner = msg.sender\nowner (plaintext) -> contract execution",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "msg.sender"
+              ],
+              "exploitation_steps": [
+                "Obtain the owner's Ethereum wallet address"
+              ],
+              "example_payloads": [],
+              "exploitation_conditions": "Authenticated sender can read the owner's address.",
+              "remediation": "Use a secure storage solution for sensitive data, such as Keystore or Safe",
+              "secure_code_example": "owner = keystore.loadAddress(msg.sender);\n",
+              "snippet_start_line": 29,
+              "snippet_end_line": 29,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 61,
+          "notes": "",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    },
+    {
+      "file_path": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_2.sol",
+      "similarity_score": 0.5814322408822736,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Hardcoded API Key",
+              "vulnerable_code": "pragma solidity ^0.4.9;\ncontract WalletAbi {\nfunction execute(address _to, uint _value, bytes _data) external returns (bytes32 o_hash) { return sha3(msg.sender);\n}",
+              "explanation": "The \"execute\" function uses the \"msg.sender\" variable to compute the operation hash without any input validation.",
+              "severity": "High",
+              "impact": "An attacker can access the wallet's functionality using hardcoded API keys.",
+              "entry_point": "/execute",
+              "execution_path_diagram": "",
+              "http_methods": [
+                "POST"
+              ],
+              "manipulable_parameters": [
+                "_to",
+                "_value",
+                "_data"
+              ],
+              "exploitation_steps": [
+                "Obtain a valid msg.sender address"
+              ],
+              "example_payloads": [
+                "https://example.com/execute?_to=0x12345678901234567890123456789012&_value=100&_data=\"\\n\""
+              ],
+              "exploitation_conditions": "",
+              "remediation": "",
+              "secure_code_example": "",
+              "snippet_start_line": 26,
+              "snippet_end_line": 26,
+              "http_raw_requests": [
+                "POST /execute HTTP/1.1\nHost: example.com\nContent-Type: application/json\n\r\n{\"_to\":\"0x12345678901234567890123456789012\",\"_value\":100,\"_data\":\"\\\\n\"}",
+                "\r\n"
+              ]
+            }
+          ],
+          "start_line": 1,
+          "end_line": 227,
+          "notes": null,
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        },
+        {
+          "findings": [
+            {
+              "title": "Hardcoded Secret",
+              "vulnerable_code": "function initDaylimit(uint _limit) only_uninitialized { m_dailyLimit = _limit; m_lastDay = today(); }",
+              "explanation": "The `initDaylimit` function directly uses the `_limit` parameter, making it a hardcoded secret.",
+              "severity": "Low",
+              "impact": "An attacker could modify this value to manipulate the daily limit.",
+              "entry_point": "/contract/WalletLibrary/initDaylimit(uint _limit)",
+              "execution_path_diagram": "",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "_limit"
+              ],
+              "exploitation_steps": [
+                "Call `initDaylimit` with a malicious `_limit` value"
+              ],
+              "example_payloads": [],
+              "exploitation_conditions": "Admin has administrative access to the contract.",
+              "remediation": "Use a secure storage mechanism for the daily limit value.",
+              "secure_code_example": "",
+              "snippet_start_line": null,
+              "snippet_end_line": null,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 286,
+          "notes": null,
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        },
+        {
+          "findings": [
+            {
+              "title": "Unencrypted Sensitive Data",
+              "vulnerable_code": "uint public m_spentToday;",
+              "explanation": "The `m_spentToday` variable is not encrypted, making it vulnerable to exposure.",
+              "severity": "High",
+              "impact": "Exposure of daily spending limit could be used for unauthorized transactions.",
+              "entry_point": "execute(address _to, uint _value, bytes _data)",
+              "execution_path_diagram": "execute -> m_dailyLimit -> m_spentToday;",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "m_dailyLimit",
+                "m_spentToday"
+              ],
+              "exploitation_steps": [
+                "Obtain access to the contract's storage.",
+                "Read `m_spentToday` variable."
+              ],
+              "example_payloads": [],
+              "exploitation_conditions": "",
+              "remediation": "",
+              "secure_code_example": "",
+              "snippet_start_line": 399,
+              "snippet_end_line": 399,
+              "http_raw_requests": [
+                "GET /execute HTTP/1.1",
+                "Host: <contract_address>",
+                "",
+                ""
+              ]
+            }
+          ],
+          "start_line": 96,
+          "end_line": 414,
+          "notes": null,
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    }
+  ],
+  "stats": {
+    "files_analyzed": 11,
+    "high_risk": 8,
+    "medium_risk": 5,
+    "low_risk": 3,
+    "critical_risk": 2,
+    "total_findings": 18,
+    "potential_findings": 0
+  },
+  "analysis_root": "../vulnerable",
+  "embed_model": "nomic-embed-text",
+  "project": "vulnerable"
+}

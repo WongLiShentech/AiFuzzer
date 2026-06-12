@@ -1,0 +1,139 @@
+{
+  "schema_version": 5,
+  "report_type": "vulnerability",
+  "title": "Sensitive Data Exposure Security Analysis",
+  "generated_at": "2026-06-11 10:02:19",
+  "model_name": "mistral:latest",
+  "language": "en",
+  "vulnerability_name": "Sensitive Data Exposure",
+  "vulnerability": {
+    "name": "Sensitive Data Exposure",
+    "description": "Instances where sensitive information is not properly protected",
+    "patterns": [
+      "sensitive data exposure",
+      "plaintext credentials",
+      "hardcoded secrets",
+      "API keys in code",
+      "unencrypted sensitive data",
+      "information disclosure",
+      "data leakage",
+      "sensitive data in client-side code",
+      "personal data mishandling",
+      "insufficient data protection",
+      "cleartext transmission of data",
+      "missing data encryption",
+      "PII exposure risk",
+      "credentials in config files",
+      "insufficient access controls",
+      "sensitive data caching",
+      "insecure data storage",
+      "PCI data mishandling",
+      "health information exposure",
+      "social security numbers unprotected",
+      "email addresses unsecured",
+      "financial data in plaintext",
+      "credentials in URL parameters",
+      "debug information disclosure",
+      "internal IP disclosure",
+      "server version exposure",
+      "technology stack disclosure",
+      "database connection string exposure",
+      "sensitive data in error messages",
+      "sensitive data in HTML comments"
+    ],
+    "impact": "Exposure of confidential information, credentials, or personal data leading to unauthorized access",
+    "mitigation": "Encrypt sensitive data, use secure storage solutions, and avoid hardcoding secrets"
+  },
+  "files": [
+    {
+      "file_path": "/work/project/dataset/clean/simple_dao_fixed.sol",
+      "similarity_score": 0.6001129080714301,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Vulnerability found",
+              "vulnerable_code": "credit[msg.sender]>= amount",
+              "explanation": "The contract stores credit values in plaintext, exposing the balance of each address.",
+              "severity": "Medium",
+              "impact": "Exposure of user balances",
+              "entry_point": "withdraw function",
+              "execution_path_diagram": "```\nstart --> withdraw(amount) --> if (credit[msg.sender]>= amount) --> credit[msg.sender]>= amount ----> exposure\n```",
+              "http_methods": [],
+              "manipulable_parameters": [],
+              "exploitation_steps": [
+                "Call the withdraw function",
+                "Inspect exposed credit balance"
+              ],
+              "example_payloads": [],
+              "exploitation_conditions": "",
+              "remediation": "Store sensitive data encrypted, or use a secure storage solution to protect the user balances.",
+              "secure_code_example": "",
+              "snippet_start_line": 25,
+              "snippet_end_line": 25,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 34,
+          "notes": "No issues",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    },
+    {
+      "file_path": "/work/project/dataset/clean/modifier_reentrancy_fixed.sol",
+      "similarity_score": 0.5926431898582555,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Vulnerability found",
+              "vulnerable_code": "tokenBalance[msg.sender] == 0",
+              "explanation": "Hardcoded public contract name ('Nu Token') is exposed in the Bank contract function.",
+              "severity": "Medium",
+              "impact": "Exposure of contract name, which could aid attackers in identifying and targeting vulnerable contracts.",
+              "entry_point": "Bank.supportsToken() external function",
+              "execution_path_diagram": "```\nBank.supportsToken() \n  | \n  +---> ModifierEntrancy.\n```",
+              "http_methods": [],
+              "manipulable_parameters": [],
+              "exploitation_steps": [
+                "Identify contract name from exposed data.",
+                "Target vulnerable contracts with the identified name."
+              ],
+              "example_payloads": [],
+              "exploitation_conditions": "Attacker has knowledge of contract names in use.",
+              "remediation": "Store hardcoded secrets securely, e.g., as off-chain constants or using a secure configuration management system.",
+              "secure_code_example": "const PRIVATE_KEY = '0xYOUR_PRIVATE_KEY'; // Store your private key securely.\n\nfunction supportsToken() internal returns(bytes32) {\n    require(keccak256(abi.encodePacked(PRIVATE_KEY)) == bank.supportsToken());\n}",
+              "snippet_start_line": 32,
+              "snippet_end_line": 32,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 42,
+          "notes": "No issues",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    }
+  ],
+  "stats": {
+    "files_analyzed": 2,
+    "high_risk": 0,
+    "medium_risk": 2,
+    "low_risk": 0,
+    "critical_risk": 0,
+    "total_findings": 2,
+    "potential_findings": 0
+  },
+  "analysis_root": "../clean",
+  "embed_model": "nomic-embed-text",
+  "project": "clean_contracts"
+}

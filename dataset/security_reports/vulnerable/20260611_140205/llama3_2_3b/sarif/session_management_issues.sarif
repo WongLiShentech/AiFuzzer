@@ -1,0 +1,467 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "OASIS",
+          "version": "0.6.1",
+          "informationUri": "https://github.com/psyray/oasis",
+          "rules": [
+            {
+              "id": "session-management-issues",
+              "name": "Session Management Issues",
+              "shortDescription": {
+                "text": "Problems with how user sessions are created, maintained, and terminated"
+              },
+              "fullDescription": {
+                "text": "**Session Management Issues**\n\nProblems with how user sessions are created, maintained, and terminated\n\n**Impact (type metadata)**\nAccount takeover, session hijacking, and unauthorized access to user accounts\n\n**Mitigation (type metadata)**\nImplement secure session handling, use proper timeout settings, and protect session tokens"
+              },
+              "helpUri": "https://github.com/psyray/oasis"
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "session-management-issues",
+          "level": "note",
+          "message": {
+            "text": "Insecure Session ID Generation\n\nThe contract uses a fixed value (0x1) as the session ID in the `initMultiowned` function, which is not cryptographically secure.\n\nImpact: An attacker could potentially manipulate the session ID to gain unauthorized access to the wallet.\n\nRemediation: Use a cryptographically secure method to generate unique session IDs, such as using a salt and a random number."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_1.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function initMultiowned(address[] _owners, uint _required) { ... }"
+                  },
+                  "startLine": 1,
+                  "endLine": 281
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6579055143249387,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "session-management-issues",
+          "level": "warning",
+          "message": {
+            "text": "Vulnerability found\n\nThe revoke function does not properly handle the case when an owner tries to revoke a transaction that has already been confirmed by another owner.\n\nImpact: An attacker could exploit this vulnerability by sending a revoke request for a transaction that has already been confirmed by another owner.\n\nRemediation: The revoke function should be modified to properly handle confirmed transactions."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_1.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function revoke(bytes32 _operation) external {\n  \\u0002\n  uint ownerIndex = m_ownerIndex[uint(msg.sender)];\n  \\u0003\\n  if (ownerIndex == 0) return;\n  \\u0005\\n  var pending = m_pending[_operation];\n  \\u0007\\n  if (pending.ownersDone & ownerIndexBit > 0) {\n    pending.yetNeeded++;\n    pending.ownersDone -= ownerIndexBit;\n    Revoke(msg.sender, _operation);\n  }\n}"
+                  },
+                  "startLine": 134,
+                  "endLine": 134
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6579055143249387,
+            "oasisChunkIndex": 1,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "session-management-issues",
+          "level": "error",
+          "message": {
+            "text": "Vulnerability found\n\nThe use of `onlymanyowners` with SHA-3 hash from `msg.data` makes the contract vulnerable to session hijacking. An attacker can manipulate the `msg.data` to get a valid signature, allowing them to confirm transactions without actually owning the wallet.\n\nImpact: Account takeover and unauthorized access to user accounts\n\nRemediation: Use `onlymanyowners` with a fixed, predictable transaction hash instead of relying on SHA-3 from user input."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_1.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function confirm(bytes32 _h) onlymanyowners(sha3(msg.data)) returns (bool o_success) { ... }"
+                  },
+                  "startLine": 27,
+                  "endLine": 358
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6579055143249387,
+            "oasisChunkIndex": 2,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "session-management-issues",
+          "level": "warning",
+          "message": {
+            "text": "Missing Session Timeout\n\nThis line prevents the owner index from being reset to a new value after removal, allowing an attacker to manipulate session IDs.\n\nImpact: An attacker could create multiple valid session IDs and gain unauthorized access to user accounts.\n\nRemediation: Implement a proper timeout mechanism to update m_ownerIndex after removal."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_1.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "if (m_required > m_numOwners - 1) return;"
+                  },
+                  "startLine": 177,
+                  "endLine": 177
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6579055143249387,
+            "oasisChunkIndex": 3,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "session-management-issues",
+          "level": "warning",
+          "message": {
+            "text": "Vulnerability found\n\nThis code is vulnerable to session fixation because it stores the index of the current user in a variable called `ownerIndex`. If an attacker can manipulate this value, they can fixate the session and gain unauthorized access.\n\nImpact: Unauthorized access to user accounts\n\nRemediation: Use a secure random number generator to generate the session ID and store it securely."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_1.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "uint ownerIndexBit = 2**ownerIndex;\nreturn !(pending.ownersDone & ownerIndexBit == 0);"
+                  },
+                  "startLine": 210,
+                  "endLine": 210
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6579055143249387,
+            "oasisChunkIndex": 4,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "session-management-issues",
+          "level": "warning",
+          "message": {
+            "text": "Missing Session Timeout\n\nThe contract does not have a session timeout set, allowing an attacker to remain active indefinitely.\n\nImpact: Account takeover and unauthorized access\n\nRemediation: Implement a session timeout with a reasonable value (e.g., 1 day)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_2.sol"
+                },
+                "region": {
+                  "startLine": 1,
+                  "endLine": 227
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6489949094002326,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "session-management-issues",
+          "level": "warning",
+          "message": {
+            "text": "Insecure Session Handling\n\nThe `revoke` function does not check if the sender is an owner before revoking a confirmation, making it vulnerable to session fixation attacks.\n\nImpact: Unauthorized access to user accounts\n\nRemediation: Add checks for ownership before revoking a confirmation."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_2.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function revoke(bytes32 _operation) external { ... }"
+                  },
+                  "startLine": 1,
+                  "endLine": 286
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6489949094002326,
+            "oasisChunkIndex": 1,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "session-management-issues",
+          "level": "warning",
+          "message": {
+            "text": "Insecure session ID generation\n\nThe contract uses a fixed value for the daily limit index, which can lead to predictable session IDs.\n\nImpact: Session hijacking and unauthorized access\n\nRemediation: Generate unique and unpredictable session IDs using a secure random number generator."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_2.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function initDaylimit(uint _limit) only_uninitialized { ... }"
+                  },
+                  "startLine": 96,
+                  "endLine": 414
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6489949094002326,
+            "oasisChunkIndex": 2,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "session-management-issues",
+          "level": "warning",
+          "message": {
+            "text": "Insecure Session Handling\n\nThe call() function does not check if the message sender is authorized to withdraw funds.\n\nImpact: An attacker could impersonate a user and withdraw funds without being detected.\n\nRemediation: Use a secure authentication mechanism, such as a private key or a token-based system."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/reentrancy/etherstore.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "require(msg.sender.call.value(_weiToWithdraw)())"
+                  },
+                  "startLine": 35,
+                  "endLine": 35
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6086996818931248,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "session-management-issues",
+          "level": "warning",
+          "message": {
+            "text": "Insecure Session Handling\n\nThe `call` function is used without proper verification, allowing an attacker to manipulate the session.\n\nImpact: Unauthorized access to user accounts\n\nRemediation: Use `require` statements to verify the sender's identity and ensure proper session handling."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/reentrancy/simple_dao.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "bool res = msg.sender.call.value(amount)(); credit[msg.sender]-=amount;"
+                  },
+                  "startLine": 1,
+                  "endLine": 35
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.5889910034889423,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "session-management-issues",
+          "level": "warning",
+          "message": {
+            "text": "Insecure Session Handling\n\nThe contract exposes its internal state (TransferLog) directly to the user, allowing an attacker to manipulate it.\n\nImpact: An attacker could modify the transfer log, potentially revealing sensitive information about transactions.\n\nRemediation: Use a secure session management mechanism, such as encryption or secure storage."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/reentrancy/0xbaf51e761510c1a11bf48dd87c0307ac8a8c8a4f.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function ETH_VAULT(address _log) public { TransferLog = Log(_log); }"
+                  },
+                  "startLine": 1,
+                  "endLine": 85
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.587344992334363,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "session-management-issues",
+          "level": "error",
+          "message": {
+            "text": "Vulnerable Session Handling\n\nThe contract uses `tx.origin` to authorize transfers, allowing an attacker to hijack a session by impersonating the owner.\n\nImpact: Unauthorized transfers can occur if an attacker intercepts a legitimate transaction."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/mycontract.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "receiver.transfer(amount);"
+                  },
+                  "startLine": 28,
+                  "endLine": 28
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.5865707876615741,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "session-management-issues",
+          "level": "warning",
+          "message": {
+            "text": "Vulnerable Session ID Generation\n\nThe session ID (hash) is generated using a fixed, non-secure value.\n\nImpact: An attacker could potentially obtain the pre-image of the hash to access the account.\n\nRemediation: Use a secure random number generator to generate session IDs."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/ordering-attacks/FindThisHash.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "bytes32 constant public hash = 0xb5b5b97fafd9855eec9b41f74dfb6c38f5951141f9a3ecd7f44d5479b630ee0a;"
+                  },
+                  "startLine": 18,
+                  "endLine": 18
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.5807681061864267,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "session-management-issues",
+          "level": "warning",
+          "message": {
+            "text": "Insecure Session Handling\n\nThe `players` array is not cleared or updated after a winner is declared, allowing an attacker to reuse session IDs.\n\nImpact: Unauthorized access to user accounts"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/ordering-attacks/odds_and_evens.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function play(uint number) payable{ players[tot] = Player(msg.sender, number); tot++; }"
+                  },
+                  "startLine": 1,
+                  "endLine": 61
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.5702884572014075,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "session-management-issues",
+          "level": "warning",
+          "message": {
+            "text": "Session Fixation\n\nThe owner is set to the sender of the constructor, which can be exploited to fix the session.\n\nImpact: Account takeover\n\nRemediation: Use a secure random number generator to generate the owner's address."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/ordering-attacks/eth_tx_order_dependence_minimal.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function EthTxOrderDependenceMinimal() public {\nowner = msg.sender;\n}"
+                  },
+                  "startLine": 22,
+                  "endLine": 22
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.5656152862312687,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        }
+      ],
+      "properties": {
+        "oasisReportTitle": "Session Management Issues Security Analysis",
+        "oasisGeneratedAt": "2026-06-12 01:23:57",
+        "oasisVulnerabilityName": "Session Management Issues"
+      }
+    }
+  ]
+}

@@ -1,0 +1,122 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "OASIS",
+          "version": "0.6.1",
+          "informationUri": "https://github.com/psyray/oasis",
+          "rules": [
+            {
+              "id": "cross-site-scripting-xss",
+              "name": "Cross-Site Scripting (XSS)",
+              "shortDescription": {
+                "text": "Vulnerabilities that allow attackers to inject client-side scripts"
+              },
+              "fullDescription": {
+                "text": "**Cross-Site Scripting (XSS)**\n\nVulnerabilities that allow attackers to inject client-side scripts\n\n**Impact (type metadata)**\nCan lead to session hijacking, credential theft, or delivery of malware to users\n\n**Mitigation (type metadata)**\nApply context-aware output encoding, use Content-Security-Policy, validate and sanitize all inputs"
+              },
+              "helpUri": "https://github.com/psyray/oasis"
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "cross-site-scripting-xss",
+          "level": "error",
+          "message": {
+            "text": "Cross-Site Scripting (XSS)\n\nUnescaped output to HTML can lead to XSS vulnerabilities. The `transfer` function is used directly with user input without proper sanitization.\n\nImpact: Potential session hijacking or credential theft via an intermediary contract\n\nRemediation: Use a safer function like `transfer() { require(tx.origin == owner); }` or sanitize user input before passing it to the `transfer()` function"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/mycontract.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "receiver.transfer(amount);"
+                  },
+                  "startLine": 28,
+                  "endLine": 28
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6498998474998544,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "cross-site-scripting-xss",
+          "level": "error",
+          "message": {
+            "text": "Vulnerability found\n\nThe use of msg.sender.call.value() with user input allows an attacker to inject arbitrary JavaScript code.\n\nImpact: Can lead to session hijacking, credential theft, or delivery of malware to users\n\nRemediation: Use msg.sender.call.value with strict encoding (e.g. encode(_am) instead of _am)"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/reentrancy/0xbaf51e761510c1a11bf48dd87c0307ac8a8c8a4f.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function CashOut(uint _am) public payable { if(_am<=balances[msg.sender]) { // <yes> <report> REENTRANCY if(msg.sender.call.value(_am)()) { ... } } }"
+                  },
+                  "startLine": 1,
+                  "endLine": 85
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6368721658556715,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "cross-site-scripting-xss",
+          "level": "error",
+          "message": {
+            "text": "Cross-Site Scripting (XSS) Vulnerability\n\nUsing msg.sender.call.value() with a user-input variable _weiToWithdraw allows an attacker to inject malicious JavaScript code.\n\nImpact: An attacker could steal sensitive data or perform unauthorized actions on behalf of the user.\n\nRemediation: Use msg.sender.call.value(_weiToWithdraw, 'approved') instead of msg.sender.call.value(_weiToWithdraw)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/reentrancy/etherstore.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "require(msg.sender.call.value(_weiToWithdraw)());"
+                  },
+                  "startLine": 35,
+                  "endLine": 35
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6307406390579039,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        }
+      ],
+      "properties": {
+        "oasisReportTitle": "Cross-Site Scripting (XSS) Security Analysis",
+        "oasisGeneratedAt": "2026-06-12 01:34:12",
+        "oasisVulnerabilityName": "Cross-Site Scripting (XSS)"
+      }
+    }
+  ]
+}

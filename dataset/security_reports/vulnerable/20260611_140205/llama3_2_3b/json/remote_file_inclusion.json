@@ -1,0 +1,313 @@
+{
+  "schema_version": 5,
+  "report_type": "vulnerability",
+  "title": "Remote File Inclusion Security Analysis",
+  "generated_at": "2026-06-12 01:05:16",
+  "model_name": "llama3.2:3b",
+  "language": "en",
+  "vulnerability_name": "Remote File Inclusion",
+  "vulnerability": {
+    "name": "Remote File Inclusion",
+    "description": "Vulnerabilities allowing inclusion of remote files that can lead to code execution",
+    "patterns": [
+      "remote file inclusion vulnerability",
+      "include with URL parameter",
+      "require with remote URL",
+      "file_get_contents with HTTP URL",
+      "remote script inclusion",
+      "unsafe URL in include statement",
+      "dynamic remote file loading",
+      "HTTP URL in file inclusion",
+      "HTTPS URL in require",
+      "FTP URL in file operations",
+      "remote template inclusion",
+      "external resource inclusion",
+      "URL parameter in include",
+      "allow_url_include enabled",
+      "allow_url_fopen with inclusion",
+      "curl result in include",
+      "wget result in execution",
+      "remote configuration loading",
+      "external library loading",
+      "dynamic module inclusion",
+      "remote code repository inclusion",
+      "untrusted source inclusion",
+      "cross-domain file inclusion",
+      "remote file execution",
+      "external script loading vulnerability",
+      "unsafe remote resource fetching",
+      "HTTP response in include",
+      "remote file without validation",
+      "external URL in file operations"
+    ],
+    "impact": "Remote code execution, complete system compromise, or malicious script injection",
+    "mitigation": "Disable remote file inclusion, validate all file sources, use allowlists for trusted domains"
+  },
+  "files": [
+    {
+      "file_path": "/work/project/dataset/vulnerable/reentrancy/0xbaf51e761510c1a11bf48dd87c0307ac8a8c8a4f.sol",
+      "similarity_score": 0.6264942012910664,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Vulnerable Code",
+              "vulnerable_code": "function CashOut(uint _am) public payable { if(_am<=balances[msg.sender]) { // <yes> <report> REENTRANCY if(msg.sender.call.value(_am)()) { \\ balances[msg.sender]-=_am; \\ TransferLog.AddMessage(msg.sender,_am,\"CashOut\"); } }}",
+              "explanation": "The call() function is used to execute a remote script without proper validation, making it vulnerable to Remote File Inclusion.",
+              "severity": "Critical",
+              "impact": "Remote code execution and complete system compromise.",
+              "entry_point": "/function CashOut(uint _am) public payable {",
+              "execution_path_diagram": "```\n  CashOut(_am)\n  call()\n```",
+              "http_methods": [
+                "POST"
+              ],
+              "manipulable_parameters": [
+                "_am",
+                "balances[msg.sender]"
+              ],
+              "exploitation_steps": [
+                "Send a malicious value for _am to trigger the remote script execution.",
+                "The script will execute and attempt to withdraw funds from the contract."
+              ],
+              "example_payloads": [
+                "malicious_value"
+              ],
+              "exploitation_conditions": "msg.sender is authenticated and balances[msg.sender] >= MinDeposit",
+              "remediation": "Validate the _am value before executing the call() function.",
+              "secure_code_example": "\\if (_am < MinDeposit) {revert();} \\balances[msg.sender] += msg.value;",
+              "snippet_start_line": null,
+              "snippet_end_line": null,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 85,
+          "notes": "This contract is vulnerable to Remote File Inclusion due to the use of call().",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    },
+    {
+      "file_path": "/work/project/dataset/vulnerable/reentrancy/etherstore.sol",
+      "similarity_score": 0.6162398064303127,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Vulnerability found",
+              "vulnerable_code": "",
+              "explanation": "The 'require(msg.sender.call.value(_weiToWithdraw)())' line includes a remote script call without proper validation.",
+              "severity": "High",
+              "impact": "Malicious script execution could lead to full system compromise.",
+              "entry_point": "withdrawFunds function",
+              "execution_path_diagram": "require(msg.sender.call.value(_weiToWithdraw)) => msg.sender.call.value(_weiToWithdraw)() => ... (calls external script)",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "_weiToWithdraw",
+                "msg.sender"
+              ],
+              "exploitation_steps": [
+                "User authenticates and calls withdrawFunds with a large amount",
+                "Exploiter sends a small amount to trigger the call",
+                "Exploiter includes a malicious script in the call"
+              ],
+              "example_payloads": [],
+              "exploitation_conditions": "msg.sender is authenticated and has sufficient balance",
+              "remediation": "Use a safer function like require(bytes memory(_data), _data.length) to validate and sanitize user input.",
+              "secure_code_example": "require(bytes memory(_data), _data.length) msg.sender.call.value(_weiToWithdraw)(_data)",
+              "snippet_start_line": null,
+              "snippet_end_line": null,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 39,
+          "notes": "No issues",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    },
+    {
+      "file_path": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_1.sol",
+      "similarity_score": 0.603777867129511,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Remote File Inclusion",
+              "vulnerable_code": "`require(file_get_contents('http://example.com/${_data}'))`;",
+              "explanation": "The `file_get_contents` function is used with a user-provided URL without proper validation, allowing an attacker to include remote files.",
+              "severity": "Critical",
+              "impact": "Code execution and potential system compromise",
+              "entry_point": "execute(address _to, uint _value, bytes _data)",
+              "execution_path_diagram": "",
+              "http_methods": [
+                "POST"
+              ],
+              "manipulable_parameters": [
+                "_data"
+              ],
+              "exploitation_steps": [
+                "Get owner index from `_owner` address",
+                "Use owner index to retrieve pending operations",
+                "Find suitable operation with available owners"
+              ],
+              "example_payloads": [
+                "../../etc/passwd"
+              ],
+              "exploitation_conditions": "",
+              "remediation": "",
+              "secure_code_example": "",
+              "snippet_start_line": null,
+              "snippet_end_line": null,
+              "http_raw_requests": [
+                "POST /execute HTTP/1.1\r\nHost: example.com\r\nContent-Type: application/json\r\n\r\n{\"_data\":\"../../../../etc/passwd\"}"
+              ]
+            }
+          ],
+          "start_line": 126,
+          "end_line": 467,
+          "notes": null,
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        },
+        {
+          "findings": [
+            {
+              "title": "Remote File Inclusion",
+              "vulnerable_code": "function _walletLibrary.delegatecall(msg.data);",
+              "explanation": "Delegates to a remote URL without proper validation, allowing Remote File Inclusion vulnerabilities.",
+              "severity": "Critical",
+              "impact": "Code execution and potential system compromise.",
+              "entry_point": "/delegatecall(msg.data)",
+              "execution_path_diagram": "delegatecall -> delegate -> code execution",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "msg.data"
+              ],
+              "exploitation_steps": [
+                "Send malicious URL as msg.data"
+              ],
+              "example_payloads": [
+                "malicious_url.asdata"
+              ],
+              "exploitation_conditions": "User provides malicious input for delegatecall function",
+              "remediation": "Properly validate and sanitize input data before delegating to a remote URL.",
+              "secure_code_example": "if (typeof msg.data === \"string\") { console.error(msg.data); }",
+              "snippet_start_line": null,
+              "snippet_end_line": null,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 207,
+          "end_line": 477,
+          "notes": null,
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    },
+    {
+      "file_path": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_2.sol",
+      "similarity_score": 0.5799988928070823,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Remote File Inclusion",
+              "vulnerable_code": "function execute(address _to, uint _value, bytes _data) external onlyowner returns (bytes32 o_hash) {\n  if ((_data.length == 0 && underLimit(_value)) || m_required == 1) {\n    // yes - just execute the call.\n    address created;\n    if (_to == 0) {\n      created = create(_value, _data);\n    } else {\n      if (!_to.call.value(_value)(_data)) throw;\n    }\n    SingleTransact(msg.sender, _value, _to, _data, created);\n  } else {\n    // determine our operation hash.\n    o_hash = sha3(msg.data, block.number);\n    // store if it's new\n    if (m_txs[o_hash].to == 0 && m_txs[o_hash].value == 0 && m_txs[o_hash].data.length == 0) {\n      m_txs[o_hash].to = _to;\n      m_txs[o_hash].value = _value;\n      m_txs[o_hash].data = _data;\n    }\n    if (!confirm(o_hash)) {\n      ConfirmationNeeded(o_hash, msg.sender, _value, _to, _data);\n    }\n  }\n}",
+              "explanation": "The execute function allows remote file inclusion through the use of sha3(msg.data, block.number), which can be manipulated to reference a malicious file.",
+              "severity": "Critical",
+              "impact": "Remote code execution and potential compromise of the entire system.",
+              "entry_point": "/execute(address _to, uint _value, bytes _data) external onlyowner returns (bytes32 o_hash)",
+              "execution_path_diagram": "execute -> sha3(msg.data, block.number) -> m_txs[o_hash].to = _to;",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "msg.data",
+                "_to",
+                "_value",
+                "_data"
+              ],
+              "exploitation_steps": [
+                "Manipulate msg.data to reference a malicious file.",
+                "Call execute with malicious data."
+              ],
+              "example_payloads": [
+                "cat /etc/passwd | base64"
+              ],
+              "exploitation_conditions": "m_txs[o_hash].to == 0 && m_txs[o_hash].value == 0 && m_txs[o_hash].data.length == 0",
+              "remediation": "Validate and sanitize user input to prevent sha3(msg.data, block.number) from referencing malicious files.",
+              "secure_code_example": "function execute(address _to, uint _value, bytes _data) external onlyowner returns (bytes32 o_hash) {\n  require(_data.length > 0);\n  // ...}\n",
+              "snippet_start_line": 249,
+              "snippet_end_line": 249,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 286,
+          "notes": "This vulnerability is due to the lack of input validation in the execute function.",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        },
+        {
+          "findings": [
+            {
+              "title": "Vulnerability found",
+              "vulnerable_code": "`require(url) require('./include.php');` or `require(url + '/index.php');`",
+              "explanation": "Insecure use of `require()` function with unvalidated user input (`url`). This allows remote file inclusion.",
+              "severity": "High",
+              "impact": "Potential code execution and compromise of the system.",
+              "entry_point": "/include.php or /index.php",
+              "execution_path_diagram": "``\nfunction includeFile($url) {\n\trequire($url);\n}\nincludeFile($_GET['file']);```",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "$url"
+              ],
+              "exploitation_steps": [
+                "Send a malicious URL as the `file` parameter to `include.php` or `index.php`."
+              ],
+              "example_payloads": [
+                "<script>alert('XSS')</script>"
+              ],
+              "exploitation_conditions": "",
+              "remediation": "",
+              "secure_code_example": "",
+              "snippet_start_line": null,
+              "snippet_end_line": null,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 96,
+          "end_line": 414,
+          "notes": null,
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    }
+  ],
+  "stats": {
+    "files_analyzed": 4,
+    "high_risk": 2,
+    "medium_risk": 0,
+    "low_risk": 0,
+    "critical_risk": 4,
+    "total_findings": 6,
+    "potential_findings": 0
+  },
+  "analysis_root": "../vulnerable",
+  "embed_model": "nomic-embed-text",
+  "project": "vulnerable"
+}

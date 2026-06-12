@@ -1,0 +1,122 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "OASIS",
+          "version": "0.6.1",
+          "informationUri": "https://github.com/psyray/oasis",
+          "rules": [
+            {
+              "id": "authentication-issues",
+              "name": "Authentication Issues",
+              "shortDescription": {
+                "text": "Weaknesses in authentication mechanisms"
+              },
+              "fullDescription": {
+                "text": "**Authentication Issues**\n\nWeaknesses in authentication mechanisms\n\n**Impact (type metadata)**\nAccount compromise, privilege escalation, or unauthorized access\n\n**Mitigation (type metadata)**\nImplement strong password policies, use MFA, secure session handling"
+              },
+              "helpUri": "https://github.com/psyray/oasis"
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "authentication-issues",
+          "level": "warning",
+          "message": {
+            "text": "Authentication bypass vulnerability\n\nThe `hasNoBalance` modifier is checked before the `supportsToken` function, allowing any contract with a non-zero balance to access the `airDrop` function.\n\nImpact: An attacker can gain tokens even if they do not have the required initial zero balance.\n\nRemediation: Ensure the `hasNoBalance` check is made before the `supportsToken` check to prevent authentication bypass."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/clean/modifier_reentrancy_fixed.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function airDrop() supportsToken hasNoBalance public{\n\ttokenBalance[msg.sender] += 20;\n}"
+                  },
+                  "startLine": 15,
+                  "endLine": 19
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "mistral:latest",
+            "oasisFileSimilarity": 0.5900496988940843,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "authentication-issues",
+          "level": "warning",
+          "message": {
+            "text": "Authentication Issue found\n\nThe function 'sendTo' uses the sender of the message (msg.sender) to check if the sender is the contract owner before performing the action, making it vulnerable to an attacker who has already authenticated.\n\nImpact: An attacker can transfer funds if they have previously interacted with the contract and gained access to its state\n\nRemediation: Use the owner variable to check authorization before sending funds and ensure only the contract owner can call sendTo"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/clean/mycontract_fixed.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function sendTo(address receiver, uint amount) public {\n      require(msg.sender == owner);\n      receiver.transfer(amount);\n    }"
+                  },
+                  "startLine": 26,
+                  "endLine": 29
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "mistral:latest",
+            "oasisFileSimilarity": 0.5780013048684292,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "authentication-issues",
+          "level": "warning",
+          "message": {
+            "text": "Authentication issue\n\nWeakness in authentication mechanisms, as the contract does not check if the sender is actually authorized to withdraw funds.\n\nImpact: Unauthorized access or privilege escalation\n\nRemediation: Implement access control checks before allowing withdrawals, such as requiring the sender to be the owner of the account."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/clean/simple_dao_fixed.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "credit[msg.sender]>= amount"
+                  },
+                  "startLine": 25,
+                  "endLine": 25
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "mistral:latest",
+            "oasisFileSimilarity": 0.5768719210732529,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        }
+      ],
+      "properties": {
+        "oasisReportTitle": "Authentication Issues Security Analysis",
+        "oasisGeneratedAt": "2026-06-11 09:40:27",
+        "oasisVulnerabilityName": "Authentication Issues"
+      }
+    }
+  ]
+}

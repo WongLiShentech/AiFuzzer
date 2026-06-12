@@ -1,0 +1,405 @@
+{
+  "schema_version": 5,
+  "report_type": "vulnerability",
+  "title": "SQL Injection Security Analysis",
+  "generated_at": "2026-06-12 01:26:17",
+  "model_name": "llama3.2:3b",
+  "language": "en",
+  "vulnerability_name": "SQL Injection",
+  "vulnerability": {
+    "name": "SQL Injection",
+    "description": "Code that might allow an attacker to inject SQL statements",
+    "patterns": [
+      "string concatenation in SQL query",
+      "user input directly in query",
+      "lack of parameterized queries",
+      "dynamic SQL generation",
+      "raw input in database operations",
+      "query parameters from request",
+      "execute raw SQL",
+      "format string in SQL",
+      "SQL query string interpolation",
+      "unsafe database.execute",
+      "LIKE operator with user input",
+      "ORDER BY with unsanitized input",
+      "MySQL query concatenation",
+      "PostgreSQL dynamic query",
+      "SQLite direct parameter",
+      "UNION injection vulnerability",
+      "database.query with variable",
+      "SQL WHERE clause with input",
+      "executeQuery with variable",
+      "createStatement().execute",
+      "executeSql with template"
+    ],
+    "impact": "Can lead to data theft, data loss, authentication bypass, or complete system compromise",
+    "mitigation": "Use parameterized queries or prepared statements, apply input validation, and use ORMs correctly"
+  },
+  "files": [
+    {
+      "file_path": "/work/project/dataset/vulnerable/oracle-manipulation/PuppetV2Pool.sol",
+      "similarity_score": 0.6351823239765275,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "SQL Injection",
+              "vulnerable_code": "function borrow(uint256 borrowAmount) external {\n        // ...\n        require(_token.transfer(msg.sender, borrowAmount), \"Transfer failed\");\n        }\n}",
+              "explanation": "User input (`borrowAmount`) is directly used in the SQL query without parameterization.",
+              "severity": "High",
+              "impact": "An attacker could inject malicious SQL code to steal or manipulate data.",
+              "entry_point": "/borrow(uint256)",
+              "execution_path_diagram": "",
+              "http_methods": [
+                "POST"
+              ],
+              "manipulable_parameters": [
+                "borrowAmount"
+              ],
+              "exploitation_steps": [
+                "An attacker can construct a malicious `borrowAmount` value to execute arbitrary SQL queries."
+              ],
+              "example_payloads": [
+                "\"123\" OR 1=1 --"
+              ],
+              "exploitation_conditions": "",
+              "remediation": "",
+              "secure_code_example": "",
+              "snippet_start_line": 43,
+              "snippet_end_line": 43,
+              "http_raw_requests": [
+                "POST /borrow(uint256) HTTP/1.1\r\nHost: <target>\r\nContent-Type: application/json\r\n\r\n{\"amount\": \"123 OR 1=1--\"}"
+              ]
+            }
+          ],
+          "start_line": 1,
+          "end_line": 70,
+          "notes": "The `borrow` function uses user input in the SQL query without parameterization, making it vulnerable to SQL Injection.",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    },
+    {
+      "file_path": "/work/project/dataset/vulnerable/ordering-attacks/odds_and_evens.sol",
+      "similarity_score": 0.6115411660731478,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "SQL Injection",
+              "vulnerable_code": "uint8 tot; address owner;",
+              "explanation": "User input is directly used in query without parameterization.",
+              "severity": "Critical",
+              "impact": "Data theft, data loss, or system compromise possible",
+              "entry_point": "/play(uint)",
+              "execution_path_diagram": "play -> players[tot] = Player(msg.sender, number); andTheWinnerIs() (with n%2==0/1)",
+              "http_methods": [
+                "POST"
+              ],
+              "manipulable_parameters": [
+                "number",
+                "msg.sender"
+              ],
+              "exploitation_steps": [
+                "Submit a crafted value for 'number' to force a certain player win condition",
+                "Use a large number to overflow the uint8 tot variable"
+              ],
+              "example_payloads": [
+                "10000",
+                "\\x41\\x42\\x43"
+              ],
+              "exploitation_conditions": "Owner is authenticated and msg.sender can submit any value for 'number'.",
+              "remediation": "Parameterize queries using :number or :addr, and validate user input.",
+              "secure_code_example": "function play(uint number) payable {if (msg.value != 1 ether) throw; players[tot] = Player(msg.sender, number); tot++; ...}",
+              "snippet_start_line": 25,
+              "snippet_end_line": 28,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 61,
+          "notes": "Lack of parameterization makes the contract vulnerable to SQL Injection attacks.",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    },
+    {
+      "file_path": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_2.sol",
+      "similarity_score": 0.6048612489715994,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "SQL Injection Vulnerability",
+              "vulnerable_code": "function execute(address _to, uint _value, bytes _data) external onlyowner returns (bytes32 o_hash)",
+              "explanation": "The use of raw input directly in the query without parameterization makes it vulnerable to SQL injection.",
+              "severity": "Critical",
+              "impact": "An attacker can inject malicious SQL code to steal or modify sensitive data.",
+              "entry_point": "/execute",
+              "execution_path_diagram": "",
+              "http_methods": [
+                "POST"
+              ],
+              "manipulable_parameters": [
+                "_to",
+                "_value",
+                "_data"
+              ],
+              "exploitation_steps": [
+                "Send a crafted request with a malicious operation hash.",
+                "Exploit the vulnerability to gain unauthorized access."
+              ],
+              "example_payloads": [
+                "' OR 1=1 --"
+              ],
+              "exploitation_conditions": "",
+              "remediation": "",
+              "secure_code_example": "",
+              "snippet_start_line": 249,
+              "snippet_end_line": 249,
+              "http_raw_requests": [
+                "POST /execute HTTP/1.1\r\nHost: example.com\r\nContent-Length: 1000\r\n\r\n' OR 1=1 --"
+              ]
+            }
+          ],
+          "start_line": 1,
+          "end_line": 286,
+          "notes": null,
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        },
+        {
+          "findings": [
+            {
+              "title": "Vulnerable Code",
+              "vulnerable_code": "(uint ownerIndex) = uint(msg.sender); clearPending(); m_owners[ownerIndex] = uint(_to);",
+              "explanation": "The use of `uint(ownerIndex)` without proper sanitization allows an attacker to manipulate the index of `_owners` array.",
+              "severity": "Critical",
+              "impact": "Arbitrary code execution and data tampering possible.",
+              "entry_point": "/initMultiowned(address[] _owners, uint _required)",
+              "execution_path_diagram": "",
+              "http_methods": [],
+              "manipulable_parameters": [],
+              "exploitation_steps": [
+                "Find a valid owner index.",
+                "Manipulate the index to point to a desired value in `_owners` array."
+              ],
+              "example_payloads": [],
+              "exploitation_conditions": "",
+              "remediation": "",
+              "secure_code_example": "",
+              "snippet_start_line": null,
+              "snippet_end_line": null,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 96,
+          "end_line": 414,
+          "notes": null,
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    },
+    {
+      "file_path": "/work/project/dataset/vulnerable/reentrancy/0xbaf51e761510c1a11bf48dd87c0307ac8a8c8a4f.sol",
+      "similarity_score": 0.6028398615759822,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Vulnerability found",
+              "vulnerable_code": "function ETH_VAULT(address _log) public { TransferLog = Log(_log); }",
+              "explanation": "This function uses string concatenation in SQL query without parameterization, allowing an attacker to inject malicious SQL code.",
+              "severity": "Critical",
+              "impact": "Unauthorized access to user accounts and potentially sensitive data",
+              "entry_point": "/transfer",
+              "execution_path_diagram": "",
+              "http_methods": [
+                "POST"
+              ],
+              "manipulable_parameters": [
+                "_log"
+              ],
+              "exploitation_steps": [
+                "Pass a malicious address as the _log parameter"
+              ],
+              "example_payloads": [
+                "' OR 1=1 --"
+              ],
+              "exploitation_conditions": "",
+              "remediation": "",
+              "secure_code_example": "",
+              "snippet_start_line": null,
+              "snippet_end_line": null,
+              "http_raw_requests": [
+                "POST /transfer HTTP/1.1\nHost: <target_host>\nLog: <malicious_address> OR 1=1 --\n\n",
+                "Host: <target_host>",
+                ""
+              ]
+            }
+          ],
+          "start_line": 1,
+          "end_line": 85,
+          "notes": null,
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    },
+    {
+      "file_path": "/work/project/dataset/vulnerable/access-control/mycontract.sol",
+      "similarity_score": 0.6020099066914554,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Vulnerability found",
+              "vulnerable_code": "receiver.transfer(amount);",
+              "explanation": "Direct use of tx.origin without parameterization makes it vulnerable to SQL Injection.",
+              "severity": "High",
+              "impact": "Data tampering and potential authentication bypass",
+              "entry_point": "sendTo(address receiver, uint amount) public",
+              "execution_path_diagram": "tx.origin -> receiver.transfer(amount);",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "receiver",
+                "amount"
+              ],
+              "exploitation_steps": [
+                "Find vulnerable contract",
+                "Send malicious tx to exploit"
+              ],
+              "example_payloads": [
+                "malicious uint amount"
+              ],
+              "exploitation_conditions": "tx.origin == owner",
+              "remediation": "Use parameterized queries or prepared statements.",
+              "secure_code_example": "require(tx.origin == owner) { receiver.transfer(amount); }",
+              "snippet_start_line": 28,
+              "snippet_end_line": 28,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 31,
+          "notes": null,
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    },
+    {
+      "file_path": "/work/project/dataset/vulnerable/reentrancy/simple_dao.sol",
+      "similarity_score": 0.6010793395160039,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Vulnerability found",
+              "vulnerable_code": "bool res = msg.sender.call.value(amount)();",
+              "explanation": "Directly using user input (msg.sender) without parameterization in a function call.",
+              "severity": "Critical",
+              "impact": "Authenticating attacker could drain funds from the DAO.",
+              "entry_point": "/withdraw",
+              "execution_path_diagram": "call -> update credit amount -> return credit value",
+              "http_methods": [
+                "POST"
+              ],
+              "manipulable_parameters": [
+                "msg.sender",
+                "amount"
+              ],
+              "exploitation_steps": [
+                "Authenticate with DAO via fraudulent request"
+              ],
+              "example_payloads": [
+                "malicious address"
+              ],
+              "exploitation_conditions": "User is authenticated and has sufficient balance.",
+              "remediation": "Use parameterized queries or prepared statements for all user input functions",
+              "secure_code_example": "bool res = msg.sender.call.value(amount, uint256(amount)); credit[msg.sender] -= amount;",
+              "snippet_start_line": 27,
+              "snippet_end_line": 27,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 35,
+          "notes": "No issues",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    },
+    {
+      "file_path": "/work/project/dataset/vulnerable/reentrancy/etherstore.sol",
+      "similarity_score": 0.5908418083565689,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "SQL Injection",
+              "vulnerable_code": "(require(balances[msg.sender] >= _weiToWithdraw) && (msg.sender.call.value(_weiToWithdraw)()))",
+              "explanation": "The use of `call` without parameterized queries allows an attacker to inject malicious SQL.",
+              "severity": "High",
+              "impact": "Data tampering or theft by manipulating the `call` function with malicious input.",
+              "entry_point": "/withdrawFunds",
+              "execution_path_diagram": "msg.sender.call.value(_weiToWithdraw) \n msg.sender \n now >= lastWithdrawTime[msg.sender] + 1 weeks \n balances[msg.sender] -= _weiToWithdraw; \n",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "_weiToWithdraw"
+              ],
+              "exploitation_steps": [
+                "Send a crafted input for _weiToWithdraw that exploits the vulnerability."
+              ],
+              "example_payloads": [
+                "100000 ether"
+              ],
+              "exploitation_conditions": "The attacker must be able to reach the /withdrawFunds endpoint while authenticated.",
+              "remediation": "Use parameterized queries or prepared statements for the `call` function.",
+              "secure_code_example": "",
+              "snippet_start_line": null,
+              "snippet_end_line": null,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 39,
+          "notes": "This contract is vulnerable to SQL Injection due to its use of direct calls with user input.",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    }
+  ],
+  "stats": {
+    "files_analyzed": 7,
+    "high_risk": 3,
+    "medium_risk": 0,
+    "low_risk": 0,
+    "critical_risk": 5,
+    "total_findings": 8,
+    "potential_findings": 0
+  },
+  "analysis_root": "../vulnerable",
+  "embed_model": "nomic-embed-text",
+  "project": "vulnerable"
+}

@@ -1,0 +1,93 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "OASIS",
+          "version": "0.6.1",
+          "informationUri": "https://github.com/psyray/oasis",
+          "rules": [
+            {
+              "id": "insufficient-input-validation",
+              "name": "Insufficient Input Validation",
+              "shortDescription": {
+                "text": "Vulnerabilities due to inadequate validation of user inputs"
+              },
+              "fullDescription": {
+                "text": "**Insufficient Input Validation**\n\nVulnerabilities due to inadequate validation of user inputs\n\n**Impact (type metadata)**\nCan lead to various attacks including injections, buffer overflows, and logical flaws\n\n**Mitigation (type metadata)**\nImplement strict input validation, use type checking, and sanitize all user inputs"
+              },
+              "helpUri": "https://github.com/psyray/oasis"
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "insufficient-input-validation",
+          "level": "warning",
+          "message": {
+            "text": "Vulnerability found\n\nThe airDrop function checks for hasNoBalance before supportsToken, making it vulnerable to a reentrancy attack by allowing a contract with any balance to call the function.\n\nImpact: A malicious actor could potentially drain all available tokens.\n\nRemediation: Ensure that hasNoBalance check is executed before supportsToken in the airDrop function."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/clean/modifier_reentrancy_fixed.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "airDrop() function"
+                  },
+                  "startLine": 14,
+                  "endLine": 29
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "mistral:latest",
+            "oasisFileSimilarity": 0.6021392203093882,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "insufficient-input-validation",
+          "level": "warning",
+          "message": {
+            "text": "Vulnerability found\n\nThe `donate` function does not validate the input `to` address, making it vulnerable to arbitrary transfers.\n\nImpact: An attacker could drain the contract's funds by repeatedly donating to an attacker-controlled address.\n\nRemediation: Implement input validation on the `to` parameter before crediting it."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/clean/simple_dao_fixed.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "donate(address to) payable public{\n    credit[to] += msg.value;\n  },"
+                  },
+                  "startLine": 20,
+                  "endLine": 20
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "mistral:latest",
+            "oasisFileSimilarity": 0.5833154198080737,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        }
+      ],
+      "properties": {
+        "oasisReportTitle": "Insufficient Input Validation Security Analysis",
+        "oasisGeneratedAt": "2026-06-11 10:19:12",
+        "oasisVulnerabilityName": "Insufficient Input Validation"
+      }
+    }
+  ]
+}

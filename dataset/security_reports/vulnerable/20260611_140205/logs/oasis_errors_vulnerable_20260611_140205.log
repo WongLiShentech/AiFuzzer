@@ -1,0 +1,384 @@
+2026-06-11 17:08:08,200 - ERROR - Error during chunk analysis with 🦙 llama3.2:3b: timed out
+Traceback (most recent call last):
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpx/_transports/default.py", line 101, in map_httpcore_exceptions
+    yield
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpx/_transports/default.py", line 250, in handle_request
+    resp = self._pool.handle_request(req)
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpcore/_sync/connection_pool.py", line 256, in handle_request
+    raise exc from None
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpcore/_sync/connection_pool.py", line 236, in handle_request
+    response = connection.handle_request(
+        pool_request.request
+    )
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpcore/_sync/connection.py", line 103, in handle_request
+    return self._connection.handle_request(request)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpcore/_sync/http11.py", line 136, in handle_request
+    raise exc
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpcore/_sync/http11.py", line 106, in handle_request
+    ) = self._receive_response_headers(**kwargs)
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpcore/_sync/http11.py", line 177, in _receive_response_headers
+    event = self._receive_event(timeout=timeout)
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpcore/_sync/http11.py", line 217, in _receive_event
+    data = self._network_stream.read(
+        self.READ_NUM_BYTES, timeout=timeout
+    )
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpcore/_backends/sync.py", line 126, in read
+    with map_exceptions(exc_map):
+         ~~~~~~~~~~~~~~^^^^^^^^^
+  File "/usr/lib/python3.13/contextlib.py", line 162, in __exit__
+    self.gen.throw(value)
+    ~~~~~~~~~~~~~~^^^^^^^
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpcore/_exceptions.py", line 14, in map_exceptions
+    raise to_exc(exc) from exc
+httpcore.ReadTimeout: timed out
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/app/oasis/analyze.py", line 785, in _analyze_code_chunk
+    response = self.ollama_manager.chat(**chat_kwargs)
+  File "/app/oasis/ollama_manager.py", line 379, in chat
+    return self._call_with_thinking(
+           ~~~~~~~~~~~~~~~~~~~~~~~~^
+        method_name="chat",
+        ^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        **kwargs
+        ^^^^^^^^
+    )
+    ^
+  File "/app/oasis/ollama_manager.py", line 346, in _call_with_thinking
+    result = method(**request_kwargs)
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/ollama/_client.py", line 387, in chat
+    return self._request(
+           ~~~~~~~~~~~~~^
+      ChatResponse,
+      ^^^^^^^^^^^^^
+    ...<14 lines>...
+      stream=stream,
+      ^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/ollama/_client.py", line 199, in _request
+    return cls(**self._request_raw(*args, **kwargs).json())
+                 ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/ollama/_client.py", line 139, in _request_raw
+    r = self._client.request(*args, **kwargs)
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpx/_client.py", line 825, in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpx/_client.py", line 914, in send
+    response = self._send_handling_auth(
+        request,
+    ...<2 lines>...
+        history=[],
+    )
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpx/_client.py", line 942, in _send_handling_auth
+    response = self._send_handling_redirects(
+        request,
+        follow_redirects=follow_redirects,
+        history=history,
+    )
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpx/_client.py", line 979, in _send_handling_redirects
+    response = self._send_single_request(request)
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpx/_client.py", line 1014, in _send_single_request
+    response = transport.handle_request(request)
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpx/_transports/default.py", line 249, in handle_request
+    with map_httpcore_exceptions():
+         ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.13/contextlib.py", line 162, in __exit__
+    self.gen.throw(value)
+    ~~~~~~~~~~~~~~^^^^^^^
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpx/_transports/default.py", line 118, in map_httpcore_exceptions
+    raise mapped_exc(message) from exc
+httpx.ReadTimeout: timed out
+2026-06-11 18:20:07,892 - ERROR - Error during chunk analysis with 🦙 llama3.2:3b: timed out
+Traceback (most recent call last):
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpx/_transports/default.py", line 101, in map_httpcore_exceptions
+    yield
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpx/_transports/default.py", line 250, in handle_request
+    resp = self._pool.handle_request(req)
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpcore/_sync/connection_pool.py", line 256, in handle_request
+    raise exc from None
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpcore/_sync/connection_pool.py", line 236, in handle_request
+    response = connection.handle_request(
+        pool_request.request
+    )
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpcore/_sync/connection.py", line 103, in handle_request
+    return self._connection.handle_request(request)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpcore/_sync/http11.py", line 136, in handle_request
+    raise exc
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpcore/_sync/http11.py", line 106, in handle_request
+    ) = self._receive_response_headers(**kwargs)
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpcore/_sync/http11.py", line 177, in _receive_response_headers
+    event = self._receive_event(timeout=timeout)
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpcore/_sync/http11.py", line 217, in _receive_event
+    data = self._network_stream.read(
+        self.READ_NUM_BYTES, timeout=timeout
+    )
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpcore/_backends/sync.py", line 126, in read
+    with map_exceptions(exc_map):
+         ~~~~~~~~~~~~~~^^^^^^^^^
+  File "/usr/lib/python3.13/contextlib.py", line 162, in __exit__
+    self.gen.throw(value)
+    ~~~~~~~~~~~~~~^^^^^^^
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpcore/_exceptions.py", line 14, in map_exceptions
+    raise to_exc(exc) from exc
+httpcore.ReadTimeout: timed out
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/app/oasis/analyze.py", line 785, in _analyze_code_chunk
+    response = self.ollama_manager.chat(**chat_kwargs)
+  File "/app/oasis/ollama_manager.py", line 379, in chat
+    return self._call_with_thinking(
+           ~~~~~~~~~~~~~~~~~~~~~~~~^
+        method_name="chat",
+        ^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        **kwargs
+        ^^^^^^^^
+    )
+    ^
+  File "/app/oasis/ollama_manager.py", line 346, in _call_with_thinking
+    result = method(**request_kwargs)
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/ollama/_client.py", line 387, in chat
+    return self._request(
+           ~~~~~~~~~~~~~^
+      ChatResponse,
+      ^^^^^^^^^^^^^
+    ...<14 lines>...
+      stream=stream,
+      ^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/ollama/_client.py", line 199, in _request
+    return cls(**self._request_raw(*args, **kwargs).json())
+                 ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/ollama/_client.py", line 139, in _request_raw
+    r = self._client.request(*args, **kwargs)
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpx/_client.py", line 825, in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpx/_client.py", line 914, in send
+    response = self._send_handling_auth(
+        request,
+    ...<2 lines>...
+        history=[],
+    )
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpx/_client.py", line 942, in _send_handling_auth
+    response = self._send_handling_redirects(
+        request,
+        follow_redirects=follow_redirects,
+        history=history,
+    )
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpx/_client.py", line 979, in _send_handling_redirects
+    response = self._send_single_request(request)
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpx/_client.py", line 1014, in _send_single_request
+    response = transport.handle_request(request)
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpx/_transports/default.py", line 249, in handle_request
+    with map_httpcore_exceptions():
+         ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.13/contextlib.py", line 162, in __exit__
+    self.gen.throw(value)
+    ~~~~~~~~~~~~~~^^^^^^^
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpx/_transports/default.py", line 118, in map_httpcore_exceptions
+    raise mapped_exc(message) from exc
+httpx.ReadTimeout: timed out
+2026-06-11 19:42:29,825 - ERROR - Error during chunk analysis with 🦙 llama3.2:3b: timed out
+Traceback (most recent call last):
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpx/_transports/default.py", line 101, in map_httpcore_exceptions
+    yield
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpx/_transports/default.py", line 250, in handle_request
+    resp = self._pool.handle_request(req)
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpcore/_sync/connection_pool.py", line 256, in handle_request
+    raise exc from None
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpcore/_sync/connection_pool.py", line 236, in handle_request
+    response = connection.handle_request(
+        pool_request.request
+    )
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpcore/_sync/connection.py", line 103, in handle_request
+    return self._connection.handle_request(request)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpcore/_sync/http11.py", line 136, in handle_request
+    raise exc
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpcore/_sync/http11.py", line 106, in handle_request
+    ) = self._receive_response_headers(**kwargs)
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpcore/_sync/http11.py", line 177, in _receive_response_headers
+    event = self._receive_event(timeout=timeout)
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpcore/_sync/http11.py", line 217, in _receive_event
+    data = self._network_stream.read(
+        self.READ_NUM_BYTES, timeout=timeout
+    )
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpcore/_backends/sync.py", line 126, in read
+    with map_exceptions(exc_map):
+         ~~~~~~~~~~~~~~^^^^^^^^^
+  File "/usr/lib/python3.13/contextlib.py", line 162, in __exit__
+    self.gen.throw(value)
+    ~~~~~~~~~~~~~~^^^^^^^
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpcore/_exceptions.py", line 14, in map_exceptions
+    raise to_exc(exc) from exc
+httpcore.ReadTimeout: timed out
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/app/oasis/analyze.py", line 785, in _analyze_code_chunk
+    response = self.ollama_manager.chat(**chat_kwargs)
+  File "/app/oasis/ollama_manager.py", line 379, in chat
+    return self._call_with_thinking(
+           ~~~~~~~~~~~~~~~~~~~~~~~~^
+        method_name="chat",
+        ^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        **kwargs
+        ^^^^^^^^
+    )
+    ^
+  File "/app/oasis/ollama_manager.py", line 346, in _call_with_thinking
+    result = method(**request_kwargs)
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/ollama/_client.py", line 387, in chat
+    return self._request(
+           ~~~~~~~~~~~~~^
+      ChatResponse,
+      ^^^^^^^^^^^^^
+    ...<14 lines>...
+      stream=stream,
+      ^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/ollama/_client.py", line 199, in _request
+    return cls(**self._request_raw(*args, **kwargs).json())
+                 ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/ollama/_client.py", line 139, in _request_raw
+    r = self._client.request(*args, **kwargs)
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpx/_client.py", line 825, in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpx/_client.py", line 914, in send
+    response = self._send_handling_auth(
+        request,
+    ...<2 lines>...
+        history=[],
+    )
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpx/_client.py", line 942, in _send_handling_auth
+    response = self._send_handling_redirects(
+        request,
+        follow_redirects=follow_redirects,
+        history=history,
+    )
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpx/_client.py", line 979, in _send_handling_redirects
+    response = self._send_single_request(request)
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpx/_client.py", line 1014, in _send_single_request
+    response = transport.handle_request(request)
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpx/_transports/default.py", line 249, in handle_request
+    with map_httpcore_exceptions():
+         ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.13/contextlib.py", line 162, in __exit__
+    self.gen.throw(value)
+    ~~~~~~~~~~~~~~^^^^^^^
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpx/_transports/default.py", line 118, in map_httpcore_exceptions
+    raise mapped_exc(message) from exc
+httpx.ReadTimeout: timed out
+2026-06-11 20:57:43,014 - ERROR - Error during chunk analysis with 🦙 llama3.2:3b: timed out
+Traceback (most recent call last):
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpx/_transports/default.py", line 101, in map_httpcore_exceptions
+    yield
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpx/_transports/default.py", line 250, in handle_request
+    resp = self._pool.handle_request(req)
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpcore/_sync/connection_pool.py", line 256, in handle_request
+    raise exc from None
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpcore/_sync/connection_pool.py", line 236, in handle_request
+    response = connection.handle_request(
+        pool_request.request
+    )
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpcore/_sync/connection.py", line 103, in handle_request
+    return self._connection.handle_request(request)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpcore/_sync/http11.py", line 136, in handle_request
+    raise exc
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpcore/_sync/http11.py", line 106, in handle_request
+    ) = self._receive_response_headers(**kwargs)
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpcore/_sync/http11.py", line 177, in _receive_response_headers
+    event = self._receive_event(timeout=timeout)
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpcore/_sync/http11.py", line 217, in _receive_event
+    data = self._network_stream.read(
+        self.READ_NUM_BYTES, timeout=timeout
+    )
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpcore/_backends/sync.py", line 126, in read
+    with map_exceptions(exc_map):
+         ~~~~~~~~~~~~~~^^^^^^^^^
+  File "/usr/lib/python3.13/contextlib.py", line 162, in __exit__
+    self.gen.throw(value)
+    ~~~~~~~~~~~~~~^^^^^^^
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpcore/_exceptions.py", line 14, in map_exceptions
+    raise to_exc(exc) from exc
+httpcore.ReadTimeout: timed out
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/app/oasis/analyze.py", line 785, in _analyze_code_chunk
+    response = self.ollama_manager.chat(**chat_kwargs)
+  File "/app/oasis/ollama_manager.py", line 379, in chat
+    return self._call_with_thinking(
+           ~~~~~~~~~~~~~~~~~~~~~~~~^
+        method_name="chat",
+        ^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        **kwargs
+        ^^^^^^^^
+    )
+    ^
+  File "/app/oasis/ollama_manager.py", line 346, in _call_with_thinking
+    result = method(**request_kwargs)
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/ollama/_client.py", line 387, in chat
+    return self._request(
+           ~~~~~~~~~~~~~^
+      ChatResponse,
+      ^^^^^^^^^^^^^
+    ...<14 lines>...
+      stream=stream,
+      ^^^^^^^^^^^^^^
+    )
+    ^
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/ollama/_client.py", line 199, in _request
+    return cls(**self._request_raw(*args, **kwargs).json())
+                 ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/ollama/_client.py", line 139, in _request_raw
+    r = self._client.request(*args, **kwargs)
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpx/_client.py", line 825, in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpx/_client.py", line 914, in send
+    response = self._send_handling_auth(
+        request,
+    ...<2 lines>...
+        history=[],
+    )
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpx/_client.py", line 942, in _send_handling_auth
+    response = self._send_handling_redirects(
+        request,
+        follow_redirects=follow_redirects,
+        history=history,
+    )
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpx/_client.py", line 979, in _send_handling_redirects
+    response = self._send_single_request(request)
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpx/_client.py", line 1014, in _send_single_request
+    response = transport.handle_request(request)
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpx/_transports/default.py", line 249, in handle_request
+    with map_httpcore_exceptions():
+         ~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "/usr/lib/python3.13/contextlib.py", line 162, in __exit__
+    self.gen.throw(value)
+    ~~~~~~~~~~~~~~^^^^^^^
+  File "/home/appuser/.local/share/pipx/venvs/oasis/lib/python3.13/site-packages/httpx/_transports/default.py", line 118, in map_httpcore_exceptions
+    raise mapped_exc(message) from exc
+httpx.ReadTimeout: timed out

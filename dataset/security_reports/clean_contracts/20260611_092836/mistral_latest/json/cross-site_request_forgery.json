@@ -1,0 +1,139 @@
+{
+  "schema_version": 5,
+  "report_type": "vulnerability",
+  "title": "Cross-Site Request Forgery Security Analysis",
+  "generated_at": "2026-06-11 09:59:17",
+  "model_name": "mistral:latest",
+  "language": "en",
+  "vulnerability_name": "Cross-Site Request Forgery",
+  "vulnerability": {
+    "name": "Cross-Site Request Forgery",
+    "description": "Attacks that force users to execute unwanted actions",
+    "patterns": [
+      "missing CSRF token",
+      "state-changing operation without protection",
+      "form submission without CSRF verification",
+      "cookie-only authentication",
+      "missing SameSite attribute",
+      "actions without user confirmation",
+      "lack of request origin validation",
+      "session handling vulnerability",
+      "missing anti-forgery token",
+      "insecure cross-domain requests",
+      "automatic actions without validation",
+      "CSRF token validation missing",
+      "CSRF token leakage",
+      "improper token binding to session",
+      "token reuse vulnerability",
+      "lack of double submit cookie",
+      "GET request with state change",
+      "failure to check referer header",
+      "CORS misconfiguration for CSRF",
+      "XHR without same-origin policy",
+      "JSON request without CSRF protection",
+      "cross-subdomain CSRF",
+      "CORS preflight bypass",
+      "CSRF via SVG or image upload",
+      "browser cookie handling vulnerability"
+    ],
+    "impact": "Unauthorized actions performed on behalf of authenticated users",
+    "mitigation": "Use CSRF tokens, SameSite cookies, and verify request origins"
+  },
+  "files": [
+    {
+      "file_path": "/work/project/dataset/clean/modifier_reentrancy_fixed.sol",
+      "similarity_score": 0.6373260016547588,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Vulnerability found",
+              "vulnerable_code": "function airDrop() supportsToken hasNoBalance  public{",
+              "explanation": "The function allows a user to call the airDrop function without checking if it is a Cross-Site Request Forgery request.",
+              "severity": "Medium",
+              "impact": "An attacker could potentially manipulate token distribution by making unauthorized requests.",
+              "entry_point": "airDrop() function",
+              "execution_path_diagram": "```\n\t+-------+\n\t| User |\n\t+-------+\n\t             |       |\n\t         +--->+ airDrop()\n\t                 ^|\n\t                 | CSRF Attack|\n\t                 |        |\n\t                 +------->+ ModifierEntrancy Contract\n\t                           ^|\n\t                           | Token Distribution |\n```",
+              "http_methods": [
+                ""
+              ],
+              "manipulable_parameters": [],
+              "exploitation_steps": [
+                "An attacker creates a malicious website.",
+                "The user visits the attacker's website.",
+                "The attacker uses CSRF to call the airDrop() function on behalf of the user."
+              ],
+              "example_payloads": [],
+              "exploitation_conditions": "An attacker can trick the user into making a request to the airDrop() function.",
+              "remediation": "Implement CSRF protection by adding a CSRF token or using secure methods for form submission.",
+              "secure_code_example": "function airDrop(csrfToken) supportsToken hasNoBalance public {\n    require(msg.send(csrfToken) == expectedCsrfToken, 'Invalid CSRF token');\n    tokenBalance[msg.sender] += 20;\n}",
+              "snippet_start_line": 21,
+              "snippet_end_line": 21,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 42,
+          "notes": "No issues",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    },
+    {
+      "file_path": "/work/project/dataset/clean/simple_dao_fixed.sol",
+      "similarity_score": 0.6285868624437998,
+      "chunk_analyses": [
+        {
+          "findings": [
+            {
+              "title": "Vulnerability found",
+              "vulnerable_code": "function withdraw(uint amount) public {\n    if (credit[msg.sender]>= amount) {\n      credit[msg.sender]-=amount;\n      require(msg.sender.call.value(amount)());\n    }",
+              "explanation": "This function allows state change based on the user's address, which can be manipulated via a malicious website through a CSRF attack.",
+              "severity": "Medium",
+              "impact": "An authenticated user's credit balance may be reduced unintentionally.",
+              "entry_point": "withdraw function",
+              "execution_path_diagram": "```\nuser -> malicious site -> smart contract - withdraw(amount)\n```",
+              "http_methods": [],
+              "manipulable_parameters": [
+                "address to"
+              ],
+              "exploitation_steps": [
+                "User visits malicious website with embedded form.",
+                "Form submits CSRF request to the contract's withdraw function."
+              ],
+              "example_payloads": [],
+              "exploitation_conditions": "Attacker can reach the affected function via a web-based request.",
+              "remediation": "Use CSRF tokens or SameSite cookies for form submissions to prevent CSRF attacks.",
+              "secure_code_example": "// Example with CSRF token\nfunction withdraw(uint amount, bytes memory _csrfToken) public {\n    require(_verifyCsrfToken(_csrfToken));\n    if (credit[msg.sender]>= amount) {\n      credit[msg.sender]-=amount;\n      require(msg.sender.call.value(amount)());\n    }}",
+              "snippet_start_line": 24,
+              "snippet_end_line": 28,
+              "http_raw_requests": []
+            }
+          ],
+          "start_line": 1,
+          "end_line": 34,
+          "notes": "No issues",
+          "validation_error": false,
+          "potential_vulnerabilities": false,
+          "truncated": false
+        }
+      ],
+      "error": null
+    }
+  ],
+  "stats": {
+    "files_analyzed": 2,
+    "high_risk": 0,
+    "medium_risk": 2,
+    "low_risk": 0,
+    "critical_risk": 0,
+    "total_findings": 2,
+    "potential_findings": 0
+  },
+  "analysis_root": "../clean",
+  "embed_model": "nomic-embed-text",
+  "project": "clean_contracts"
+}

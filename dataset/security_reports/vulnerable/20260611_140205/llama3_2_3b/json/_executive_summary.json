@@ -1,0 +1,558 @@
+{
+  "report_type": "executive_summary",
+  "schema_version": 2,
+  "model_name": "llama3.2:3b",
+  "deep_model": "llama3.2:3b",
+  "small_model": "mistral:latest",
+  "embedding_model": "nomic-embed-text",
+  "title": "Executive Summary",
+  "generated_at": "2026-06-12T01:38:37.529Z",
+  "oasis_version": "0.6.1",
+  "vulnerability_summary": {
+    "Authentication Issues": 12,
+    "Command Injection": 6,
+    "Security Misconfiguration": 12,
+    "CORS Misconfiguration": 4,
+    "Insecure Cryptographic Usage": 11,
+    "Cross-Site Request Forgery": 9,
+    "Sensitive Data Exposure": 11,
+    "Debug Information Exposure": 7,
+    "Insecure Deserialization": 8,
+    "Insecure Direct Object Reference": 9,
+    "Insufficient Input Validation": 11,
+    "JWT Implementation Flaws": 9,
+    "Local File Inclusion": 3,
+    "Sensitive Data Logging": 8,
+    "Path Traversal": 5,
+    "Remote Code Execution": 11,
+    "Remote File Inclusion": 4,
+    "Hardcoded Secrets": 8,
+    "Session Management Issues": 9,
+    "SQL Injection": 7,
+    "Server-Side Request Forgery": 9,
+    "File Upload Vulnerabilities": 8,
+    "Cross-Site Scripting (XSS)": 3,
+    "XML External Entity Injection": 4
+  },
+  "similarity_tier_counts": {
+    "strong": 0,
+    "moderate": 134,
+    "weak": 54
+  },
+  "project": "vulnerable",
+  "analysis_root": "../vulnerable",
+  "overview": {
+    "vulnerability_types_count": 24,
+    "embedding_comparisons_total": 188,
+    "unique_source_files": 12
+  },
+  "guidance_id": "default.v1",
+  "guidance_markdown": "The tables below group analyzed files by **embedding similarity** between each vulnerability type and the file (cosine similarity). This ordering reflects **retrieval relevance**, not exploit severity and not the severity labels inside per-vulnerability JSON/HTML reports.\n\n**Tiers**: strong (similarity ≥ 0.80), moderate (0.60 ≤ similarity < 0.80), weak (similarity < 0.60). For authoritative finding counts and severities, open the linked vulnerability-type reports.",
+  "tier_definitions": [
+    {
+      "id": "strong",
+      "name": "Strong",
+      "description": "Strong embedding match (similarity ≥ 0.80)"
+    },
+    {
+      "id": "moderate",
+      "name": "Moderate",
+      "description": "Moderate embedding match (0.60 ≤ similarity < 0.80)"
+    },
+    {
+      "id": "weak",
+      "name": "Weak",
+      "description": "Weak embedding match (similarity < 0.60)"
+    }
+  ],
+  "similarity_highlights": [
+    {
+      "tier_id": "moderate",
+      "vuln_type": "Insecure Direct Object Reference",
+      "file_path": "/work/project/dataset/vulnerable/oracle-manipulation/PuppetV2Pool.sol",
+      "similarity_score": 0.7179,
+      "tier_name": "Moderate",
+      "tier_description": "Moderate embedding match (0.60 ≤ similarity < 0.80)"
+    },
+    {
+      "tier_id": "moderate",
+      "vuln_type": "CORS Misconfiguration",
+      "file_path": "/work/project/dataset/vulnerable/access-control/mycontract.sol",
+      "similarity_score": 0.7067,
+      "tier_name": "Moderate",
+      "tier_description": "Moderate embedding match (0.60 ≤ similarity < 0.80)"
+    },
+    {
+      "tier_id": "moderate",
+      "vuln_type": "Insecure Deserialization",
+      "file_path": "/work/project/dataset/vulnerable/reentrancy/simple_dao.sol",
+      "similarity_score": 0.6902,
+      "tier_name": "Moderate",
+      "tier_description": "Moderate embedding match (0.60 ≤ similarity < 0.80)"
+    },
+    {
+      "tier_id": "moderate",
+      "vuln_type": "Insecure Deserialization",
+      "file_path": "/work/project/dataset/vulnerable/oracle-manipulation/PuppetV2Pool.sol",
+      "similarity_score": 0.684,
+      "tier_name": "Moderate",
+      "tier_description": "Moderate embedding match (0.60 ≤ similarity < 0.80)"
+    },
+    {
+      "tier_id": "moderate",
+      "vuln_type": "Sensitive Data Exposure",
+      "file_path": "/work/project/dataset/vulnerable/oracle-manipulation/PuppetPool.sol",
+      "similarity_score": 0.6835,
+      "tier_name": "Moderate",
+      "tier_description": "Moderate embedding match (0.60 ≤ similarity < 0.80)"
+    },
+    {
+      "tier_id": "moderate",
+      "vuln_type": "Server-Side Request Forgery",
+      "file_path": "/work/project/dataset/vulnerable/reentrancy/0xbaf51e761510c1a11bf48dd87c0307ac8a8c8a4f.sol",
+      "similarity_score": 0.6825,
+      "tier_name": "Moderate",
+      "tier_description": "Moderate embedding match (0.60 ≤ similarity < 0.80)"
+    },
+    {
+      "tier_id": "moderate",
+      "vuln_type": "Insecure Direct Object Reference",
+      "file_path": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_1.sol",
+      "similarity_score": 0.6823,
+      "tier_name": "Moderate",
+      "tier_description": "Moderate embedding match (0.60 ≤ similarity < 0.80)"
+    },
+    {
+      "tier_id": "moderate",
+      "vuln_type": "Server-Side Request Forgery",
+      "file_path": "/work/project/dataset/vulnerable/reentrancy/simple_dao.sol",
+      "similarity_score": 0.6797,
+      "tier_name": "Moderate",
+      "tier_description": "Moderate embedding match (0.60 ≤ similarity < 0.80)"
+    },
+    {
+      "tier_id": "moderate",
+      "vuln_type": "Insecure Direct Object Reference",
+      "file_path": "/work/project/dataset/vulnerable/reentrancy/simple_dao.sol",
+      "similarity_score": 0.6783,
+      "tier_name": "Moderate",
+      "tier_description": "Moderate embedding match (0.60 ≤ similarity < 0.80)"
+    },
+    {
+      "tier_id": "moderate",
+      "vuln_type": "Security Misconfiguration",
+      "file_path": "/work/project/dataset/vulnerable/oracle-manipulation/PuppetV2Pool.sol",
+      "similarity_score": 0.6779,
+      "tier_name": "Moderate",
+      "tier_description": "Moderate embedding match (0.60 ≤ similarity < 0.80)"
+    },
+    {
+      "tier_id": "moderate",
+      "vuln_type": "Security Misconfiguration",
+      "file_path": "/work/project/dataset/vulnerable/oracle-manipulation/PuppetPool.sol",
+      "similarity_score": 0.6773,
+      "tier_name": "Moderate",
+      "tier_description": "Moderate embedding match (0.60 ≤ similarity < 0.80)"
+    },
+    {
+      "tier_id": "moderate",
+      "vuln_type": "Hardcoded Secrets",
+      "file_path": "/work/project/dataset/vulnerable/ordering-attacks/FindThisHash.sol",
+      "similarity_score": 0.6764,
+      "tier_name": "Moderate",
+      "tier_description": "Moderate embedding match (0.60 ≤ similarity < 0.80)"
+    },
+    {
+      "tier_id": "moderate",
+      "vuln_type": "Server-Side Request Forgery",
+      "file_path": "/work/project/dataset/vulnerable/reentrancy/etherstore.sol",
+      "similarity_score": 0.6755,
+      "tier_name": "Moderate",
+      "tier_description": "Moderate embedding match (0.60 ≤ similarity < 0.80)"
+    },
+    {
+      "tier_id": "moderate",
+      "vuln_type": "Hardcoded Secrets",
+      "file_path": "/work/project/dataset/vulnerable/reentrancy/0xbaf51e761510c1a11bf48dd87c0307ac8a8c8a4f.sol",
+      "similarity_score": 0.6751,
+      "tier_name": "Moderate",
+      "tier_description": "Moderate embedding match (0.60 ≤ similarity < 0.80)"
+    },
+    {
+      "tier_id": "moderate",
+      "vuln_type": "Sensitive Data Exposure",
+      "file_path": "/work/project/dataset/vulnerable/oracle-manipulation/PuppetV2Pool.sol",
+      "similarity_score": 0.6748,
+      "tier_name": "Moderate",
+      "tier_description": "Moderate embedding match (0.60 ≤ similarity < 0.80)"
+    },
+    {
+      "tier_id": "moderate",
+      "vuln_type": "JWT Implementation Flaws",
+      "file_path": "/work/project/dataset/vulnerable/oracle-manipulation/PuppetV2Pool.sol",
+      "similarity_score": 0.672,
+      "tier_name": "Moderate",
+      "tier_description": "Moderate embedding match (0.60 ≤ similarity < 0.80)"
+    },
+    {
+      "tier_id": "moderate",
+      "vuln_type": "Remote Code Execution",
+      "file_path": "/work/project/dataset/vulnerable/oracle-manipulation/PuppetV2Pool.sol",
+      "similarity_score": 0.669,
+      "tier_name": "Moderate",
+      "tier_description": "Moderate embedding match (0.60 ≤ similarity < 0.80)"
+    },
+    {
+      "tier_id": "moderate",
+      "vuln_type": "Insecure Deserialization",
+      "file_path": "/work/project/dataset/vulnerable/reentrancy/etherstore.sol",
+      "similarity_score": 0.6683,
+      "tier_name": "Moderate",
+      "tier_description": "Moderate embedding match (0.60 ≤ similarity < 0.80)"
+    },
+    {
+      "tier_id": "moderate",
+      "vuln_type": "Server-Side Request Forgery",
+      "file_path": "/work/project/dataset/vulnerable/ordering-attacks/FindThisHash.sol",
+      "similarity_score": 0.6672,
+      "tier_name": "Moderate",
+      "tier_description": "Moderate embedding match (0.60 ≤ similarity < 0.80)"
+    },
+    {
+      "tier_id": "moderate",
+      "vuln_type": "Security Misconfiguration",
+      "file_path": "/work/project/dataset/vulnerable/ordering-attacks/FindThisHash.sol",
+      "similarity_score": 0.6665,
+      "tier_name": "Moderate",
+      "tier_description": "Moderate embedding match (0.60 ≤ similarity < 0.80)"
+    },
+    {
+      "tier_id": "moderate",
+      "vuln_type": "Hardcoded Secrets",
+      "file_path": "/work/project/dataset/vulnerable/reentrancy/etherstore.sol",
+      "similarity_score": 0.6651,
+      "tier_name": "Moderate",
+      "tier_description": "Moderate embedding match (0.60 ≤ similarity < 0.80)"
+    },
+    {
+      "tier_id": "moderate",
+      "vuln_type": "Security Misconfiguration",
+      "file_path": "/work/project/dataset/vulnerable/access-control/mycontract.sol",
+      "similarity_score": 0.6648,
+      "tier_name": "Moderate",
+      "tier_description": "Moderate embedding match (0.60 ≤ similarity < 0.80)"
+    },
+    {
+      "tier_id": "moderate",
+      "vuln_type": "Insecure Cryptographic Usage",
+      "file_path": "/work/project/dataset/vulnerable/oracle-manipulation/PuppetV2Pool.sol",
+      "similarity_score": 0.6646,
+      "tier_name": "Moderate",
+      "tier_description": "Moderate embedding match (0.60 ≤ similarity < 0.80)"
+    },
+    {
+      "tier_id": "moderate",
+      "vuln_type": "Insufficient Input Validation",
+      "file_path": "/work/project/dataset/vulnerable/oracle-manipulation/PuppetV2Pool.sol",
+      "similarity_score": 0.6642,
+      "tier_name": "Moderate",
+      "tier_description": "Moderate embedding match (0.60 ≤ similarity < 0.80)"
+    },
+    {
+      "tier_id": "moderate",
+      "vuln_type": "Insecure Deserialization",
+      "file_path": "/work/project/dataset/vulnerable/reentrancy/0xbaf51e761510c1a11bf48dd87c0307ac8a8c8a4f.sol",
+      "similarity_score": 0.6627,
+      "tier_name": "Moderate",
+      "tier_description": "Moderate embedding match (0.60 ≤ similarity < 0.80)"
+    },
+    {
+      "tier_id": "weak",
+      "vuln_type": "Command Injection",
+      "file_path": "/work/project/dataset/vulnerable/reentrancy/simple_dao.sol",
+      "similarity_score": 0.599,
+      "tier_name": "Weak",
+      "tier_description": "Weak embedding match (similarity < 0.60)"
+    },
+    {
+      "tier_id": "weak",
+      "vuln_type": "Command Injection",
+      "file_path": "/work/project/dataset/vulnerable/reentrancy/0xbaf51e761510c1a11bf48dd87c0307ac8a8c8a4f.sol",
+      "similarity_score": 0.5988,
+      "tier_name": "Weak",
+      "tier_description": "Weak embedding match (similarity < 0.60)"
+    },
+    {
+      "tier_id": "weak",
+      "vuln_type": "Sensitive Data Exposure",
+      "file_path": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_1.sol",
+      "similarity_score": 0.5988,
+      "tier_name": "Weak",
+      "tier_description": "Weak embedding match (similarity < 0.60)"
+    },
+    {
+      "tier_id": "weak",
+      "vuln_type": "Insecure Deserialization",
+      "file_path": "/work/project/dataset/vulnerable/access-control/mycontract.sol",
+      "similarity_score": 0.5982,
+      "tier_name": "Weak",
+      "tier_description": "Weak embedding match (similarity < 0.60)"
+    },
+    {
+      "tier_id": "weak",
+      "vuln_type": "Authentication Issues",
+      "file_path": "/work/project/dataset/vulnerable/reentrancy/0xbaf51e761510c1a11bf48dd87c0307ac8a8c8a4f.sol",
+      "similarity_score": 0.5973,
+      "tier_name": "Weak",
+      "tier_description": "Weak embedding match (similarity < 0.60)"
+    },
+    {
+      "tier_id": "weak",
+      "vuln_type": "Sensitive Data Logging",
+      "file_path": "/work/project/dataset/vulnerable/reentrancy/0xbaf51e761510c1a11bf48dd87c0307ac8a8c8a4f.sol",
+      "similarity_score": 0.5973,
+      "tier_name": "Weak",
+      "tier_description": "Weak embedding match (similarity < 0.60)"
+    },
+    {
+      "tier_id": "weak",
+      "vuln_type": "JWT Implementation Flaws",
+      "file_path": "/work/project/dataset/vulnerable/ordering-attacks/odds_and_evens.sol",
+      "similarity_score": 0.5969,
+      "tier_name": "Weak",
+      "tier_description": "Weak embedding match (similarity < 0.60)"
+    },
+    {
+      "tier_id": "weak",
+      "vuln_type": "Sensitive Data Logging",
+      "file_path": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_1.sol",
+      "similarity_score": 0.5967,
+      "tier_name": "Weak",
+      "tier_description": "Weak embedding match (similarity < 0.60)"
+    },
+    {
+      "tier_id": "weak",
+      "vuln_type": "Insufficient Input Validation",
+      "file_path": "/work/project/dataset/vulnerable/access-control/mycontract.sol",
+      "similarity_score": 0.5965,
+      "tier_name": "Weak",
+      "tier_description": "Weak embedding match (similarity < 0.60)"
+    },
+    {
+      "tier_id": "weak",
+      "vuln_type": "File Upload Vulnerabilities",
+      "file_path": "/work/project/dataset/vulnerable/ordering-attacks/eth_tx_order_dependence_minimal.sol",
+      "similarity_score": 0.5963,
+      "tier_name": "Weak",
+      "tier_description": "Weak embedding match (similarity < 0.60)"
+    },
+    {
+      "tier_id": "weak",
+      "vuln_type": "Cross-Site Request Forgery",
+      "file_path": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_2.sol",
+      "similarity_score": 0.5962,
+      "tier_name": "Weak",
+      "tier_description": "Weak embedding match (similarity < 0.60)"
+    },
+    {
+      "tier_id": "weak",
+      "vuln_type": "File Upload Vulnerabilities",
+      "file_path": "/work/project/dataset/vulnerable/access-control/mycontract.sol",
+      "similarity_score": 0.5944,
+      "tier_name": "Weak",
+      "tier_description": "Weak embedding match (similarity < 0.60)"
+    },
+    {
+      "tier_id": "weak",
+      "vuln_type": "Command Injection",
+      "file_path": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_1.sol",
+      "similarity_score": 0.5941,
+      "tier_name": "Weak",
+      "tier_description": "Weak embedding match (similarity < 0.60)"
+    },
+    {
+      "tier_id": "weak",
+      "vuln_type": "Path Traversal",
+      "file_path": "/work/project/dataset/vulnerable/reentrancy/etherstore.sol",
+      "similarity_score": 0.594,
+      "tier_name": "Weak",
+      "tier_description": "Weak embedding match (similarity < 0.60)"
+    },
+    {
+      "tier_id": "weak",
+      "vuln_type": "Local File Inclusion",
+      "file_path": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_2.sol",
+      "similarity_score": 0.5914,
+      "tier_name": "Weak",
+      "tier_description": "Weak embedding match (similarity < 0.60)"
+    },
+    {
+      "tier_id": "weak",
+      "vuln_type": "File Upload Vulnerabilities",
+      "file_path": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_1.sol",
+      "similarity_score": 0.5913,
+      "tier_name": "Weak",
+      "tier_description": "Weak embedding match (similarity < 0.60)"
+    },
+    {
+      "tier_id": "weak",
+      "vuln_type": "SQL Injection",
+      "file_path": "/work/project/dataset/vulnerable/reentrancy/etherstore.sol",
+      "similarity_score": 0.5908,
+      "tier_name": "Weak",
+      "tier_description": "Weak embedding match (similarity < 0.60)"
+    },
+    {
+      "tier_id": "weak",
+      "vuln_type": "JWT Implementation Flaws",
+      "file_path": "/work/project/dataset/vulnerable/ordering-attacks/eth_tx_order_dependence_minimal.sol",
+      "similarity_score": 0.5893,
+      "tier_name": "Weak",
+      "tier_description": "Weak embedding match (similarity < 0.60)"
+    },
+    {
+      "tier_id": "weak",
+      "vuln_type": "Session Management Issues",
+      "file_path": "/work/project/dataset/vulnerable/reentrancy/simple_dao.sol",
+      "similarity_score": 0.589,
+      "tier_name": "Weak",
+      "tier_description": "Weak embedding match (similarity < 0.60)"
+    },
+    {
+      "tier_id": "weak",
+      "vuln_type": "Command Injection",
+      "file_path": "/work/project/dataset/vulnerable/reentrancy/etherstore.sol",
+      "similarity_score": 0.5881,
+      "tier_name": "Weak",
+      "tier_description": "Weak embedding match (similarity < 0.60)"
+    },
+    {
+      "tier_id": "weak",
+      "vuln_type": "Sensitive Data Logging",
+      "file_path": "/work/project/dataset/vulnerable/reentrancy/simple_dao.sol",
+      "similarity_score": 0.5877,
+      "tier_name": "Weak",
+      "tier_description": "Weak embedding match (similarity < 0.60)"
+    },
+    {
+      "tier_id": "weak",
+      "vuln_type": "Session Management Issues",
+      "file_path": "/work/project/dataset/vulnerable/reentrancy/0xbaf51e761510c1a11bf48dd87c0307ac8a8c8a4f.sol",
+      "similarity_score": 0.5873,
+      "tier_name": "Weak",
+      "tier_description": "Weak embedding match (similarity < 0.60)"
+    },
+    {
+      "tier_id": "weak",
+      "vuln_type": "Sensitive Data Exposure",
+      "file_path": "/work/project/dataset/vulnerable/ordering-attacks/odds_and_evens.sol",
+      "similarity_score": 0.5873,
+      "tier_name": "Weak",
+      "tier_description": "Weak embedding match (similarity < 0.60)"
+    },
+    {
+      "tier_id": "weak",
+      "vuln_type": "Debug Information Exposure",
+      "file_path": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_2.sol",
+      "similarity_score": 0.587,
+      "tier_name": "Weak",
+      "tier_description": "Weak embedding match (similarity < 0.60)"
+    },
+    {
+      "tier_id": "weak",
+      "vuln_type": "Session Management Issues",
+      "file_path": "/work/project/dataset/vulnerable/access-control/mycontract.sol",
+      "similarity_score": 0.5866,
+      "tier_name": "Weak",
+      "tier_description": "Weak embedding match (similarity < 0.60)"
+    }
+  ],
+  "progress": {
+    "completed_vulnerabilities": 25,
+    "total_vulnerabilities": 25,
+    "is_partial": false,
+    "status": "complete",
+    "current_vulnerability": "",
+    "tested_vulnerabilities": [
+      "Authentication Issues",
+      "Command Injection",
+      "Security Misconfiguration",
+      "CORS Misconfiguration",
+      "Insecure Cryptographic Usage",
+      "Cross-Site Request Forgery",
+      "Sensitive Data Exposure",
+      "Debug Information Exposure",
+      "Insecure Deserialization",
+      "Insecure Direct Object Reference",
+      "Insufficient Input Validation",
+      "JWT Implementation Flaws",
+      "Local File Inclusion",
+      "Sensitive Data Logging",
+      "Path Traversal",
+      "Remote Code Execution",
+      "Remote File Inclusion",
+      "Hardcoded Secrets",
+      "Session Management Issues",
+      "SQL Injection",
+      "Server-Side Request Forgery",
+      "File Upload Vulnerabilities",
+      "Cross-Site Scripting (XSS)",
+      "XML External Entity Injection"
+    ],
+    "updated_at": "2026-06-12T01:38:34.770Z",
+    "active_phase": "graph_pipeline",
+    "scan_mode": "graph",
+    "event_version": 3,
+    "vulnerability_types_total": 25,
+    "phases": [
+      {
+        "id": "embeddings",
+        "label": "Embeddings",
+        "row_kind": "summary",
+        "status": "complete",
+        "completed": 14,
+        "total": 14
+      },
+      {
+        "id": "graph_discover",
+        "label": "Discover candidates",
+        "row_kind": "summary",
+        "status": "complete",
+        "completed": 25,
+        "total": 25
+      },
+      {
+        "id": "graph_chunk_scan",
+        "label": "Structured chunk scan",
+        "row_kind": "summary",
+        "status": "complete",
+        "completed": 1,
+        "total": 1
+      },
+      {
+        "id": "graph_context_expand",
+        "label": "Context expansion",
+        "row_kind": "summary",
+        "status": "complete",
+        "completed": 1,
+        "total": 1
+      },
+      {
+        "id": "graph_deep",
+        "label": "Deep analysis",
+        "row_kind": "summary",
+        "status": "complete",
+        "completed": 1,
+        "total": 1
+      },
+      {
+        "id": "graph_verify",
+        "label": "Verify structured output",
+        "row_kind": "summary",
+        "status": "complete",
+        "completed": 1,
+        "total": 1
+      }
+    ]
+  }
+}

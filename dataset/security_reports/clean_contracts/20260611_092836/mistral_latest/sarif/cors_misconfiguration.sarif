@@ -1,0 +1,122 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "OASIS",
+          "version": "0.6.1",
+          "informationUri": "https://github.com/psyray/oasis",
+          "rules": [
+            {
+              "id": "cors-misconfiguration",
+              "name": "CORS Misconfiguration",
+              "shortDescription": {
+                "text": "Cross-Origin Resource Sharing configuration vulnerabilities that expose sensitive data"
+              },
+              "fullDescription": {
+                "text": "**CORS Misconfiguration**\n\nCross-Origin Resource Sharing configuration vulnerabilities that expose sensitive data\n\n**Impact (type metadata)**\nCross-origin data theft, credential hijacking, or unauthorized API access\n\n**Mitigation (type metadata)**\nUse specific origins in CORS policies, avoid wildcards with credentials, validate origins properly"
+              },
+              "helpUri": "https://github.com/psyray/oasis"
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "cors-misconfiguration",
+          "level": "note",
+          "message": {
+            "text": "Vulnerability found\n\nThe provided Solidity contract does not have a Cross-Origin Resource Sharing (CORS) configuration, but this vulnerability is not applicable to Ethereum smart contracts since CORS is an HTTP-level security mechanism.\n\nImpact: Not relevant for this context\n\nRemediation: CORS is not relevant for Ethereum smart contracts."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/clean/mycontract_fixed.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "none"
+                  },
+                  "startLine": 3,
+                  "endLine": 3
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "mistral:latest",
+            "oasisFileSimilarity": 0.6718251362347493,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "cors-misconfiguration",
+          "level": "warning",
+          "message": {
+            "text": "Vulnerability found\n\nThe Solidity contract does not have a CORS configuration, which may expose sensitive data if called from another origin.\n\nImpact: Cross-origin data theft or unauthorized API access\n\nRemediation: Ensure that the Solidity contract has a proper CORS configuration to restrict calls to specific origins."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/clean/simple_dao_fixed.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "pragma solidity 0.4.24;\n\ncontract SimpleDAO {\n...\n}"
+                  },
+                  "startLine": 15,
+                  "endLine": 15
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "mistral:latest",
+            "oasisFileSimilarity": 0.6268894624635473,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "cors-misconfiguration",
+          "level": "warning",
+          "message": {
+            "text": "Vulnerability found\n\nThe vulnerable code uses `hasNoBalance` before `supportsToken`, which can potentially allow an attacker to exploit the reentrancy vulnerability.\n\nImpact: Unauthorized token airdrop\n\nRemediation: Ensure that `supportsToken` is always evaluated before any action that depends on it in the contract"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/clean/modifier_reentrancy_fixed.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "`supportsToken hasNoBalance` function call order"
+                  },
+                  "startLine": 1,
+                  "endLine": 42
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "mistral:latest",
+            "oasisFileSimilarity": 0.6214290283029275,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        }
+      ],
+      "properties": {
+        "oasisReportTitle": "CORS Misconfiguration Security Analysis",
+        "oasisGeneratedAt": "2026-06-11 09:52:15",
+        "oasisVulnerabilityName": "CORS Misconfiguration"
+      }
+    }
+  ]
+}

@@ -1,0 +1,838 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "OASIS",
+          "version": "0.6.1",
+          "informationUri": "https://github.com/psyray/oasis",
+          "rules": [
+            {
+              "id": "security-misconfiguration",
+              "name": "Security Misconfiguration",
+              "shortDescription": {
+                "text": "Insecure configuration settings that can expose vulnerabilities"
+              },
+              "fullDescription": {
+                "text": "**Security Misconfiguration**\n\nInsecure configuration settings that can expose vulnerabilities\n\n**Impact (type metadata)**\nInformation disclosure, unauthorized access, or system compromise through exposed functionality\n\n**Mitigation (type metadata)**\nUse secure configuration templates, disable unnecessary features, and implement proper security headers"
+              },
+              "helpUri": "https://github.com/psyray/oasis"
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "security-misconfiguration",
+          "level": "note",
+          "message": {
+            "text": "Debug Mode Enabled\n\nThis line enables debug mode, making sensitive information available.\n\nImpact: Exposure of internal state and debugging information.\n\nRemediation: Disable debug mode or use a different configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/oracle-manipulation/PuppetV2Pool.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "pragma solidity =0.8.25;"
+                  },
+                  "startLine": 11,
+                  "endLine": 11
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6779183759774094,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "security-misconfiguration",
+          "level": "note",
+          "message": {
+            "text": "Debug Mode Enabled\n\nThe function is marked as `private` and `view`, but it's not protected from debugging, which can lead to exposure of sensitive data.\n\nImpact: Information disclosure about the Uniswap pair balance.\n\nRemediation: Disable debugging for this function."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/oracle-manipulation/PuppetPool.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "_computeOraclePrice() private view returns (uint256) {\nreturn uniswapPair.balance * (10 ** 18) / token.balanceOf(uniswapPair);\n}"
+                  },
+                  "startLine": 67,
+                  "endLine": 67
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6773027159190873,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "security-misconfiguration",
+          "level": "error",
+          "message": {
+            "text": "Insecure Permissions\n\nThe contract allows anyone to transfer 1000 ether without proper authorization or validation.\n\nImpact: Unauthorized transfers could result in loss of funds."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/ordering-attacks/FindThisHash.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "msg.sender.transfer(1000 ether);"
+                  },
+                  "startLine": 26,
+                  "endLine": 26
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6664715853290597,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "security-misconfiguration",
+          "level": "error",
+          "message": {
+            "text": "Insecure Use of tx.origin\n\nUsing `tx.origin` allows an attacker to bypass authorization checks.\n\nImpact: Unauthorized transfers can be made by an attacker.\n\nRemediation: Use proper authorization mechanisms, such as checking `msg.sender` instead of `tx.origin`."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/mycontract.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "receiver.transfer(amount);"
+                  },
+                  "startLine": 28,
+                  "endLine": 28
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6648350907712188,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "security-misconfiguration",
+          "level": "error",
+          "message": {
+            "text": "Insecure Permissions\n\nThe contract is accessible without any authentication or authorization checks.\n\nImpact: Unauthorized access to the contract's functionality."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/reentrancy/0xbaf51e761510c1a11bf48dd87c0307ac8a8c8a4f.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function ETH_VAULT(address _log)\npublic\n{\nTransferLog = Log(_log);\n}"
+                  },
+                  "startLine": 25,
+                  "endLine": 25
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6600556512760196,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "security-misconfiguration",
+          "level": "warning",
+          "message": {
+            "text": "Insecure Permissions (Log)\n\nThe Log contract does not restrict access to its functions.\n\nImpact: Potential unauthorized access or modification of logs."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/reentrancy/0xbaf51e761510c1a11bf48dd87c0307ac8a8c8a4f.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function AddMessage(address _adr,uint _val,string _data)\npublic\n{\nLastMsg.Sender = _adr;\nHistory.push(LastMsg);\n}"
+                  },
+                  "startLine": 76,
+                  "endLine": 76
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6600556512760196,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 1
+          }
+        },
+        {
+          "ruleId": "security-misconfiguration",
+          "level": "note",
+          "message": {
+            "text": "Debug Mode Enabled\n\nThe contract has debug mode enabled, which can disclose sensitive information.\n\nImpact: Disclosure of internal state or debugging information."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/reentrancy/0xbaf51e761510c1a11bf48dd87c0307ac8a8c8a4f.sol"
+                },
+                "region": {
+                  "startLine": 1,
+                  "endLine": 85
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6600556512760196,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 2
+          }
+        },
+        {
+          "ruleId": "security-misconfiguration",
+          "level": "warning",
+          "message": {
+            "text": "Insecure Permissions (Deposit)\n\nThe contract allows depositing Ether without proper authorization.\n\nImpact: Unauthorized access to user funds."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/reentrancy/0xbaf51e761510c1a11bf48dd87c0307ac8a8c8a4f.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function Deposit()\npublic\n{\nif(msg.value > MinDeposit)\n{\nbalances[msg.sender]+=msg.value;\nTransferLog.AddMessage(msg.sender,msg.value,\"Deposit\");\n}\n}"
+                  },
+                  "startLine": 31,
+                  "endLine": 31
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6600556512760196,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 3
+          }
+        },
+        {
+          "ruleId": "security-misconfiguration",
+          "level": "warning",
+          "message": {
+            "text": "Insecure Permissions (CashOut)\n\nThe contract allows cashing out Ether without proper authorization.\n\nImpact: Unauthorized access to user funds."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/reentrancy/0xbaf51e761510c1a11bf48dd87c0307ac8a8c8a4f.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function CashOut(uint _am)\npublic\n{\nif(_am<=balances[msg.sender])\n{\n// <yes> <report> REENTRANCY\nif(msg.sender.call.value(_am)())\n{\nbalances[msg.sender]-=_am;\nTransferLog.AddMessage(msg.sender,_am,\"CashOut\");\n}\n}"
+                  },
+                  "startLine": 42,
+                  "endLine": 42
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6600556512760196,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 4
+          }
+        },
+        {
+          "ruleId": "security-misconfiguration",
+          "level": "note",
+          "message": {
+            "text": "Debug Mode Enabled\n\nSolidity version should be specified using the `solidity` keyword or the `^` operator, not `pragma`.\n\nImpact: Information disclosure due to debug information.\n\nRemediation: Specify the Solidity version using the `solidity` keyword or the `^` operator in the contract initialization."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/reentrancy/etherstore.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "pragma solidity ^0.4.10;"
+                  },
+                  "startLine": 16,
+                  "endLine": 16
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.656847895121348,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "security-misconfiguration",
+          "level": "warning",
+          "message": {
+            "text": "Vulnerability found"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/reentrancy/etherstore.sol"
+                },
+                "region": {
+                  "startLine": 1,
+                  "endLine": 3
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.656847895121348,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 1
+          }
+        },
+        {
+          "ruleId": "security-misconfiguration",
+          "level": "warning",
+          "message": {
+            "text": "Vulnerability found"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/reentrancy/etherstore.sol"
+                },
+                "region": {
+                  "startLine": 1,
+                  "endLine": 39
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.656847895121348,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 2
+          }
+        },
+        {
+          "ruleId": "security-misconfiguration",
+          "level": "warning",
+          "message": {
+            "text": "Insecure Default Permission\n\nThe mapping of addresses to credits is publicly accessible, allowing anyone to view and modify the credit balance.\n\nImpact: Information disclosure about credit balances.\n\nRemediation: Make the credit mapping private and restrict access to authenticated users."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/reentrancy/simple_dao.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "mapping (address => uint) public credit;"
+                  },
+                  "startLine": 18,
+                  "endLine": 18
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6479398144264232,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "security-misconfiguration",
+          "level": "warning",
+          "message": {
+            "text": "Insecure Default Permissions\n\nThe contract grants the owner to transfer rewards without proper access controls.\n\nImpact: Unauthorized transfers may occur.\n\nRemediation: Implement role-based access controls for the owner."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/ordering-attacks/eth_tx_order_dependence_minimal.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function setReward() public payable {\nrequire (!claimed);\nrequire(msg.sender == owner);\nowner.transfer(reward);\nreward = msg.value;\n}"
+                  },
+                  "startLine": 26,
+                  "endLine": 26
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6470380700844135,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "security-misconfiguration",
+          "level": "note",
+          "message": {
+            "text": "Insecure default configuration\n\nUsing an old Solidity version (0.4.9) is insecure and should be updated to the latest version.\n\nImpact: Potential for vulnerabilities in outdated codebase.\n\nRemediation: Update to the latest Solidity version."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_1.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "pragma solidity 0.4.9;"
+                  },
+                  "startLine": 26,
+                  "endLine": 26
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6439659324006672,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "security-misconfiguration",
+          "level": "warning",
+          "message": {
+            "text": "Insecure Permissions\n\nThe contract grants the ability to revoke a prior confirmation of an operation without proper authorization checks.\n\nImpact: Unauthorized access to revoke operations could be exploited.\n\nRemediation: Add proper authorization checks for the revoke function."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_1.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function revoke(bytes32 _operation) external {\n    // make sure they're an owner\n    if (ownerIndex == 0) return;\n    uint ownerIndexBit = 2**ownerIndex;\n    var pending = m_pending[_operation];\n    if (pending.ownersDone & ownerIndexBit > 0) {\n      pending.yetNeeded++;\n      pending.ownersDone -= ownerIndexBit;\n      Revoke(msg.sender, _operation);\n    }\n}"
+                  },
+                  "startLine": 134,
+                  "endLine": 134
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6439659324006672,
+            "oasisChunkIndex": 1,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "security-misconfiguration",
+          "level": "warning",
+          "message": {
+            "text": "Insecure default credentials\n\nThe contract is using a default address (`msg.sender`) for the owner array initialization without proper validation.\n\nImpact: An attacker could potentially exploit this by sending a crafted transaction with an invalid owner address."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_1.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function initMultiowned(address[] _owners, uint _required) {\n  // ..."
+                  },
+                  "startLine": 121,
+                  "endLine": 121
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6439659324006672,
+            "oasisChunkIndex": 2,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "security-misconfiguration",
+          "level": "warning",
+          "message": {
+            "text": "Insecure Permission\n\nThe 'onlyowner' modifier does not check for the presence of a contract's owner or if the sender has permission to perform this action.\n\nImpact: Unauthorized access to the contract's functionality.\n\nRemediation: Use 'hasOwner' modifier to enforce ownership checks."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_1.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function execute(address _to, uint _value, bytes _data) external onlyowner returns (bytes32 o_hash)"
+                  },
+                  "startLine": 245,
+                  "endLine": 245
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6439659324006672,
+            "oasisChunkIndex": 3,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "security-misconfiguration",
+          "level": "warning",
+          "message": {
+            "text": "Insecure Default Permissions\n\nThe `changeOwner` function does not explicitly set default permissions for the contract.\n\nImpact: Unauthorized access to owner information or modification of owner indices.\n\nRemediation: Set explicit default permissions for sensitive functions like `changeOwner`."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_1.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function changeOwner(address _from, address _to) onlymanyowners(sha3(msg.data)) external { ... }"
+                  },
+                  "startLine": 126,
+                  "endLine": 467
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6439659324006672,
+            "oasisChunkIndex": 4,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "security-misconfiguration",
+          "level": "note",
+          "message": {
+            "text": "Insecure default values\n\nThe contract initializes with default values for m_required and other variables that should be set by the deployer.\n\nImpact: Information disclosure due to unintended configuration\n\nRemediation: Update m_required and other default values to secure configuration"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_1.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function Wallet(address[] _owners, uint _required, uint _daylimit) {"
+                  },
+                  "startLine": 414,
+                  "endLine": 414
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6439659324006672,
+            "oasisChunkIndex": 5,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "security-misconfiguration",
+          "level": "note",
+          "message": {
+            "text": "Debug Mode Enabled\n\nThis assembly code can be executed in debug mode, potentially revealing sensitive information about the contract.\n\nImpact: Information disclosure\n\nRemediation: Disable debug mode or use a secure alternative."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_1.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "assembly { o_addr := create(_value, add(_code, 0x20), mload(_code)) jumpi(invalidJumpLabel, iszero(extcodesize(o_addr))) }"
+                  },
+                  "startLine": 269,
+                  "endLine": 477
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6439659324006672,
+            "oasisChunkIndex": 6,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "security-misconfiguration",
+          "level": "note",
+          "message": {
+            "text": "Unnecessary Function\n\nThe `function()` without a specified name allows it to be called without checking its validity, potentially leading to unintended behavior.\n\nImpact: Information disclosure or potential execution of unintended functionality\n\nRemediation: Remove the unnecessary function or ensure it is properly validated and sanitized."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_2.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function() payable { if (msg.value > 0) Deposit(msg.sender, msg.value); }"
+                  },
+                  "startLine": 1,
+                  "endLine": 227
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6307962342698175,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "security-misconfiguration",
+          "level": "error",
+          "message": {
+            "text": "Insecure Permissions\n\nThe `getOwner` function allows anyone to access the owner list without any authentication or authorization.\n\nImpact: Uncontrolled access to owner list\n\nRemediation: Implement proper authorization and authentication for owner list access."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_2.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function getOwner(uint ownerIndex) external constant returns (address) {\n    return address(m_owners[ownerIndex + 1]);\n}"
+                  },
+                  "startLine": 194,
+                  "endLine": 194
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6307962342698175,
+            "oasisChunkIndex": 1,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "security-misconfiguration",
+          "level": "error",
+          "message": {
+            "text": "Insecure Permissions\n\nThe `constructor` function has no access control checks, allowing anyone to deposit funds.\n\nImpact: Unauthorized fund deposits can lead to economic loss.\n\nRemediation: Use the `modifyAccessControl` function to restrict who can deposit funds."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_2.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function() payable { ... }"
+                  },
+                  "startLine": 1,
+                  "endLine": 324
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6307962342698175,
+            "oasisChunkIndex": 2,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "security-misconfiguration",
+          "level": "note",
+          "message": {
+            "text": "Insecure Default Permissions\n\nThe contract's default permissions are insecure, allowing anyone to call the `initMultiowned` function without restrictions.\n\nImpact: Unauthorized access to internal state and functions"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_2.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function initMultiowned(address[] _owners, uint _required) only_uninitialized { ... }"
+                  },
+                  "startLine": 64,
+                  "endLine": 414
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6307962342698175,
+            "oasisChunkIndex": 3,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "security-misconfiguration",
+          "level": "warning",
+          "message": {
+            "text": "Default Permissions\n\nThe `isOwner` function does not require a signature, allowing anyone to call it without checking permissions.\n\nImpact: Information disclosure or unauthorized access may occur if this function is called by an attacker.\n\nRemediation: Add a signature or proper permission checking to the `isOwner` function."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/access-control/parity_wallet_bug_2.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "function isOwner(address _addr) constant returns (bool) { return m_ownerIndex[uint(_addr)] > 0; }"
+                  },
+                  "startLine": 96,
+                  "endLine": 414
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6307962342698175,
+            "oasisChunkIndex": 4,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "security-misconfiguration",
+          "level": "note",
+          "message": {
+            "text": "Debug Mode Enabled\n\nThis line makes the `players` array publicly accessible for debugging purposes, allowing unauthorized access.\n\nImpact: Information disclosure\n\nRemediation: Disable public access to the `players` array"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/ordering-attacks/odds_and_evens.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "contract OddsAndEvens{\n  //public only for debug purpose\n  Player[2] public players;"
+                  },
+                  "startLine": 17,
+                  "endLine": 17
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.6202665277388971,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        },
+        {
+          "ruleId": "security-misconfiguration",
+          "level": "warning",
+          "message": {
+            "text": "Insecure default permissions\n\nThe contract allows any address to spend tokens without proper verification.\n\nImpact: An attacker could spend tokens on behalf of the owner."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "/work/project/dataset/vulnerable/ordering-attacks/ERC20.sol"
+                },
+                "region": {
+                  "snippet": {
+                    "text": "require(spender != address(0))"
+                  },
+                  "startLine": 119,
+                  "endLine": 119
+                }
+              }
+            }
+          ],
+          "properties": {
+            "oasisModel": "llama3.2:3b",
+            "oasisFileSimilarity": 0.576859221065477,
+            "oasisChunkIndex": 0,
+            "oasisFindingIndex": 0
+          }
+        }
+      ],
+      "properties": {
+        "oasisReportTitle": "Security Misconfiguration Security Analysis",
+        "oasisGeneratedAt": "2026-06-11 23:13:45",
+        "oasisVulnerabilityName": "Security Misconfiguration"
+      }
+    }
+  ]
+}
