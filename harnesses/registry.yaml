@@ -1,0 +1,79 @@
+# Fuzzing-case registry — the single source of truth for `aifuzz suite`.
+#
+# Each case maps four things explicitly so the relationships are never implicit:
+#   target   — the REAL contract under test (lives in dataset/, stays pristine)
+#   harness  — the test rig that imports `target`, stages the attack, and supplies
+#              the echidna_* oracle (the definition of "bad")
+#   config   — optional Echidna YAML (e.g. funding); null when none is needed
+#   expect   — ground truth: `vulnerable` => the tool MUST find a bug;
+#                            `clean`      => the tool MUST stay silent (no finding)
+#
+# Add a contract to the evaluation by adding ONE block below — no code changes.
+# `aifuzz suite` runs every case and checks the result against `expect`; that
+# pass/fail table is the precision-vs-recall evidence for the M5 evaluation.
+
+cases:
+  # --- REENTRANCY: the vulnerable / fixed pair on the SAME SimpleDAO ----------
+  - name: reentrancy-vulnerable
+    vuln_type: reentrancy
+    target:   dataset/vulnerable/reentrancy/simple_dao.sol
+    harness:  harnesses/ReentrancyHarness.sol
+    contract: ReentrancyEchidnaTest
+    config:   harnesses/reentrancy.yaml   # funds the attacker so there is ETH to steal
+    expect:   vulnerable                  # true positive
+
+  - name: reentrancy-clean
+    vuln_type: reentrancy
+    target:   dataset/clean/simple_dao_fixed.sol
+    harness:  harnesses/ReentrancyControlHarness.sol
+    contract: ReentrancyControlEchidnaTest
+    config:   harnesses/reentrancy.yaml   # SAME config — the patch, not the funding, is the difference
+    expect:   clean                       # true negative
+
+  # --- ACCESS CONTROL --------------------------------------------------------
+  - name: access-control-vulnerable
+    vuln_type: access-control
+    target:   dataset/vulnerable/access-control/Unprotected.sol
+    harness:  harnesses/AccessControlHarness.sol
+    contract: AccessControlEchidnaTest
+    config:   null                        # no funding needed
+    expect:   vulnerable                  # true positive
+
+  - name: access-control-clean
+    vuln_type: access-control
+    target:   dataset/clean/mycontract_fixed.sol
+    harness:  harnesses/AccessControlControlHarness.sol
+    contract: AccessControlControlEchidnaTest
+    config:   null
+    expect:   clean                       # true negative
+
+  # --- ORDERING ATTACKS (front-running / TOD) --------------------------------
+  # No safe TOD contract exists upstream, so this class is positive-only.
+  - name: ordering-vulnerable
+    vuln_type: ordering-attacks
+    target:   dataset/vulnerable/ordering-attacks/eth_tx_order_dependence_minimal.sol
+    harness:  harnesses/OrderingHarness.sol
+    contract: OrderingEchidnaTest
+    config:   harnesses/ordering.yaml     # funds the reward pool
+    expect:   vulnerable                  # true positive
+
+  # --- ORACLE MANIPULATION ---------------------------------------------------
+  # Minimal self-contained model: the real DVD Puppet pools need the full project
+  # (Uniswap + OpenZeppelin) and cannot be fuzzed standalone. The price source is
+  # a fuzzable input; the oracle is the pool's solvency invariant.
+  - name: oracle-manipulation-vulnerable
+    vuln_type: oracle-manipulation
+    target:   harnesses/OracleManipulationHarness.sol (minimal model; real Puppet pools need full DVD project)
+    harness:  harnesses/OracleManipulationHarness.sol
+    contract: OracleManipEchidnaTest
+    config:   null
+    expect:   vulnerable                  # true positive
+
+  # --- CLEAN CONTROL (self-contained, not a dataset contract) ----------------
+  - name: clean-counter-control
+    vuln_type: none
+    target:   (self-contained synthetic control — not sourced from dataset/)
+    harness:  harnesses/SafeCounter.sol
+    contract: SafeCounterEchidnaTest
+    config:   null
+    expect:   clean                       # true negative

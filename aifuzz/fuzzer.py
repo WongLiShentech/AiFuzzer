@@ -23,8 +23,8 @@ from .config import settings
 from .report import Finding, Severity
 
 # Echidna prints one line per property in its summary. The wording varies:
-#   echidna_owner_is_deployer: failed!💥           (a violation, with a Call sequence)
-#   echidna_no_reentrancy_theft: failed with no transactions made ⁉️
+#   echidna_owner_is_deployer: failed!           (a violation, with a Call sequence)
+#   echidna_no_reentrancy_theft: failed with no transactions made 
 #   echidna_count_within_bound: passing            (held — present tense when ALL pass)
 #   echidna_x: passed!                             (held — past tense in other runs)
 # We match pass*/fail* so a clean contract ("passing") is recognised as a real
@@ -39,9 +39,9 @@ def _solc_for_pragma(contract_path: str) -> str | None:
     changing the global default; the fuzzer self-heals (installs) a missing one.
 
     Handles the legacy 0.4.x line two ways:
-      * an exact pin (`pragma solidity 0.4.24;`) → that precise version, because
+      * an exact pin (`pragma solidity 0.4.24;`) -> that precise version, because
         a non-range pragma rejects any other compiler;
-      * a caret/range (`^0.4.2`, `>=0.4.0 <0.5.0`) → the newest 0.4 we ship.
+      * a caret/range (`^0.4.2`, `>=0.4.0 <0.5.0`) -> the newest 0.4 we ship.
     A 0.8.x (or anything else) pragma falls through to the image default."""
     try:
         text = open(contract_path, encoding="utf-8", errors="replace").read()
@@ -55,7 +55,7 @@ def _solc_for_pragma(contract_path: str) -> str | None:
         return None  # default to the image's solc (0.8.x)
     if re.fullmatch(r"0\.4\.\d+", spec):
         return spec  # exact pin, e.g. "0.4.24" — must use exactly this
-    return "0.4.26"  # caret/range on 0.4.x → newest installed 0.4
+    return "0.4.26"  # caret/range on 0.4.x -> newest installed 0.4
 
 
 class EchidnaFuzzer:
@@ -110,7 +110,7 @@ class EchidnaFuzzer:
             proc = subprocess.run(cmd, capture_output=True, text=True, cwd=workdir, env=env)
         output = (proc.stdout or "") + "\n" + (proc.stderr or "")
         # Honesty guard: only trust an "all clear" if Echidna actually evaluated a
-        # property. No result lines ⇒ compile error / no echidna_* props ⇒ surface it
+        # property. No result lines => compile error / no echidna_* props => surface it
         # rather than silently reporting "no vulnerabilities found".
         if not any(_RESULT_RE.match(line.strip()) for line in output.splitlines()):
             tail = "\n".join(output.strip().splitlines()[-12:])

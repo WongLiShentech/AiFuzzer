@@ -30,7 +30,7 @@ class Deployment:
 
 
 def _compile(contract_path: str, contract_name: str) -> tuple[list, str]:
-    """Compile one contract with solc → (abi, 0x-prefixed bytecode)."""
+    """Compile one contract with solc -> (abi, 0x-prefixed bytecode)."""
     if shutil.which("solc") is None:
         raise RuntimeError("solc not found — run inside the Docker image.")
     out = subprocess.run(

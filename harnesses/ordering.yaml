@@ -1,0 +1,5 @@
+# Echidna config for OrderingHarness.sol.
+# Fund the harness so the owner can post the reward that the attacker then tries
+# to claim (otherwise there is nothing to steal).
+balanceContract: 10000000000000000000
+testLimit: 100000

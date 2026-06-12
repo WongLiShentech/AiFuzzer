@@ -22,7 +22,7 @@ from .analyzer import analyze
 def _cmd_analyze(args: argparse.Namespace) -> int:
     try:
         report = analyze(args.contract, mode=args.mode, contract=args.contract_name,
-                         config=args.config)
+                         config=args.config, auto=args.auto)
     except FileNotFoundError as e:
         print(f"error: {e}", file=sys.stderr)
         return 2
@@ -63,6 +63,22 @@ def _cmd_deploy(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_suite(args: argparse.Namespace) -> int:
+    from .suite import run_suite, format_table
+
+    try:
+        results = run_suite(args.registry, mode=args.mode)
+    except FileNotFoundError as e:
+        print(f"error: {e}", file=sys.stderr)
+        return 2
+    except ValueError as e:
+        print(f"error: {e}", file=sys.stderr)
+        return 4
+    print(format_table(results))
+    # non-zero exit if any case did not match its ground-truth expectation
+    return 0 if all(r.passed for r in results) else 5
+
+
 def _cmd_benchmark(args: argparse.Namespace) -> int:
     print("[aifuzz] run the evaluation harness with:  python benchmark.py", file=sys.stderr)
     return 0
@@ -80,6 +96,9 @@ def build_parser() -> argparse.ArgumentParser:
                    help="name of the Echidna test contract (the one with echidna_* properties)")
     a.add_argument("--config", default=None,
                    help="optional Echidna YAML config (e.g. to fund the harness)")
+    a.add_argument("--auto", action="store_true",
+                   help="if the contract has no echidna_* oracle, synthesize a harness "
+                        "from its structure (Tier-2 templates) and fuzz that")
     a.add_argument("--format", choices=["json", "markdown", "sarif"], default="markdown")
     a.set_defaults(func=_cmd_analyze)
 
@@ -90,6 +109,12 @@ def build_parser() -> argparse.ArgumentParser:
     d.add_argument("--call", default=None,
                    help="optional view function to read after deploy (e.g. owner)")
     d.set_defaults(func=_cmd_deploy)
+
+    s = sub.add_parser("suite", help="run every fuzzing case in the registry and check vs ground truth")
+    s.add_argument("--registry", default="harnesses/registry.yaml",
+                   help="path to the fuzzing-case registry (default: harnesses/registry.yaml)")
+    s.add_argument("--mode", choices=["random", "ai-guided"], default="random")
+    s.set_defaults(func=_cmd_suite)
 
     b = sub.add_parser("benchmark", help="evaluate over the labeled dataset")
     b.set_defaults(func=_cmd_benchmark)

@@ -16,6 +16,7 @@ keywords = ["smart-contracts", "fuzzing", "security", "solidity", "echidna", "ai
 # provided by the Docker image, not pip. AI extras are optional.
 dependencies = [
     "flask",
+    "pyyaml",   # parse the fuzzing-case registry (harnesses/registry.yaml)
 ]
 
 [project.optional-dependencies]

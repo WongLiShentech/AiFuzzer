@@ -51,7 +51,7 @@ contract ReentrancyControlEchidnaTest {
     }
 
     // SAME REENTRANCY ORACLE as the vulnerable harness. Against patched code it
-    // must HOLD (received never exceeds donatedSelf) → 0 findings → no false alarm.
+    // must HOLD (received never exceeds donatedSelf) -> 0 findings -> no false alarm.
     function echidna_no_reentrancy_theft() public view returns (bool) {
         return received <= donatedSelf;
     }

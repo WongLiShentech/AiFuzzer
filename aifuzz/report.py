@@ -16,8 +16,21 @@ from enum import Enum
 from typing import Any
 
 
+def _render_md_table(rows: list[list[str]]) -> list[str]:
+    """Render a Markdown table with every column padded to a fixed width, so it
+    stays aligned when printed to a plain terminal (and is still valid Markdown).
+    `rows[0]` is the header."""
+    widths = [max(len(r[i]) for r in rows) for i in range(len(rows[0]))]
+    out = []
+    for n, row in enumerate(rows):
+        out.append("| " + " | ".join(c.ljust(widths[i]) for i, c in enumerate(row)) + " |")
+        if n == 0:  # header separator
+            out.append("|-" + "-|-".join("-" * w for w in widths) + "-|")
+    return out
+
+
 class Severity(str, Enum):
-    """Severity levels, ordered low→high. SARIF maps these to its `level`."""
+    """Severity levels, ordered low->high. SARIF maps these to its `level`."""
 
     INFO = "info"
     LOW = "low"
@@ -82,23 +95,31 @@ class Report:
         return json.dumps(self.to_dict(), indent=indent)
 
     def to_markdown(self) -> str:
+        n = len(self.findings)
+        verdict = (f"VULNERABLE ({n} finding{'s' if n != 1 else ''})"
+                   if n else "NO VULNERABILITIES FOUND")
         lines = [
-            f"# Vulnerability Report — `{self.contract}`",
+            f"# Vulnerability Report - `{self.contract}`",
             "",
+            f"- **Verdict:** {verdict}",
             f"- **Mode:** {self.mode}",
             f"- **Generated:** {self.created_at}",
-            f"- **Findings:** {len(self.findings)}",
+            f"- **Findings:** {n}",
             "",
         ]
         if not self.findings:
             lines.append("No vulnerabilities found.")
             return "\n".join(lines)
-        lines += ["| Severity | Rule | Title | Line | Engine |", "|---|---|---|---|---|"]
+        rows = [["Severity", "Rule", "Title", "Line", "Engine"]]
         for f in sorted(self.findings, key=lambda x: x.severity.value):
-            lines.append(
-                f"| {f.severity.value} | `{f.rule_id}` | {f.title} | "
-                f"{f.line if f.line is not None else '-'} | {f.engine} |"
-            )
+            rows.append([
+                f.severity.value,
+                f"`{f.rule_id}`",
+                f.title,
+                str(f.line) if f.line is not None else "-",
+                f.engine,
+            ])
+        lines += _render_md_table(rows)
         return "\n".join(lines)
 
     def to_sarif(self) -> dict[str, Any]:

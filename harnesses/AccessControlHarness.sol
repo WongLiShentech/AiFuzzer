@@ -39,7 +39,7 @@ contract AccessControlEchidnaTest {
     // an owner-only function. We probe via the contract's guarded
     // changeOwner_fixed(): the low-level call succeeds (returns true) only while
     // WE are still the owner. Once the attacker has seized ownership the guard
-    // reverts and this returns false → Echidna reports the violation + sequence.
+    // reverts and this returns false -> Echidna reports the violation + sequence.
     function echidna_owner_retained() public returns (bool) {
         return address(vault).call(
             bytes4(keccak256("changeOwner_fixed(address)")), address(this)

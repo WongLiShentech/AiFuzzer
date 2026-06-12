@@ -16,7 +16,7 @@ contract SafeCounterEchidnaTest {
     }
 
     // INVARIANT: count must always stay within bound. This holds forever, so
-    // Echidna fuzzes hard and finds nothing → aifuzz reports "no vulnerabilities".
+    // Echidna fuzzes hard and finds nothing -> aifuzz reports "no vulnerabilities".
     function echidna_count_within_bound() public view returns (bool) {
         return count <= 100;
     }

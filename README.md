@@ -21,12 +21,12 @@ aifuzz analyze <contract.sol>
   1. compile the Solidity
   2. AI step (aifuzz/ai_guidance.py): a LOCAL model (Llama 3 via Ollama) reads the
      contract + retrieves vuln patterns from ChromaDB, and drafts
-       • properties — rules that must always hold
-       • seed transaction sequences likely to break them
-  3. deploy to a local chain (Anvil)            ← the "testing environment"
+       - properties — rules that must always hold
+       - seed transaction sequences likely to break them
+  3. deploy to a local chain (Anvil)            <- the "testing environment"
   4. fuzz (aifuzz/fuzzer.py = Echidna): fire many tx-sequences trying to
      break the properties — in two modes: RANDOM vs AI-GUIDED
-  5. report (aifuzz/report.py): violations → JSON / Markdown / SARIF → dashboard
+  5. report (aifuzz/report.py): violations -> JSON / Markdown / SARIF -> dashboard
 ```
 
 The project's headline result is the **random vs AI-guided** comparison:
@@ -38,12 +38,12 @@ AI guidance should reach states and find bugs that random fuzzing does not.
 
 ```
 aifuzz/        the tool — cli, analyzer, fuzzer (Echidna), ai_guidance (Ollama+ChromaDB),
-               local_chain (Anvil), report (findings → JSON/Markdown/SARIF), config
+               local_chain (Anvil), report (findings -> JSON/Markdown/SARIF), config
 dashboard/     Flask web UI to submit a contract and view its report
 dataset/       the testing environment + evaluation set: labelled .sol contracts
                (vulnerable/ + clean/), labels.csv, generate_labels.py, provenance
 tests/         a small pytest suite for the report layer
-benchmark.py   evaluation: runs the tool over dataset/ → random-vs-AI + P/R/F1
+benchmark.py   evaluation: runs the tool over dataset/ -> random-vs-AI + P/R/F1
 .claude/agents/ Claude Code helper agents used while developing (see below)
 ```
 
@@ -53,7 +53,7 @@ benchmark.py   evaluation: runs the tool over dataset/ → random-vs-AI + P/R/F1
 |---|-------------|-------|
 | 1 | AI-assisted fuzzing framework | `aifuzz/` (esp. `fuzzer.py` + `ai_guidance.py`) |
 | 2 | Smart contract testing environment | `aifuzz/local_chain.py` (local Anvil) + `dataset/` |
-| 3 | Vulnerability analysis report + PoC exploits | `benchmark.py` → `results/` metrics; PoCs authored via the `exploit-writer` agent |
+| 3 | Vulnerability analysis report + PoC exploits | `benchmark.py` -> `results/` metrics; PoCs authored via the `exploit-writer` agent |
 | 4 | Web dashboard | `dashboard/` |
 | 5 | User guide + final presentation | this README (guide); presentation deck separate |
 
@@ -66,7 +66,7 @@ and the local AI, so nothing fragile installs on your host:
 
 ```bash
 cp .env.example .env
-docker compose up          # dashboard → http://localhost:5000
+docker compose up          # dashboard -> http://localhost:5000
 ```
 
 **Local CLI:**
@@ -82,7 +82,7 @@ python -m aifuzz.cli analyze <contract>.sol --mode ai-guided --format sarif
 ```bash
 python -m aifuzz.cli deploy harnesses/AccessControlHarness.sol \
     --contract-name AccessControlEchidnaTest --call owner
-# → starts a local Anvil chain, deploys the contract, prints its address + owner()
+# -> starts a local Anvil chain, deploys the contract, prints its address + owner()
 ```
 
 **Evaluate over the dataset:**

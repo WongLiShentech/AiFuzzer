@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>aifuzz — Smart Contract Vulnerability Scanner</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/">
+      <svg class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <div class="brand-text">
+        <span class="logo">aifuzz</span>
+        <span class="brand-sub">Smart-Contract Vulnerability Scanner</span>
+      </div>
+    </a>
+    <nav class="topnav">
+      <a class="navlink" href="#how">How it works</a>
+      <a class="navlink" href="#types">Coverage</a>
+      <a class="navlink btn btn-primary" href="/app">Launch scanner</a>
+    </nav>
+  </header>
+
+  <main>
+    <!-- Hero -->
+    <section class="landing-hero">
+      <span class="eyebrow">Fuzzing-based · runs locally · air-gapped</span>
+      <h1>Find real vulnerabilities in your<br/>smart contracts</h1>
+      <p>aifuzz generates and executes thousands of transaction sequences against your
+         Solidity contracts in a local EVM, breaking their security invariants to surface
+         exploitable bugs — and shows you the exact code and transaction sequence that does it.</p>
+      <div class="cta-row">
+        <a class="btn btn-primary btn-lg" href="/app">Scan a contract</a>
+        <a class="btn btn-lg" href="#how">See how it works</a>
+      </div>
+    </section>
+
+    <!-- Vuln types -->
+    <section class="landing-section" id="types">
+      <h2 class="section-title">What it detects</h2>
+      <p class="section-lead">Four high-impact vulnerability classes, on real contracts.</p>
+      <div class="type-grid">
+        <div class="type-card"><h3>Reentrancy</h3><p>Funds drained by re-entering a contract before it updates its books.</p></div>
+        <div class="type-card"><h3>Access Control</h3><p>Privileged functions callable by accounts that were never authorised.</p></div>
+        <div class="type-card"><h3>Ordering Attacks</h3><p>Outcomes that depend on transaction order — front-running and TOD.</p></div>
+        <div class="type-card"><h3>Oracle Manipulation</h3><p>Pricing logic that trusts a manipulable on-chain price source.</p></div>
+      </div>
+    </section>
+
+    <!-- How it works -->
+    <section class="landing-section alt" id="how">
+      <h2 class="section-title">How it works</h2>
+      <div class="steps">
+        <div class="step"><span class="step-n">1</span><h3>Submit a contract</h3><p>Drop a Solidity file or paste source. Your code never leaves your machine — everything runs locally in Docker.</p></div>
+        <div class="step"><span class="step-n">2</span><h3>Fuzz in a local EVM</h3><p>Echidna generates thousands of random transaction sequences, trying to break the contract's security invariants.</p></div>
+        <div class="step"><span class="step-n">3</span><h3>Get an exploit report</h3><p>A clear VULNERABLE / CLEAN verdict, the offending code, and the exact transaction sequence that triggers it.</p></div>
+      </div>
+    </section>
+
+    <!-- Who it's for -->
+    <section class="landing-section" id="who">
+      <h2 class="section-title">Built for</h2>
+      <div class="who-grid">
+        <div class="who-card">
+          <h3>Security teams &amp; auditors</h3>
+          <p>Add automated, property-based fuzzing to your review process. Reproducible runs, machine-readable output (JSON / SARIF), and a labeled evaluation suite to measure detection quality.</p>
+        </div>
+        <div class="who-card">
+          <h3>Individual developers</h3>
+          <p>Catch reentrancy, access-control, ordering, and oracle bugs before you ship — locally, with no code sent to a third party.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="landing-cta">
+      <h2>Scan your first contract</h2>
+      <p>Try it on the bundled dataset, or drop in your own self-contained harness.</p>
+      <a class="btn btn-primary btn-lg" href="/app">Launch scanner</a>
+    </section>
+  </main>
+
+  <footer class="foot">
+    aifuzz · SIT IWL2 · random fuzzing (M2) — AI-guided fuzzing arrives in M3
+  </footer>
+</body>
+</html>

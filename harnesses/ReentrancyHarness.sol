@@ -50,7 +50,7 @@ contract ReentrancyEchidnaTest {
 
     // REUSABLE REENTRANCY ORACLE: we must never receive back more than we
     // deposited for ourselves. Reentrancy lets us steal the victim's funds, so
-    // `received` exceeds `donatedSelf` → Echidna reports the violation + sequence.
+    // `received` exceeds `donatedSelf` -> Echidna reports the violation + sequence.
     function echidna_no_reentrancy_theft() public view returns (bool) {
         return received <= donatedSelf;
     }
