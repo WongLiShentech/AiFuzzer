@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 // ORACLE-MANIPULATION model (Mechanism A, minimal & self-contained).
 //
-// The real Damn Vulnerable DeFi Puppet pools (dataset/vulnerable/oracle-
+// The real Damn Vulnerable DeFi Puppet pools (tests/fixtures/vulnerable/oracle-
 // manipulation/) import Uniswap + OpenZeppelin and only compile from the full
 // DVD project, so they cannot be fuzzed as standalone files (see that folder's
 // DEPENDENCY_NOTE.md). Oracle-manipulation is also not a self-contained bug: it

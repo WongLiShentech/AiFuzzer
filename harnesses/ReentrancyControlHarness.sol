@@ -1,7 +1,7 @@
 pragma solidity 0.4.24;
 
 // REENTRANCY true-negative control (Mechanism A) wrapping the REAL fixed dataset
-// contract: dataset/clean/simple_dao_fixed.sol — the SAME SimpleDAO as the
+// contract: tests/fixtures/clean/simple_dao_fixed.sol — the SAME SimpleDAO as the
 // vulnerable one, but remediated with checks-effects-interactions (it debits
 // credit BEFORE sending ETH).
 //
@@ -10,7 +10,7 @@ pragma solidity 0.4.24;
 // patched code the reentrancy oracle HOLDS, so Echidna reports 0 findings. The
 // vulnerable/fixed pair is the true-positive / true-negative evidence the
 // evaluation (precision vs recall) is built on.
-import "../dataset/clean/simple_dao_fixed.sol";
+import "../tests/fixtures/clean/simple_dao_fixed.sol";
 
 contract ReentrancyControlEchidnaTest {
     SimpleDAO public dao;

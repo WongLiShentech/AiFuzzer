@@ -61,6 +61,15 @@ function findingCard(f, sources) {
     ${seq}${code}</div>`;
 }
 
+// Coverage + run-time line (shown for clean and vulnerable results).
+function coverageMeta(r) {
+  if (!r) return "";
+  const parts = [];
+  if (r.coverage != null) parts.push(`Coverage: <strong>${esc(r.coverage)}</strong> code points reached`);
+  if (r.elapsed != null) parts.push(`Time: <strong>${esc(r.elapsed)}s</strong>`);
+  return parts.length ? `<div class="cov-meta">${parts.join(" · ")}</div>` : "";
+}
+
 // ---------- per-contract result body ----------
 function reportBody(e) {
   if (e.status === "skipped")
@@ -70,11 +79,13 @@ function reportBody(e) {
   if (e.status === "pending")
     return `<div class="note-panel">${esc(e.reason || "AI-guided fuzzing (M3) is not implemented yet.")}</div>`;
   if (e.status === "clean")
-    return `<div class="clean-panel"><div class="big">No vulnerabilities found</div>
+    return coverageMeta(e.report) +
+      `<div class="clean-panel"><div class="big">No vulnerabilities found</div>
       <div class="sub">Resisted the tested attacks. Fuzzing samples behaviour — not a proof of safety.</div></div>`;
   // vulnerable
   const r = e.report;
-  return vulnCodeBlock(e.vulnerable_code) + r.findings.map((f) => findingCard(f, e.sources)).join("");
+  return coverageMeta(r) + vulnCodeBlock(e.vulnerable_code) +
+    r.findings.map((f) => findingCard(f, e.sources)).join("");
 }
 
 function statusBadge(s) {

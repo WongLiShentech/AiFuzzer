@@ -7,12 +7,13 @@ recognise, and honestly defers the rest to the M3 AI.
 
 | Upload | Path exercised | Expected result |
 |---|---|---|
-| `../dataset/vulnerable/reentrancy/simple_dao.sol` | reentrancy (`withdraw(amount)`) | **VULNERABLE** |
+| `../tests/fixtures/vulnerable/reentrancy/simple_dao.sol` | reentrancy (`withdraw(amount)`) | **VULNERABLE** |
 | `reentrancy_withdraw_all.sol` | reentrancy (`withdraw()` drains all) | **VULNERABLE** |
 | `access_control_unprotected.sol` | access control (public owner) | **VULNERABLE** |
 | `access_control_safe.sol` | access control (guarded) | **NO VULNERABILITIES** (no false positive) |
-| `../dataset/vulnerable/access-control/Unprotected.sol` | access control (private owner, guarded-twin probe) | **VULNERABLE** |
-| `../dataset/vulnerable/ordering-attacks/eth_tx_order_dependence_minimal.sol` | ordering / TOD | **VULNERABLE** |
+| `../tests/fixtures/vulnerable/access-control/Unprotected.sol` | access control (private owner, guarded-twin probe) | **VULNERABLE** |
+| `../tests/fixtures/vulnerable/ordering-attacks/eth_tx_order_dependence_minimal.sol` | ordering / TOD | **VULNERABLE** |
+| `multi_vuln_bank.sol` | reentrancy + access control (one contract, two shapes) | **VULNERABLE** (two findings) |
 | `oracle_lending.sol` | oracle manipulation | **Recognised, deferred to M3** (no faked harness) |
 
 Out of scope (honest skip): contracts whose only bug is **not** one of the four

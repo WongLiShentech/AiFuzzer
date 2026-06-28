@@ -19,13 +19,15 @@ The AI (M3) therefore works at the outer loop -- reading the contract once and
 emitting invariants, seed sequences, and a value dictionary that prime the
 fuzzer. This is the realistic and standard way to combine LLMs with fuzzing.
 
-## Harnesses are human-written in M2
-In the current milestone, each harness (the attacker + the `echidna_*` oracle)
-is written by hand. The tool fuzzes real, unmodified dataset contracts through
-these harnesses, but it does not yet generate them automatically. Automatic
-harness/oracle generation for an arbitrary contract is the M3 deliverable and
-the project's novelty; until then, coverage is limited to contracts for which a
-harness exists.
+## Harness generation is template-based, not yet AI
+The tool now auto-generates a harness (attacker + `echidna_*` invariant) from a
+raw contract for the shapes it recognises — a balance-ledger reentrancy pool, a
+privileged-owner access-control pattern, and a reward-claim ordering pattern —
+using Slither semantic detection with a regex fallback, and emits one harness per
+matched shape (`aifuzz/synthesize.py`). These templates are non-AI. Generating a
+harness (and the surrounding environment, e.g. a market for oracle manipulation)
+for an *arbitrary* contract is the M3 deliverable and the project's novelty;
+hand-written harnesses remain only for the curated evaluation suite.
 
 ## Finding metadata is partially fixed
 Every Echidna finding is currently labelled severity HIGH and rule
@@ -39,7 +41,7 @@ The clean (true-negative) set is smaller than the vulnerable set and does not
 cover every vulnerability type. In particular, no safe transaction-ordering
 (TOD) contract exists in any of the four cited source repositories, so that
 class is represented by positive samples only. This is documented in
-`dataset/DATASET_PROVENANCE.md`. Clean contracts were never fabricated to force
+`tests/fixtures/DATASET_PROVENANCE.md`. Clean contracts were never fabricated to force
 a balanced count -- an honest uneven set is preferred over a balanced synthetic
 one, since fabricated contracts would void the dataset's provenance.
 
@@ -56,8 +58,9 @@ differences (precise gas, certain precompiles, mainnet-forked state) are not
 relevant to the vulnerability classes in scope. The Anvil local chain is used
 for deployment and proof-of-concept exploits, not for the fuzzing loop.
 
-## Evaluation metrics still being wired
-The evaluation (`benchmark.py`) reports bugs found and Precision/Recall/F1/FPR
-across multiple trials today. Code coverage and time-to-first-bug -- the other
-two comparison metrics -- require parsing Echidna's coverage/corpus output and
-are not yet wired.
+## Evaluation: AI column pending
+`benchmark.py` reports bugs found, Precision/Recall/F1/FPR, **code coverage, run
+time, and a composite score** across multiple trials. Coverage + time are now
+parsed from Echidna's output and wired end to end (report -> dashboard ->
+benchmark). The AI-guided column stays "pending (M3)" until the AI engine lands;
+PoC exploits on the Anvil chain are future work.

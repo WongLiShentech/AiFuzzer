@@ -1,7 +1,7 @@
 pragma solidity 0.4.25;
 
 // ACCESS-CONTROL true-negative control (Mechanism A) wrapping a REAL clean
-// dataset contract: dataset/clean/mycontract_fixed.sol (GROUND_TRUTH_LABEL = 0)
+// dataset contract: tests/fixtures/clean/mycontract_fixed.sol (GROUND_TRUTH_LABEL = 0)
 // -- the SWC-115 remediation that authorises on msg.sender instead of tx.origin.
 //
 // Mirror of AccessControlHarness: an Attacker (a NON-owner) tries to invoke the
@@ -9,7 +9,7 @@ pragma solidity 0.4.25;
 // blocks it, so authority never leaks: 0 findings, no false alarm. The same
 // probe on a BUGGY contract (an unguarded setter) WOULD succeed -- which is what
 // makes this a meaningful control rather than a trivial pass.
-import "../dataset/clean/mycontract_fixed.sol";
+import "../tests/fixtures/clean/mycontract_fixed.sol";
 
 contract Attacker {
     // Attempt the owner-only function as a non-owner. Low-level call so the

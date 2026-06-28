@@ -1,14 +1,14 @@
 pragma solidity ^0.4.2;
 
 // Reusable REENTRANCY oracle (Mechanism A) wrapping a REAL dataset contract:
-// dataset/vulnerable/reentrancy/simple_dao.sol — the canonical SimpleDAO whose
+// tests/fixtures/vulnerable/reentrancy/simple_dao.sol — the canonical SimpleDAO whose
 // withdraw() sends ETH before updating state.
 //
 // This harness plays the attacker: it seeds the pool with a "victim's" funds,
 // deposits a little of its own, then withdraws — re-entering via the fallback to
 // drain the victim's ETH too. The reusable rule for ANY deposit/withdraw
 // contract: "you can never get back MORE than you put in for yourself."
-import "../dataset/vulnerable/reentrancy/simple_dao.sol";
+import "../tests/fixtures/vulnerable/reentrancy/simple_dao.sol";
 
 contract ReentrancyEchidnaTest {
     SimpleDAO public dao;

@@ -1,7 +1,7 @@
 pragma solidity ^0.4.10;
 
 // REENTRANCY oracle wrapping the REAL dataset contract:
-// dataset/vulnerable/reentrancy/etherstore.sol
+// tests/fixtures/vulnerable/reentrancy/etherstore.sol
 //
 // EtherStore differs from SimpleDAO in two important ways:
 //   1. Withdrawal is capped at withdrawalLimit (1 ether) per call.
@@ -36,7 +36,7 @@ pragma solidity ^0.4.10;
 //   testLimit: 50000
 //   seqLen: 10
 
-import "../dataset/vulnerable/reentrancy/etherstore.sol";
+import "../tests/fixtures/vulnerable/reentrancy/etherstore.sol";
 
 contract EtherStoreAttacker {
     EtherStore public store;

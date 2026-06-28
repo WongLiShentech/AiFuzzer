@@ -76,6 +76,8 @@ class Report:
     mode: str                  # "random" | "ai-guided"
     findings: list[Finding] = field(default_factory=list)
     tool_version: str = ""
+    coverage: int | None = None    # unique code points the fuzzer reached
+    elapsed: float | None = None   # wall-clock seconds the fuzzing took
     created_at: str = field(
         default_factory=lambda: datetime.now(timezone.utc).isoformat()
     )
@@ -87,6 +89,8 @@ class Report:
             "contract": self.contract,
             "mode": self.mode,
             "tool_version": self.tool_version,
+            "coverage": self.coverage,
+            "elapsed": self.elapsed,
             "created_at": self.created_at,
             "findings": [f.to_dict() for f in self.findings],
         }
@@ -105,8 +109,12 @@ class Report:
             f"- **Mode:** {self.mode}",
             f"- **Generated:** {self.created_at}",
             f"- **Findings:** {n}",
-            "",
         ]
+        if self.coverage is not None:
+            lines.append(f"- **Coverage:** {self.coverage} code points reached")
+        if self.elapsed is not None:
+            lines.append(f"- **Time:** {self.elapsed}s")
+        lines.append("")
         if not self.findings:
             lines.append("No vulnerabilities found.")
             return "\n".join(lines)

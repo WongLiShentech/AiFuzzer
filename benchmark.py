@@ -49,6 +49,19 @@ def prf(tp: int, fp: int, fn: int, tn: int) -> dict[str, float]:
     return {"precision": precision, "recall": recall, "f1": f1, "fpr": fpr}
 
 
+def composite_score(agg: dict, cov_max: float, time_min: float) -> float:
+    """A single 0-100 score: 5 metrics x 20%, each normalized so higher = better.
+    F1 and recall (= bugs/N) are already 0-1; FPR is flipped (1-FPR); coverage and
+    time normalize HEAD-TO-HEAD (relative to both modes) so the better mode = 1.0."""
+    f1 = agg["f1"]["mean"]
+    inv_fpr = 1.0 - agg["fpr"]["mean"]
+    cov = agg["coverage"]["mean"] / cov_max if cov_max else 0.0
+    bugs = agg["recall"]["mean"]                 # TP / N_vulnerable
+    t = agg["time"]["mean"]
+    speed = time_min / t if t else 1.0
+    return 100.0 * (0.2 * f1 + 0.2 * inv_fpr + 0.2 * cov + 0.2 * bugs + 0.2 * speed)
+
+
 def _confusion(results) -> tuple[int, int, int, int]:
     """Turn one suite run into (tp, fp, fn, tn) against each case's ground truth."""
     tp = fp = fn = tn = 0
@@ -89,10 +102,12 @@ def run_mode(mode: str, registry: str, trials: int) -> dict | None:
         tp, fp, fn, tn = _confusion(results)
         m = prf(tp, fp, fn, tn)
         m["bugs_found"] = tp
+        m["coverage"] = sum((r.coverage or 0) for r in results)     # total across the suite
+        m["time"] = sum((r.elapsed or 0.0) for r in results)
         per_trial.append(m)
 
     agg = {}
-    for key in ("bugs_found", "precision", "recall", "f1", "fpr"):
+    for key in ("bugs_found", "precision", "recall", "f1", "fpr", "coverage", "time"):
         vals = [t[key] for t in per_trial]
         agg[key] = {
             "mean": statistics.mean(vals),
@@ -126,8 +141,20 @@ def main(trials: int = TRIALS) -> int:
 
     ai_cell = (lambda k: _fmt(ai_agg[k])) if ai_agg else (lambda k: "pending (M3)")
     for key, label in (("bugs_found", "Bugs found (TP)"), ("recall", "Recall"),
-                       ("precision", "Precision"), ("f1", "F1"), ("fpr", "FPR")):
+                       ("precision", "Precision"), ("f1", "F1"), ("fpr", "FPR"),
+                       ("coverage", "Code coverage"), ("time", "Time taken (s)")):
         rows.append([label, _fmt(random_agg[key]), ai_cell(key)])
+
+    # Composite score: coverage & time normalize head-to-head across the modes present.
+    present = [a for a in (random_agg, ai_agg) if a]
+    cov_max = max((a["coverage"]["mean"] for a in present), default=0.0) or 1.0
+    times = [a["time"]["mean"] for a in present if a["time"]["mean"] > 0]
+    time_min = min(times) if times else 1.0
+    rnd_score = composite_score(random_agg, cov_max, time_min)
+    ai_score = composite_score(ai_agg, cov_max, time_min) if ai_agg else None
+    report["composite"] = {"random": rnd_score, "ai_guided": ai_score}
+    rows.append(["Composite score (/100)", f"{rnd_score:.1f}",
+                 f"{ai_score:.1f}" if ai_score is not None else "pending (M3)"])
 
     widths = [max(len(r[i]) for r in rows) for i in range(3)]
     for n, row in enumerate(rows):
@@ -138,6 +165,8 @@ def main(trials: int = TRIALS) -> int:
     if ai_agg is None:
         print("\nAI-guided mode reports pending until aifuzz.ai_guidance (M3) is implemented.")
         print("Once it lands, re-run this script unchanged to get the full comparison.")
+        print("Composite: coverage & time normalize head-to-head, so with only one mode")
+        print("they sit at 1.0 — the comparison becomes meaningful when AI-guided runs.")
 
     RESULTS.mkdir(exist_ok=True)
     out = RESULTS / "benchmark.json"

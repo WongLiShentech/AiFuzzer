@@ -48,26 +48,32 @@ def analyze(contract_path: str, mode: str = "random", contract: str | None = Non
     src = path.read_text(encoding="utf-8", errors="replace")
     if auto and "echidna_" not in src:
         report.findings += _fuzz_synthesized(src, path.name, fuzzer)
-        return report
-
-    report.findings += fuzzer.fuzz(str(path), contract=contract, config=config)
+    else:
+        report.findings += fuzzer.fuzz(str(path), contract=contract, config=config)
+    report.coverage = fuzzer.coverage
+    report.elapsed = fuzzer.elapsed
     return report
 
 
 def _fuzz_synthesized(src: str, target_name: str, fuzzer: EchidnaFuzzer):
-    """Synthesize a harness for a raw contract (any of the templated shapes), then
-    fuzz it in a temp workdir (target + harness + funding config side by side so
-    imports resolve). Raises honestly when no harness can be built."""
-    from .synthesize import synthesize_harness
+    """Synthesize a harness for EACH vuln shape the contract matches, fuzz each in
+    its own temp workdir, and aggregate the findings — so one contract can be
+    reported for several vuln types. Raises honestly when no harness can be built
+    (oracle-recognition or unknown shape)."""
+    from .synthesize import synthesize_all, synthesize_harness
 
-    result = synthesize_harness(src, "./" + target_name)
-    if not result.built:
-        raise RuntimeError(result.note)   # honest: recognise-only (oracle) or unknown shape
-    with tempfile.TemporaryDirectory(prefix="aifuzz-synth-") as wd:
-        wdp = Path(wd)
-        (wdp / target_name).write_text(src, encoding="utf-8")          # pristine copy
-        hpath = wdp / f"{result.harness_name}.sol"
-        hpath.write_text(result.harness_src, encoding="utf-8")
-        cfg = wdp / "config.yaml"
-        cfg.write_text(_SYNTH_CONFIG, encoding="utf-8")
-        return fuzzer.fuzz(str(hpath), contract=result.harness_name, config=str(cfg))
+    builds = synthesize_all(src, "./" + target_name)
+    if not builds:
+        # No buildable shape: reuse the dispatcher's honest message (oracle / M3).
+        raise RuntimeError(synthesize_harness(src, "./" + target_name).note)
+    findings = []
+    for b in builds:
+        with tempfile.TemporaryDirectory(prefix="aifuzz-synth-") as wd:
+            wdp = Path(wd)
+            (wdp / target_name).write_text(src, encoding="utf-8")      # pristine copy
+            hpath = wdp / f"{b.harness_name}.sol"
+            hpath.write_text(b.harness_src, encoding="utf-8")
+            cfg = wdp / "config.yaml"
+            cfg.write_text(_SYNTH_CONFIG, encoding="utf-8")
+            findings += fuzzer.fuzz(str(hpath), contract=b.harness_name, config=str(cfg))
+    return findings

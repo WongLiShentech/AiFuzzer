@@ -72,9 +72,97 @@ def _is_guarded(head: str, body: str, owner_var: str) -> bool:
     return any(tok.lower() not in _BUILTIN_MODS for tok in re.findall(r"[A-Za-z_]\w*", head))
 
 
+# --- Slither semantic parsing (AST/IR); regex is the fallback --------------- #
+def _solc_for_pragma_spec(pragma: str) -> str | None:
+    """Pick an installed solc for Slither: any 0.4.x caret -> 0.4.26, else leave
+    the image default (0.8.x). Versions we don't ship just fail -> regex fallback."""
+    return "0.4.26" if "0.4" in pragma else None
+
+
+_SLITHER_CACHE: dict = {}   # src -> parsed contracts; the 3 detectors share one parse
+
+
+def _slither_contracts(src: str, pragma: str):
+    """Parse `src` with Slither and return its contract objects (understanding the
+    code's structure, not its text). Returns None if Slither is unavailable or the
+    contract won't compile — the caller then falls back to the regex detector.
+    Cached by source so synthesize_all() compiles a contract once, not per detector."""
+    key = hash(src)
+    if key in _SLITHER_CACHE:
+        return _SLITHER_CACHE[key]
+    result = None
+    try:
+        from slither import Slither
+    except Exception:
+        _SLITHER_CACHE[key] = None
+        return None
+    import os
+    import tempfile
+    solc = _solc_for_pragma_spec(pragma)
+    prev = os.environ.get("SOLC_VERSION")
+    if solc:
+        os.environ["SOLC_VERSION"] = solc
+    try:
+        with tempfile.TemporaryDirectory(prefix="aifuzz-slither-") as d:
+            path = os.path.join(d, "Contract.sol")
+            with open(path, "w", encoding="utf-8") as fh:
+                fh.write(src)
+            result = list(Slither(path).contracts)
+    except Exception:
+        result = None
+    finally:
+        if solc:
+            os.environ.pop("SOLC_VERSION", None) if prev is None else os.environ.__setitem__("SOLC_VERSION", prev)
+    _SLITHER_CACHE[key] = result
+    return result
+
+
+def _is_balance_ledger(sv) -> bool:
+    """A state variable that is a mapping(address => uint*) — the reentrancy ledger."""
+    t = sv.type
+    if type(t).__name__ != "MappingType":
+        return False
+    s = str(t)
+    return s.startswith("mapping(address") and "uint" in s.split("=>", 1)[-1]
+
+
 # --- reentrancy ------------------------------------------------------------- #
 def detect_reentrancy_shape(src: str) -> dict | None:
-    """Deposit/withdraw pool: a balance ledger + payable deposit + external send."""
+    """Deposit/withdraw pool: a balance ledger + a payable deposit + a function
+    that sends ETH. Semantic (Slither) when available, else regex (text)."""
+    return _detect_reentrancy_slither(src) or _detect_reentrancy_regex(src)
+
+#slither detection 
+def _detect_reentrancy_slither(src: str) -> dict | None:
+    """Semantic detection: Slither's can_send_eth() recognises an ETH-sending call
+    regardless of syntax (catches 0.8 `call{value:}` that the regex misses)."""
+    pragma = _pragma(src)
+    contracts = _slither_contracts(src, pragma)
+    if contracts is None:
+        return None
+    for c in contracts:
+        if not any(_is_balance_ledger(sv) for sv in c.state_variables):
+            continue
+        deposit = withdraw = None
+        deposit_addr = withdraw_amount = False
+        for f in c.functions:
+            if f.is_constructor:
+                continue
+            if f.payable and deposit is None:
+                deposit = f.name
+                deposit_addr = any("address" in str(p.type) for p in f.parameters)
+            if f.can_send_eth() and withdraw is None:
+                withdraw = f.name
+                withdraw_amount = any(str(p.type).startswith(("uint", "int")) for p in f.parameters)
+        if deposit and withdraw:
+            return {"contract": c.name, "deposit": deposit,
+                    "deposit_takes_address": deposit_addr, "withdraw": withdraw,
+                    "withdraw_takes_amount": withdraw_amount, "pragma": pragma}
+    return None
+
+#regex level detection
+def _detect_reentrancy_regex(src: str) -> dict | None:
+    """Fallback: text-pattern detection (a balance ledger + payable + external send)."""
     pragma = _pragma(src)
     src = _strip_comments(src)
     cm = _CONTRACT.search(src)
@@ -99,7 +187,7 @@ def detect_reentrancy_shape(src: str) -> dict | None:
             "deposit_takes_address": deposit_addr, "withdraw": withdraw,
             "withdraw_takes_amount": withdraw_amount, "pragma": pragma}
 
-
+#generate harness specific to re entrancy
 def synthesize_reentrancy_harness(src: str, target_import: str) -> tuple[str, str] | None:
     """Build a reentrancy harness for the deposit/withdraw shape, or None."""
     shape = detect_reentrancy_shape(src)
@@ -176,8 +264,47 @@ contract {hname} {{
 
 # --- access control --------------------------------------------------------- #
 def detect_access_control_shape(src: str) -> dict | None:
-    """Privileged owner var + a setter for it. Oracle reads ownership via the
-    public getter, or (private owner) probes a guarded twin. Else None (M3)."""
+    """Privileged owner var + a setter for it. Semantic (Slither) when available,
+    else regex. Oracle reads ownership via the public getter, or (private owner)
+    probes a guarded twin."""
+    return _detect_access_control_slither(src) or _detect_access_control_regex(src)
+
+
+def _detect_access_control_slither(src: str) -> dict | None:
+    """Slither: an `address` owner var, the functions that WRITE it (setters), and
+    which are guarded (have a modifier). Probe = a guarded address-setter twin."""
+    pragma = _pragma(src)
+    contracts = _slither_contracts(src, pragma)
+    if contracts is None:
+        return None
+    for c in contracts:
+        owner = None
+        owner_public = False
+        for sv in c.state_variables:
+            if str(sv.type) == "address" and _PRIV_NAME.search(sv.name):
+                owner = sv.name
+                owner_public = str(sv.visibility) == "public"
+                break
+        if not owner:
+            continue
+        setters = []
+        probe = None
+        for f in c.functions:
+            if f.is_constructor or owner not in [v.name for v in f.state_variables_written]:
+                continue
+            takes_addr = any("address" in str(p.type) for p in f.parameters)
+            setters.append({"name": f.name, "takes_address": takes_addr})
+            if probe is None and bool(f.modifiers) and takes_addr:   # guarded twin probe
+                probe = f.name
+        if not setters or (not owner_public and probe is None):
+            continue
+        return {"contract": c.name, "pragma": pragma, "owner_var": owner,
+                "owner_public": owner_public, "setters": setters, "probe": probe}
+    return None
+
+
+def _detect_access_control_regex(src: str) -> dict | None:
+    """Fallback: text-pattern owner var + setter detection."""
     pragma = _pragma(src)
     src = _strip_comments(src)
     cm = _CONTRACT.search(src)
@@ -279,8 +406,40 @@ contract {hname} {{
 
 # --- ordering / transaction-order dependence -------------------------------- #
 def detect_ordering_shape(src: str) -> dict | None:
-    """Single-pot reward game: a zero-arg payable funder + a claim that pays
-    msg.sender. A balance ledger means it's a pool, so defer to reentrancy."""
+    """Single-pot reward game: a zero-arg payable funder + a claim that pays the
+    caller. Semantic (Slither) when available, else regex."""
+    return _detect_ordering_slither(src) or _detect_ordering_regex(src)
+
+
+def _detect_ordering_slither(src: str) -> dict | None:
+    """Slither: a zero-arg payable funder + a non-payable function that sends ETH
+    (the claim). A balance ledger means it's really a pool -> defer to reentrancy."""
+    pragma = _pragma(src)
+    contracts = _slither_contracts(src, pragma)
+    if contracts is None:
+        return None
+    for c in contracts:
+        if any(_is_balance_ledger(sv) for sv in c.state_variables):
+            continue
+        funder = None
+        claimer = None
+        claimer_params = ""
+        for f in c.functions:
+            if f.is_constructor:
+                continue
+            if f.payable and len(f.parameters) == 0 and funder is None:
+                funder = f.name
+            if f.can_send_eth() and not f.payable and claimer is None and all(p.name for p in f.parameters):
+                claimer = f.name
+                claimer_params = ", ".join(f"{p.type} {p.name}" for p in f.parameters)
+        if funder and claimer and funder != claimer:
+            return {"contract": c.name, "pragma": pragma, "funder": funder,
+                    "claimer": claimer, "claimer_params": claimer_params}
+    return None
+
+
+def _detect_ordering_regex(src: str) -> dict | None:
+    """Fallback: a zero-arg payable funder + a claim function that pays msg.sender."""
     pragma = _pragma(src)
     src = _strip_comments(src)
     cm = _CONTRACT.search(src)
@@ -396,6 +555,21 @@ _BUILDERS = (
     ("access-control", synthesize_access_control_harness),
     ("ordering-attacks", synthesize_ordering_harness),
 )
+
+
+def synthesize_all(src: str, target_import: str) -> list[Synthesis]:
+    """Build a harness for EVERY templated shape the contract matches (0, 1, or
+    several) — so one contract can be fuzzed for multiple vuln types. An empty
+    list means no buildable shape; callers fall back to synthesize_harness() for
+    the honest oracle-recognition / needs-M3 message."""
+    builds = []
+    for vtype, builder in _BUILDERS:
+        out = builder(src, target_import)
+        if out:
+            harness_src, hname = out
+            builds.append(Synthesis(vtype, harness_src, hname,
+                                    f"Tier-2 synthesised a {vtype} harness ({hname})."))
+    return builds
 
 
 def synthesize_harness(src: str, target_import: str) -> Synthesis:

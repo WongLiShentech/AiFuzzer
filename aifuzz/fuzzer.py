@@ -18,6 +18,7 @@ import re
 import shutil
 import subprocess
 import tempfile
+import time
 
 from .config import settings
 from .report import Finding, Severity
@@ -31,6 +32,8 @@ from .report import Finding, Severity
 # result, not mistaken for "no properties evaluated".
 _RESULT_RE = re.compile(r"^(\w+):\s*(pass(?:ed|ing)|fail(?:ed|ing))\b")
 _PRAGMA_RE = re.compile(r"pragma\s+solidity\s+([^;]+);")
+# Echidna status lines carry `cov: N` — the count of unique code points reached.
+_COV_RE = re.compile(r"cov:\s*(\d+)")
 
 
 def _solc_for_pragma(contract_path: str) -> str | None:
@@ -64,6 +67,8 @@ class EchidnaFuzzer:
             raise ValueError(f"unknown mode: {mode!r}")
         self.mode = mode
         self.test_limit = settings.echidna_test_limit  # configurable, not hardcoded
+        self.coverage: int | None = None    # unique code points Echidna reached (last run)
+        self.elapsed: float | None = None   # wall-clock seconds of the last run
 
     def fuzz(self, contract_path: str, contract: str | None = None,
              config: str | None = None) -> list[Finding]:
@@ -93,6 +98,8 @@ class EchidnaFuzzer:
         # Use an absolute path so we can run Echidna from a throwaway working
         # directory. Echidna/crytic-compile drop a `crytic-export/` folder in the
         # CWD; running from a temp dir keeps that scratch out of the user's repo.
+        # portion that does up the enabling of coverafe tracking
+        #runs on its own EVM, no RPC URL, host, chain address etc
         abs_path = os.path.abspath(contract_path)
         cmd = ["echidna", abs_path, "--test-limit", str(self.test_limit)]
         if contract:
@@ -107,8 +114,14 @@ class EchidnaFuzzer:
             subprocess.run(["solc-select", "install", solc],
                            capture_output=True, text=True, env=env)
         with tempfile.TemporaryDirectory(prefix="aifuzz-") as workdir:
-            proc = subprocess.run(cmd, capture_output=True, text=True, cwd=workdir, env=env)
+            # --corpus-dir makes Echidna emit coverage (the cov: lines + an annotated
+            # report); it lives in the temp dir and is cleaned up with it.
+            run_cmd = cmd + ["--corpus-dir", os.path.join(workdir, "corpus")]
+            started = time.monotonic() #start timer
+            proc = subprocess.run(run_cmd, capture_output=True, text=True, cwd=workdir, env=env)
+            self.elapsed = round(time.monotonic() - started, 2) #stop timer
         output = (proc.stdout or "") + "\n" + (proc.stderr or "")
+        self.coverage = self._parse_coverage(output)
         # Honesty guard: only trust an "all clear" if Echidna actually evaluated a
         # property. No result lines => compile error / no echidna_* props => surface it
         # rather than silently reporting "no vulnerabilities found".
@@ -119,6 +132,13 @@ class EchidnaFuzzer:
                 "echidna_* functions in the contract). Echidna output:\n" + tail
             )
         return self._parse(output, contract_path)
+
+    @staticmethod
+    def _parse_coverage(output: str) -> int | None:
+        """The last `cov:` value Echidna printed — unique code points reached.
+        Echidna prints it on every status line; the final one is the campaign total."""
+        matches = _COV_RE.findall(output)
+        return int(matches[-1]) if matches else None
 
     @staticmethod
     def _parse(output: str, contract_path: str) -> list[Finding]:

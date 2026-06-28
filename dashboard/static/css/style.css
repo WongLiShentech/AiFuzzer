@@ -345,3 +345,11 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
 .modal-hint { color: var(--muted); font-size: 12px; }
 .modal-result { margin-top: 18px; }
 #case-result { margin-top: 6px; }
+
+/* ---- coverage / run-time line on a result ----------------------------- */
+.cov-meta {
+  font-size: 12px; color: var(--muted);
+  background: var(--panel-2); border: 1px solid var(--border);
+  border-radius: 6px; padding: 6px 12px; margin: 0 0 12px;
+}
+.cov-meta strong { color: var(--text); font-variant-numeric: tabular-nums; }

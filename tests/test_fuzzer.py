@@ -38,3 +38,18 @@ def test_parse_passed_yields_no_findings():
 
 def test_parse_empty_output_is_safe():
     assert EchidnaFuzzer._parse("", "X.sol") == []
+
+
+# Echidna prints `cov: N` on every status line; we take the last (campaign total).
+COVERAGE_OUTPUT = """\
+[status] tests: 1/1, fuzzing: 404/50000, cov: 275, corpus: 4
+[status] tests: 1/1, fuzzing: 9001/50000, cov: 609, corpus: 7
+"""
+
+
+def test_parse_coverage_takes_last_value():
+    assert EchidnaFuzzer._parse_coverage(COVERAGE_OUTPUT) == 609
+
+
+def test_parse_coverage_none_when_absent():
+    assert EchidnaFuzzer._parse_coverage("no coverage lines here") is None

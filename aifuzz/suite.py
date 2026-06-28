@@ -34,6 +34,8 @@ class CaseResult:
     passed: bool
     detail: list[str] = field(default_factory=list)  # the violated invariant(s)
     error: str | None = None
+    coverage: int | None = None  # unique code points the fuzzer reached
+    elapsed: float | None = None # wall-clock seconds for this case
 
 
 def _expectation_met(expect: str, findings: int) -> bool:
@@ -79,7 +81,8 @@ def run_suite(registry_path: str, mode: str = "random") -> list[CaseResult]:
             detail = [f.title for f in report.findings]
             results.append(
                 CaseResult(name, vuln_type, expect, n,
-                           _expectation_met(expect, n), detail)
+                           _expectation_met(expect, n), detail,
+                           coverage=report.coverage, elapsed=report.elapsed)
             )
         except Exception as e:  # noqa: BLE001 -- keep the suite going
             results.append(

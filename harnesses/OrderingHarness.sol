@@ -1,7 +1,7 @@
 pragma solidity ^0.4.16;
 
 // ORDERING-ATTACK / front-running oracle (Mechanism A) wrapping a REAL dataset
-// contract: dataset/vulnerable/ordering-attacks/eth_tx_order_dependence_minimal.sol
+// contract: tests/fixtures/vulnerable/ordering-attacks/eth_tx_order_dependence_minimal.sol
 //
 // The owner funds a reward; claimReward() pays out to ANY caller that passes a
 // trivial check (submission < 10), so an account that never earned it can take
@@ -11,8 +11,8 @@ pragma solidity ^0.4.16;
 // demonstrates is the exploitable CONSEQUENCE -- an unprivileged account
 // draining the order-dependent reward -- which is the root cause front-running
 // exploits. There is no clean (safe) TOD counterpart upstream, so this class is
-// represented by a positive sample only (see dataset/DATASET_PROVENANCE.md).
-import "../dataset/vulnerable/ordering-attacks/eth_tx_order_dependence_minimal.sol";
+// represented by a positive sample only (see tests/fixtures/DATASET_PROVENANCE.md).
+import "../tests/fixtures/vulnerable/ordering-attacks/eth_tx_order_dependence_minimal.sol";
 
 contract Attacker {
     function steal(EthTxOrderDependenceMinimal g, uint256 submission) public {

@@ -12,11 +12,12 @@ from aifuzz.synthesize import (
     detect_oracle_shape,
     detect_ordering_shape,
     detect_reentrancy_shape,
+    synthesize_all,
     synthesize_harness,
 )
 
 ROOT = Path(__file__).resolve().parent.parent
-DS = ROOT / "dataset"
+DS = ROOT / "tests" / "fixtures"
 
 
 def _read(rel: str) -> str:
@@ -162,3 +163,30 @@ def test_unknown_shape_needs_m3():
     out = synthesize_harness(counter, "./C.sol")
     assert not out.built and out.vuln_type is None
     assert "M3" in out.note
+
+
+# --- multi-type: one contract, two shapes --------------------------------- #
+# Deposit/withdraw pool (reentrancy) AND a public owner with an unguarded setter
+# (access control) -> synthesize_all should emit a harness for BOTH.
+_MULTI = """
+pragma solidity ^0.4.24;
+contract Bank {
+    mapping(address => uint) balances;
+    address public owner;
+    function Bank() public { owner = msg.sender; }
+    function deposit() public payable { balances[msg.sender] += msg.value; }
+    function withdraw() public {
+        if (!msg.sender.call.value(balances[msg.sender])()) { throw; }
+        balances[msg.sender] = 0;
+    }
+    function setOwner(address n) public { owner = n; }   // unguarded
+}
+"""
+
+
+def test_multi_type_yields_a_harness_per_shape():
+    builds = synthesize_all(_MULTI, "./Bank.sol")
+    types = {s.vuln_type for s in builds}
+    assert "reentrancy" in types
+    assert "access-control" in types
+    assert len(builds) >= 2

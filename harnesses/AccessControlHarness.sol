@@ -1,7 +1,7 @@
 pragma solidity ^0.4.15;
 
 // ACCESS-CONTROL oracle (Mechanism A) wrapping a REAL dataset contract:
-// dataset/vulnerable/access-control/Unprotected.sol — Trail of Bits' minimal
+// tests/fixtures/vulnerable/access-control/Unprotected.sol — Trail of Bits' minimal
 // "unprotected function" example whose changeOwner() lacks an onlyowner guard,
 // so ANY account can seize ownership.
 //
@@ -12,7 +12,7 @@ pragma solidity ^0.4.15;
 // (becoming its owner), then an Attacker — a NON-owner — calls the unguarded
 // changeOwner() to seize control. Reusable rule: "ownership must never move to
 // an account that was never authorised."
-import "../dataset/vulnerable/access-control/Unprotected.sol";
+import "../tests/fixtures/vulnerable/access-control/Unprotected.sol";
 
 contract Attacker {
     // A non-owner that grabs ownership via the unguarded setter.

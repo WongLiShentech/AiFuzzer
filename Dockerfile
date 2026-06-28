@@ -33,7 +33,9 @@ RUN foundryup && anvil --version
 
 WORKDIR /app
 COPY . /app
-RUN pip install -e ".[dev,chain]"
+# `static` adds Slither — used for AST/semantic shape detection (synthesize.py),
+# a robust upgrade from regex. Detection falls back to regex if Slither is absent.
+RUN pip install -e ".[dev,chain,static]"
 
 # Default: serve the dashboard. Override to run the CLI or fuzz.
 CMD ["python", "dashboard/app.py"]
