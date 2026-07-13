@@ -2,6 +2,9 @@
 results/
 crytic-export/
 
+# Embedded ChromaDB vector store — rebuilt from the corpus on first run
+chroma_data/
+
 # Source repos — cloned locally for the dataset, never committed
 staging/
 

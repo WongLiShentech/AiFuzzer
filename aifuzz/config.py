@@ -20,9 +20,15 @@ class Settings:
     # Echidna campaign length (configurable, not hardcoded).
     echidna_test_limit: int = int(os.getenv("ECHIDNA_TEST_LIMIT", "50000"))
     # Local AI stack.
-    ollama_model: str = os.getenv("OLLAMA_MODEL", "llama3")
+    ollama_model: str = os.getenv("OLLAMA_MODEL", "qwen2.5-coder:7b")
+    embed_model: str = os.getenv("EMBED_MODEL", "nomic-embed-text")
     ollama_host: str = os.getenv("OLLAMA_HOST", "http://127.0.0.1:11434")
     chroma_collection: str = os.getenv("CHROMA_COLLECTION", "aifuzz-knowledge")
+    # On-disk (embedded) vector store — no server, no cloud; persists in this dir.
+    chroma_path: str = os.getenv("CHROMA_PATH", "chroma_data")
+    # RAG corpus to index when the store is empty (the offline sample by default;
+    # point at a fetched reference split for the full corpus).
+    rag_corpus_dir: str = os.getenv("RAG_CORPUS_DIR", "tests/fixtures")
 
 
 settings = Settings()

@@ -35,7 +35,8 @@ WORKDIR /app
 COPY . /app
 # `static` adds Slither — used for AST/semantic shape detection (synthesize.py),
 # a robust upgrade from regex. Detection falls back to regex if Slither is absent.
-RUN pip install -e ".[dev,chain,static]"
+# `ai` adds chromadb + ollama for the RAG retrieval / AI-guided generation (M3).
+RUN pip install -e ".[dev,chain,static,ai]"
 
 # Default: serve the dashboard. Override to run the CLI or fuzz.
 CMD ["python", "dashboard/app.py"]

@@ -15,12 +15,18 @@ services:
       args:
         SOLC_VERSION: ${SOLC_VERSION:-0.8.25}
     env_file: [.env]
+    # In Docker the LLM is the `ollama` service, not localhost — override the
+    # local-dev OLLAMA_HOST from .env so the container reaches the sidecar.
+    environment:
+      OLLAMA_HOST: http://ollama:11434
     ports:
       - "${PORT:-5000}:5000"
     depends_on:
       - ollama
     volumes:
       - .:/app
+      - chroma-data:/app/chroma_data     # embedded vector store persists across restarts
 
 volumes:
   ollama-models:
+  chroma-data:

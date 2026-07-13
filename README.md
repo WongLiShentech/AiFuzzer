@@ -40,14 +40,32 @@ deploy / proof-of-concept exploits — see `aifuzz deploy` below.)
 ## Layout
 
 ```
-aifuzz/        the tool — cli, analyzer, fuzzer (Echidna), ai_guidance (Ollama+ChromaDB),
-               local_chain (Anvil), report (findings -> JSON/Markdown/SARIF), config
-dashboard/     Flask web UI to submit a contract and view its report
-tests/         pytest suite + fixtures/ (a small offline sample of labelled .sol
-               contracts: vulnerable/ + clean/, labels.csv, provenance)
-benchmark.py   evaluation: runs the tool over the labelled set -> random-vs-AI + P/R/F1
-.claude/agents/ Claude Code helper agents used while developing (see below)
+aifuzz/            the tool (Python package). One responsibility per module:
+                     cli.py          command-line entry point (analyze / deploy / suite)
+                     analyzer.py     orchestrates a full analysis of one contract
+                     synthesize.py   auto-builds an Echidna harness per detected vuln shape
+                     fuzzer.py       runs Echidna; parses findings + code coverage
+                     ai_guidance.py  M3 RAG: local LLM (Ollama) + ChromaDB retrieval
+                     local_chain.py  local Anvil chain for deploy / PoC exploits
+                     report.py       findings -> JSON / Markdown / SARIF
+                     suite.py        runs the labelled evaluation suite
+                     config.py       all settings, env-driven (nothing hardcoded)
+dashboard/         Flask web UI: upload a contract, view its report
+harnesses/         hand-written Echidna harnesses (+ .yaml configs) for the eval suite,
+                   one per in-scope vuln type; registry.yaml maps target -> harness -> expect
+examples/          small demo contracts (safe + vulnerable) for trying the tool / dashboard
+tests/             pytest suite + fixtures/ (small offline labelled sample: vulnerable/,
+                   clean/, labels.csv, provenance) used by CI, `aifuzz suite`, and demos
+docs/              design notes: LIMITATIONS, code-coverage, metrics-proposal, semantics-parsing
+benchmark.py       evaluation harness: runs the tool over the labelled set -> random-vs-AI + P/R/F1
+Dockerfile         Linux image bundling the toolchain (Echidna, Anvil, solc) + the AI extras
+docker-compose.yml one-command stack: the aifuzz app + a local Ollama sidecar
+reference-paper.pdf the IEEE reference paper (evaluation methodology, not the target)
+.claude/agents/    Claude Code helper agents used while developing (see below)
 ```
+
+The full labelled benchmark corpus lives on Hugging Face (see **Dataset** below), **not**
+in this repo — only the small `tests/fixtures/` sample is kept here for offline CI/demos.
 
 ## Deliverable map (IWL2)
 
