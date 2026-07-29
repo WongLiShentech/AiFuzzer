@@ -17,24 +17,24 @@ cases:
   - name: reentrancy-vulnerable
     vuln_type: reentrancy
     target:   tests/fixtures/vulnerable/reentrancy/simple_dao.sol
-    harness:  harnesses/ReentrancyHarness.sol
+    harness:  tests/harnesses/ReentrancyHarness.sol
     contract: ReentrancyEchidnaTest
-    config:   harnesses/reentrancy.yaml   # funds the attacker so there is ETH to steal
+    config:   tests/harnesses/reentrancy.yaml   # funds the attacker so there is ETH to steal
     expect:   vulnerable                  # true positive
 
   - name: reentrancy-clean
     vuln_type: reentrancy
     target:   tests/fixtures/clean/simple_dao_fixed.sol
-    harness:  harnesses/ReentrancyControlHarness.sol
+    harness:  tests/harnesses/ReentrancyControlHarness.sol
     contract: ReentrancyControlEchidnaTest
-    config:   harnesses/reentrancy.yaml   # SAME config — the patch, not the funding, is the difference
+    config:   tests/harnesses/reentrancy.yaml   # SAME config — the patch, not the funding, is the difference
     expect:   clean                       # true negative
 
   # --- ACCESS CONTROL --------------------------------------------------------
   - name: access-control-vulnerable
     vuln_type: access-control
     target:   tests/fixtures/vulnerable/access-control/Unprotected.sol
-    harness:  harnesses/AccessControlHarness.sol
+    harness:  tests/harnesses/AccessControlHarness.sol
     contract: AccessControlEchidnaTest
     config:   null                        # no funding needed
     expect:   vulnerable                  # true positive
@@ -42,7 +42,7 @@ cases:
   - name: access-control-clean
     vuln_type: access-control
     target:   tests/fixtures/clean/mycontract_fixed.sol
-    harness:  harnesses/AccessControlControlHarness.sol
+    harness:  tests/harnesses/AccessControlControlHarness.sol
     contract: AccessControlControlEchidnaTest
     config:   null
     expect:   clean                       # true negative
@@ -52,9 +52,9 @@ cases:
   - name: ordering-vulnerable
     vuln_type: ordering-attacks
     target:   tests/fixtures/vulnerable/ordering-attacks/eth_tx_order_dependence_minimal.sol
-    harness:  harnesses/OrderingHarness.sol
+    harness:  tests/harnesses/OrderingHarness.sol
     contract: OrderingEchidnaTest
-    config:   harnesses/ordering.yaml     # funds the reward pool
+    config:   tests/harnesses/ordering.yaml     # funds the reward pool
     expect:   vulnerable                  # true positive
 
   # --- ORACLE MANIPULATION ---------------------------------------------------
@@ -63,8 +63,8 @@ cases:
   # a fuzzable input; the oracle is the pool's solvency invariant.
   - name: oracle-manipulation-vulnerable
     vuln_type: oracle-manipulation
-    target:   harnesses/OracleManipulationHarness.sol (minimal model; real Puppet pools need full DVD project)
-    harness:  harnesses/OracleManipulationHarness.sol
+    target:   tests/harnesses/OracleManipulationHarness.sol (minimal model; real Puppet pools need full DVD project)
+    harness:  tests/harnesses/OracleManipulationHarness.sol
     contract: OracleManipEchidnaTest
     config:   null
     expect:   vulnerable                  # true positive
@@ -73,7 +73,7 @@ cases:
   - name: clean-counter-control
     vuln_type: none
     target:   (self-contained synthetic control — not sourced from tests/fixtures/)
-    harness:  harnesses/SafeCounter.sol
+    harness:  tests/harnesses/SafeCounter.sol
     contract: SafeCounterEchidnaTest
     config:   null
     expect:   clean                       # true negative

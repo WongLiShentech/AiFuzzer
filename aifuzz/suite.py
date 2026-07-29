@@ -1,6 +1,6 @@
 """Fuzzing-case suite runner -- `aifuzz suite`.
 
-A declarative manifest (``harnesses/registry.yaml``) is the single source of
+A declarative manifest (``tests/harnesses/registry.yaml``) is the single source of
 truth mapping each fuzzing case: which dataset contract is under test, which
 harness wraps it (supplying the oracle + attacker), which Echidna config funds
 it, and the ground-truth expectation. This runner executes every case and checks

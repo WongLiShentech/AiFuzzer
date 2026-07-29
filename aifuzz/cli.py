@@ -1,8 +1,8 @@
 """Command-line entry point: `aifuzz`.
 
-    aifuzz analyze <contract.sol> [--mode random|ai-guided] [--contract-name NAME] [--format ...]
+    aifuzz analyze <contract.sol> [--mode random|ai-seed|ai-guided] [--contract-name NAME] [--format ...]
     aifuzz deploy <contract.sol> --contract-name NAME [--call viewFn]   # local Anvil chain
-    aifuzz benchmark            # run over the evaluation dataset (see benchmark.py)
+    aifuzz benchmark            # held-out A/B1/B2/B3 comparison (see benchmark_testset.py)
 
 Implemented: argument parsing, report formatting, graceful messaging. The
 analysis engines themselves are wired up in milestones M2 (random fuzzing) and
@@ -80,7 +80,7 @@ def _cmd_suite(args: argparse.Namespace) -> int:
 
 
 def _cmd_benchmark(args: argparse.Namespace) -> int:
-    print("[aifuzz] run the evaluation harness with:  python benchmark.py", file=sys.stderr)
+    print("[aifuzz] run the evaluation with:  python benchmark_testset.py --approach both", file=sys.stderr)
     return 0
 
 
@@ -91,7 +91,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     a = sub.add_parser("analyze", help="analyze a single contract")
     a.add_argument("contract", help="path to a .sol contract / Echidna harness")
-    a.add_argument("--mode", choices=["random", "ai-guided"], default="random")
+    a.add_argument("--mode", choices=["random", "ai-seed", "ai-guided"], default="random")
     a.add_argument("--contract-name", dest="contract_name", default=None,
                    help="name of the Echidna test contract (the one with echidna_* properties)")
     a.add_argument("--config", default=None,
@@ -111,8 +111,8 @@ def build_parser() -> argparse.ArgumentParser:
     d.set_defaults(func=_cmd_deploy)
 
     s = sub.add_parser("suite", help="run every fuzzing case in the registry and check vs ground truth")
-    s.add_argument("--registry", default="harnesses/registry.yaml",
-                   help="path to the fuzzing-case registry (default: harnesses/registry.yaml)")
+    s.add_argument("--registry", default="tests/harnesses/registry.yaml",
+                   help="path to the fuzzing-case registry (default: tests/harnesses/registry.yaml)")
     s.add_argument("--mode", choices=["random", "ai-guided"], default="random")
     s.set_defaults(func=_cmd_suite)
 

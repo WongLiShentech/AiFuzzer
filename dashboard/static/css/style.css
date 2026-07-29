@@ -353,3 +353,13 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--
   border-radius: 6px; padding: 6px 12px; margin: 0 0 12px;
 }
 .cov-meta strong { color: var(--text); font-variant-numeric: tabular-nums; }
+.cov-sub { opacity: .65; font-size: .92em; }
+
+/* "Properties checked" disclosure on a clean verdict — makes the scope of a green
+   badge explicit rather than letting it imply the contract is safe in general. */
+.checked-props { margin-top: 10px; border: 1px solid var(--border); border-radius: 8px;
+  padding: 8px 12px; background: var(--panel-2, rgba(255,255,255,.02)); }
+.checked-props summary { cursor: pointer; font-weight: 600; font-size: .92rem; }
+.checked-props ul { margin: 8px 0 4px 18px; padding: 0; }
+.checked-props li { margin: 3px 0; font-size: .9rem; }
+.checked-props code { font-size: .88em; }

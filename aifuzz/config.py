@@ -28,7 +28,11 @@ class Settings:
     chroma_path: str = os.getenv("CHROMA_PATH", "chroma_data")
     # RAG corpus to index when the store is empty (the offline sample by default;
     # point at a fetched reference split for the full corpus).
-    rag_corpus_dir: str = os.getenv("RAG_CORPUS_DIR", "tests/fixtures")
+    # Folder of .sol contracts to embed into the RAG vector store. Deliberately points at a
+    # `dataset/` folder that does NOT exist on a fresh clone, so a cloner starts with an EMPTY
+    # index (the AI still runs, but with no retrieval context) until they download the reference
+    # corpus from Hugging Face and point this here — see the README. There is no bundled sample.
+    rag_corpus_dir: str = os.getenv("RAG_CORPUS_DIR", "dataset")
 
 
 settings = Settings()

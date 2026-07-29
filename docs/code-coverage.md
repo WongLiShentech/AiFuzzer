@@ -31,7 +31,7 @@ with a gutter marker per line (`*` executed, `r` reverted, blank = never reached
 - `aifuzz/fuzzer.py` parses the final `cov:` value and times the run.
 - `aifuzz/report.py` carries `coverage` and `elapsed`; they appear in the
   Markdown/JSON report and on the dashboard result panel.
-- `benchmark.py` aggregates coverage (and time) per mode, mean ± stdev.
+- `benchmark_testset.py` aggregates coverage (and time) per mode, mean ± stdev.
 
 ## How to show it
 
@@ -39,7 +39,7 @@ with a gutter marker per line (`*` executed, `r` reverted, blank = never reached
   `Coverage: N code points reached` and `Time: Ns`; the dashboard shows the same.
 - **The annotated report (visual proof):**
   ```
-  echidna harnesses/OracleManipulationHarness.sol --contract OracleManipEchidnaTest \
+  echidna tests/harnesses/OracleManipulationHarness.sol --contract OracleManipEchidnaTest \
     --test-limit 50000 --corpus-dir /tmp/cov && cat /tmp/cov/covered.*.txt
   ```
   Open the printed source and point at the `*`/`r` markers — that is the fuzzer's

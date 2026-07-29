@@ -3,7 +3,7 @@
 ## Fair-comparison protocol
 
 A credible comparison changes only one variable (random vs AI-guided input
-generation) and holds everything else constant. `benchmark.py` already does this:
+generation) and holds everything else constant. `benchmark_testset.py` already does this:
 
 - **same** contracts, harnesses, and oracles (the labelled registry),
 - **same** transaction budget per mode (`ECHIDNA_TEST_LIMIT`),
@@ -35,7 +35,7 @@ Score = 100 × ( 0.2·F1 + 0.2·(1−FPR) + 0.2·CovNorm + 0.2·BugsNorm + 0.2·
 ```
 
 A single 0–100 number per mode; the comparison is Random vs AI-guided, reported as
-mean ± stdev over trials. `benchmark.py` prints this as the `Composite score`
+mean ± stdev over trials. `benchmark_testset.py` prints this as the `Composite score`
 row and writes it to `results/benchmark.json`.
 
 ## Honest note on metric overlap
@@ -59,7 +59,5 @@ double-counting is a concern.
 
 - **Available now (random baseline):** bugs found, precision, recall, F1, FPR,
   code coverage, time — all over multiple trials.
-- **AI-guided column:** `pending (M3)` until `aifuzz.ai_guidance` lands; the same
-  script then produces the full comparison and composite with no changes.
-- With only one mode present, coverage and time normalize to `1.0` (sole mode);
-  the composite becomes a true comparison once AI-guided runs.
+- **AI-guided columns:** all four arms (A, B1, B2, B3) run from the same script and
+  produce the full comparison.

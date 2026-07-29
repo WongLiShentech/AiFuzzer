@@ -59,8 +59,7 @@ relevant to the vulnerability classes in scope. The Anvil local chain is used
 for deployment and proof-of-concept exploits, not for the fuzzing loop.
 
 ## Evaluation: AI column pending
-`benchmark.py` reports bugs found, Precision/Recall/F1/FPR, **code coverage, run
+`benchmark_testset.py` reports bugs found, Precision/Recall/F1/FPR, **code coverage, run
 time, and a composite score** across multiple trials. Coverage + time are now
 parsed from Echidna's output and wired end to end (report -> dashboard ->
-benchmark). The AI-guided column stays "pending (M3)" until the AI engine lands;
-PoC exploits on the Anvil chain are future work.
+benchmark). All four arms now run; PoC exploits on the Anvil chain are future work.

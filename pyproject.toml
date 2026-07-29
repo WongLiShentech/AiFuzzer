@@ -8,9 +8,17 @@ version = "0.1.0"
 description = "AI-assisted fuzzing tool for smart-contract security analysis"
 readme = "README.md"
 requires-python = ">=3.10"
-license = { text = "MIT" }
+# AGPL-3.0, not a free choice: aifuzz imports Slither (AGPL-3.0) directly in
+# synthesize.py and drives Echidna and crytic-compile, both AGPL-3.0. A permissive
+# licence on the combined work would conflict with those terms.
+license = { text = "AGPL-3.0-or-later" }
 authors = [{ name = "Li Shen" }]
 keywords = ["smart-contracts", "fuzzing", "security", "solidity", "echidna", "ai"]
+classifiers = [
+    "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
+    "Programming Language :: Python :: 3",
+    "Topic :: Security",
+]
 
 # Runtime deps kept minimal. The heavy native tools (Echidna, Anvil, solc) are
 # provided by the Docker image, not pip. AI extras are optional.

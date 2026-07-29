@@ -1,29 +1,54 @@
-# Example uploads — Tier-2 auto-synthesis demo
+# Example contracts
 
-Drop any of these into the dashboard (or run `aifuzz analyze <file> --auto`) to see
-the tool read a **raw** contract, synthesise a harness from its structure (no AI),
-and fuzz it. This is the pre-M3 baseline: it covers the shapes a template can
-recognise, and honestly defers the rest to the M3 AI.
+Self-contained contracts for trying the tool without downloading the reference corpus. Drop one
+into the dashboard, or run:
 
-| Upload | Path exercised | Expected result |
+```bash
+python -m aifuzz.cli analyze examples/reentrancy_withdraw_all.sol --auto --mode random
+```
+
+The tool reads the raw contract, synthesises a harness from its structure, and fuzzes it. No AI
+is involved in `--mode random`, so all of these work on a fresh clone.
+
+| Contract | Shape | Verdict |
 |---|---|---|
-| `../tests/fixtures/vulnerable/reentrancy/simple_dao.sol` | reentrancy (`withdraw(amount)`) | **VULNERABLE** |
-| `reentrancy_withdraw_all.sol` | reentrancy (`withdraw()` drains all) | **VULNERABLE** |
-| `access_control_unprotected.sol` | access control (public owner) | **VULNERABLE** |
-| `access_control_safe.sol` | access control (guarded) | **NO VULNERABILITIES** (no false positive) |
-| `../tests/fixtures/vulnerable/access-control/Unprotected.sol` | access control (private owner, guarded-twin probe) | **VULNERABLE** |
-| `../tests/fixtures/vulnerable/ordering-attacks/eth_tx_order_dependence_minimal.sol` | ordering / TOD | **VULNERABLE** |
-| `multi_vuln_bank.sol` | reentrancy + access control (one contract, two shapes) | **VULNERABLE** (two findings) |
-| `oracle_lending.sol` | oracle manipulation | **Recognised, deferred to M3** (no faked harness) |
+| `reentrancy_withdraw_all.sol` | reentrancy — sends before zeroing the balance | **Reentrancy** |
+| `multi_vuln_bank.sol` | reentrancy plus an unguarded owner setter | **Reentrancy** |
+| `access_control_safe.sol` | access control, correctly guarded | clean (no false positive) |
+| `access_control_unprotected.sol` | ownership hijack via an unguarded setter | clean — see below |
+| `oracle_lending.sol` | price-dependent lending | clean — see below |
 
-Out of scope (honest skip): contracts whose only bug is **not** one of the four
-target types — e.g. integer overflow or weak randomness — return "could not
-recognise this shape (needs M3)". That is correct: they aren't in the EEA focus set.
+Verdicts measured with `--mode random` on the current build.
 
-How it works: `aifuzz/synthesize.py` matches the contract's structure against known
-vulnerability shapes (a balance ledger + external send = reentrancy; a public owner
-+ unguarded setter = access control; a payable prize funder + a claim that pays the
-caller = ordering). It generates a harness with the right oracle and attacker, then
-Echidna decides VULNERABLE vs CLEAN. The oracle-manipulation surface is *recognised*
-but not auto-harnessed — a faithful market (DEX + tokens + pool) can't be
-reconstructed from source by a template; that is what the M3 AI adds.
+## Two contracts that report clean, and why
+
+`access_control_unprotected.sol` contains a genuine ownership-hijack bug and the tool does not
+flag it. This is a deliberate limitation rather than an oversight. An `owner unchanged` invariant
+cannot distinguish a protected owner from an address field that is settable by design — a fee
+recipient or an operator slot — so that oracle was implemented, measured, found to catch none of
+the real misses while adding false positives on clean contracts, and removed. Access-control
+detection is consequently limited to two shapes it can assert safely: an unprotected
+`selfdestruct`, and an attacker extracting ether it never deposited. See
+[`../docs/LIMITATIONS.md`](../docs/LIMITATIONS.md).
+
+`multi_vuln_bank.sol` carries two weaknesses and only the reentrancy is reported, for the same
+reason.
+
+`oracle_lending.sol` has a price-manipulation surface, but a faithful market — DEX, tokens, pool
+— cannot be reconstructed from a single source file by a template, so no harness is synthesised
+for that shape. It is included to show where the boundary lies, not to demonstrate a detection.
+
+## Out of scope
+
+Contracts whose only defect falls outside the four target classes — integer overflow, weak
+randomness, unchecked return values — are reported as an unrecognised shape rather than guessed
+at. That is intended: the tool speaks only to reentrancy, access control, ordering attacks, and
+oracle manipulation.
+
+## How the harness is built
+
+`aifuzz/synthesize.py` matches the contract's structure against known vulnerability shapes — a
+balance ledger plus an external send is reentrancy; a payable prize funder plus a claim that pays
+the caller is an ordering attack — then emits a harness carrying the matching `echidna_*`
+invariant and, where needed, an attacker contract. Echidna decides the verdict by trying to
+falsify that invariant.

@@ -5,6 +5,24 @@ crytic-export/
 # Embedded ChromaDB vector store — rebuilt from the corpus on first run
 chroma_data/
 
+# Reference dataset downloaded from Hugging Face (not bundled; see README)
+dataset/
+
+# Eval / scratch working dirs — regenerated per run, never committed
+_eval/
+_fuzzcheck/
+eval_out/
+# dashboard host-side fuzz workdir (staged per request)
+_dash/
+# generated figures + tables (run make_figures.py / make_report.py)
+eval_results/
+# scratch demo contract copies
+_demo_target.sol
+_dash_target.sol
+
+# Author's private materials — paper draft, prof report, demo script, code walkthrough
+for-me/
+
 # Source repos — cloned locally for the dataset, never committed
 staging/
 

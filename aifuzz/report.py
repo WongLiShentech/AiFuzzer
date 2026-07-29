@@ -77,7 +77,17 @@ class Report:
     findings: list[Finding] = field(default_factory=list)
     tool_version: str = ""
     coverage: int | None = None    # unique code points the fuzzer reached
-    elapsed: float | None = None   # wall-clock seconds the fuzzing took
+    elapsed: float | None = None   # wall-clock seconds the FUZZING took (Echidna only)
+    total_elapsed: float | None = None  # seconds for the whole analysis, harness synthesis and
+    # the LLM stages included. Reporting only `elapsed` understated AI mode badly -- an AI run
+    # showing "13.5s" had actually taken 31s, because embedding, retrieval and generation all
+    # happen before Echidna starts and were invisible. Comparing modes on `elapsed` alone
+    # therefore made the slower arm look faster.
+    harness_src: str | None = None     # the actual attacker+oracle Solidity Echidna ran, when
+    harness_name: str | None = None    # synthesized (not the user's own upload). Without this
+    # the dashboard's "Test harness" panel had nothing to show but the uploaded contract itself --
+    # a real bug found via a live demo, where an access-control finding's own attack code
+    # (attack_val_N, force_fund, the ValAttacker sub-contract) was invisible to the viewer.
     created_at: str = field(
         default_factory=lambda: datetime.now(timezone.utc).isoformat()
     )
@@ -91,6 +101,9 @@ class Report:
             "tool_version": self.tool_version,
             "coverage": self.coverage,
             "elapsed": self.elapsed,
+            "total_elapsed": self.total_elapsed,
+            "harness_src": self.harness_src,
+            "harness_name": self.harness_name,
             "created_at": self.created_at,
             "findings": [f.to_dict() for f in self.findings],
         }
@@ -112,7 +125,10 @@ class Report:
         ]
         if self.coverage is not None:
             lines.append(f"- **Coverage:** {self.coverage} code points reached")
-        if self.elapsed is not None:
+        if self.total_elapsed is not None:
+            lines.append(f"- **Time:** {self.total_elapsed}s total"
+                         + (f" (fuzzing {self.elapsed}s)" if self.elapsed is not None else ""))
+        elif self.elapsed is not None:
             lines.append(f"- **Time:** {self.elapsed}s")
         lines.append("")
         if not self.findings:

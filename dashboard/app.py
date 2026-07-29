@@ -97,13 +97,11 @@ def _analyze_one(contract_path: str, *, mode: str = "random", name: str = "",
     """Run one contract through the engine and return a result row. Never raises:
     compile errors / missing oracle become a 'skipped' status with a reason."""
     label = name or os.path.basename(contract_path)
-    if mode == "ai-guided":
-        return {"name": label, "status": "pending",
-                "reason": "AI-guided fuzzing is the M3 milestone — not implemented yet."}
     try:
         # auto=True: raw contracts get a Tier-2 harness synthesized from their shape
         # (same as the upload path) instead of being skipped for lacking an oracle.
-        report = analyze(contract_path, mode="random", contract=contract, config=config, auto=True)
+        # mode is passed through: "ai-guided" routes to the RAG + Qwen path instead.
+        report = analyze(contract_path, mode=mode, contract=contract, config=config, auto=True)
     except RuntimeError as e:
         return {"name": label, "status": "skipped", "reason": _sanitize(str(e))}
     except FileNotFoundError as e:
@@ -157,9 +155,6 @@ def api_fuzz():
     if name not in cases:
         return jsonify({"ok": False, "error": f"unknown case: {name!r}"}), 404
     case = cases[name]
-    if mode == "ai-guided":
-        return jsonify({"ok": False, "pending": True,
-                        "error": "AI-guided fuzzing is the M3 milestone — use random mode."})
     try:
         report = analyze(case["harness"], contract=case.get("contract"), config=case.get("config"))
     except (FileNotFoundError, RuntimeError) as e:
@@ -199,21 +194,25 @@ def api_analyze():
     mode = data.get("mode", "random")
     if not source.strip():
         return jsonify({"ok": False, "error": "no contract source provided"}), 400
-    if mode == "ai-guided":
-        return jsonify({"ok": False, "pending": True,
-                        "error": "AI-guided fuzzing is the M3 milestone — use random mode."})
     with tempfile.TemporaryDirectory(prefix="aifuzz-upload-") as d:
         f = Path(d) / (name if name.endswith(".sol") else "Uploaded.sol")
         f.write_text(source, encoding="utf-8")
         try:
             # auto=True: if the upload has no echidna_* oracle, Tier-2 synthesis
             # tries to build a harness from its shape (no AI) before giving up.
-            report = analyze(str(f), contract=contract, auto=True)
+            report = analyze(str(f), mode=mode, contract=contract, auto=True)
         except (FileNotFoundError, RuntimeError) as e:
             return jsonify({"ok": False, "skipped": True, "error": _sanitize(str(e))}), 200
+    # The generated harness (attacker + oracle) is what Echidna actually ran and what a
+    # finding's call sequence refers to -- show THAT, not the uploaded contract, whenever one
+    # was synthesized. Previously this always echoed back `source`, so the "Test harness" panel
+    # silently showed the user's own upload instead of the attack code (caught via a live demo:
+    # an access-control finding's attack_val_N / force_fund wrappers were invisible).
+    harness = ({"path": f"{report.harness_name}.sol", "code": report.harness_src}
+               if report.harness_src else {"path": name, "code": source})
     return jsonify({
         "ok": True, "name": name, "verdict": _verdict(report), "report": report.to_dict(),
-        "sources": {"harness": {"path": name, "code": source}, "target": None},
+        "sources": {"harness": harness, "target": {"path": name, "code": source}},
         "vulnerable_code": None,
     })
 
@@ -227,6 +226,12 @@ def api_scan_git():
     url = (data.get("repo_url") or "").strip()
     branch = (data.get("branch") or "").strip()
     token = (data.get("token") or "").strip()
+    # Honour the fuzzing-mode toggle. The scan used to hardcode random regardless of what the
+    # UI showed as selected, so "AI-guided" was a lie on this panel -- a repo scan and an
+    # upload of the same file ran different arms while claiming to run the same one.
+    mode = data.get("mode") or "random"
+    if mode not in ("random", "ai-seed", "ai-guided"):
+        mode = "random"
     try:
         offset = max(0, int(data.get("offset", 0)))   # which batch to scan (UI paginates)
     except (TypeError, ValueError):
@@ -259,7 +264,7 @@ def api_scan_git():
         results = []
         for sol in batch:
             rel = str(sol.relative_to(d))
-            res = _analyze_one(str(sol), name=rel)
+            res = _analyze_one(str(sol), mode=mode, name=rel)
             if res.get("report"):
                 res["sources"] = {"harness": {"path": rel, "code": sol.read_text(encoding="utf-8", errors="replace")}, "target": None}
             results.append(res)
@@ -267,6 +272,7 @@ def api_scan_git():
         has_more = next_offset < total
 
     return jsonify({"ok": True, "found": total, "offset": offset, "scanned": len(results),
+                    "mode": mode,          # echoed back so the UI can prove which arm ran
                     "has_more": has_more, "next_offset": next_offset if has_more else None,
                     "results": results})
 
@@ -295,5 +301,9 @@ def api_benchmark():
 
 
 if __name__ == "__main__":
+    # threaded=True: without it the dev server handles one request at a time, so a slow
+    # AI-mode fuzz blocks every other click (including a fast Random request from a second
+    # tab) until it finishes -- reproduced directly: a 27s Random request queued behind a
+    # long AI-authored-harness call and timed out client-side waiting for its turn.
     app.run(host="0.0.0.0", port=int(os.getenv("PORT", "5000")),
-            debug=os.getenv("FLASK_DEBUG") == "1")
+            debug=os.getenv("FLASK_DEBUG") == "1", threaded=True)

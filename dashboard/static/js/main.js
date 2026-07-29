@@ -66,8 +66,47 @@ function coverageMeta(r) {
   if (!r) return "";
   const parts = [];
   if (r.coverage != null) parts.push(`Coverage: <strong>${esc(r.coverage)}</strong> code points reached`);
-  if (r.elapsed != null) parts.push(`Time: <strong>${esc(r.elapsed)}s</strong>`);
+  // Total first, fuzzing in brackets. Showing only the Echidna time made AI mode look
+  // FASTER than random (13.5s vs 27.4s on screen) when it actually took twice as long --
+  // the LLM stages run before Echidna starts and were missing from the number.
+  if (r.total_elapsed != null) {
+    parts.push(`Time: <strong>${esc(r.total_elapsed)}s</strong>` +
+               (r.elapsed != null ? ` <span class="cov-sub">(fuzzing ${esc(r.elapsed)}s)</span>` : ""));
+  } else if (r.elapsed != null) {
+    parts.push(`Time: <strong>${esc(r.elapsed)}s</strong>`);
+  }
   return parts.length ? `<div class="cov-meta">${parts.join(" · ")}</div>` : "";
+}
+
+// A "clean" verdict is only meaningful alongside WHAT was checked. The synthesiser emits an
+// oracle per vulnerability shape it recognises in the contract, so a contract with no
+// recognised access-control shape is fuzzed against the reentrancy invariant alone -- and
+// "No vulnerabilities found" then overclaims. Listing the properties makes the scope explicit
+// instead of leaving a green badge to imply the contract is safe in general.
+const PROP_CLASS = {
+  echidna_no_value_extraction: "Reentrancy — paid out more than it took in",
+  echidna_no_reentrancy_theft: "Reentrancy — re-entrant withdrawal",
+  echidna_no_theft: "Access Control — unearned ether drain",
+  echidna_not_destroyed: "Access Control — unprotected selfdestruct",
+  echidna_owner_unchanged: "Access Control — ownership seized",
+  echidna_owner_retained: "Access Control — privileged role seized",
+  echidna_price_solvent: "Oracle Manipulation — solvency vs. mutable price",
+  echidna_reward_not_stolen: "Ordering Attack (TOD) — reward claimed without contributing",
+};
+
+function checkedProperties(r) {
+  if (!r || !r.harness_src) return "";
+  const names = [...new Set([...r.harness_src.matchAll(/function\s+(echidna_\w+)/g)]
+    .map((m) => m[1]))].filter((n) => n !== "echidna_coverage_probe");
+  if (!names.length) return "";
+  const rows = names.map((n) =>
+    `<li><code>${esc(n)}</code>${PROP_CLASS[n] ? ` — ${esc(PROP_CLASS[n])}` : ""}</li>`).join("");
+  return `<details class="checked-props"><summary>Properties checked
+    <span class="results-count">${names.length}</span></summary>
+    <ul>${rows}</ul>
+    <p class="hint">Only shapes the synthesiser recognised in this contract get an oracle.
+       Classes not listed here were not tested — this verdict speaks to the properties above,
+       not to the contract as a whole.</p></details>`;
 }
 
 // ---------- per-contract result body ----------
@@ -81,7 +120,8 @@ function reportBody(e) {
   if (e.status === "clean")
     return coverageMeta(e.report) +
       `<div class="clean-panel"><div class="big">No vulnerabilities found</div>
-      <div class="sub">Resisted the tested attacks. Fuzzing samples behaviour — not a proof of safety.</div></div>`;
+      <div class="sub">Resisted the tested attacks. Fuzzing samples behaviour — not a proof of safety.</div></div>`
+      + checkedProperties(e.report);
   // vulnerable
   const r = e.report;
   return coverageMeta(r) + vulnCodeBlock(e.vulnerable_code) +
@@ -95,11 +135,19 @@ function statusBadge(s) {
   return `<span class="status-badge ${cls}">${label}</span>`;
 }
 
-function renderResults(entries, opts = {}) {
+// Last COMPLETED scan per fuzzing mode, so switching tabs shows that mode's own results instead
+// of whatever ran most recently. This is what makes the Random vs AI-guided comparison readable:
+// you run each once, then flip between tabs to compare the two verdicts side by side.
+const resultsByMode = {};        // mode -> { entries, meta }
+
+const MODE_LABEL = { "random": "Random", "ai-seed": "AI-guided inputs" };
+
+function paintResults(entries, opts = {}) {
   const vulnN = entries.filter((e) => e.status === "vulnerable").length;
+  const modeTag = `<span class="results-meta">${esc(MODE_LABEL[opts.mode || currentMode] || "")}</span>`;
   const meta = opts.meta ? `<span class="results-meta">${esc(opts.meta)}</span>` : "";
   const head = `<div class="results-head">
-    <h2>Scan results <span class="results-count">${entries.length} contract${entries.length === 1 ? "" : "s"} · ${vulnN} vulnerable</span></h2>${meta}</div>`;
+    <h2>Scan results <span class="results-count">${entries.length} contract${entries.length === 1 ? "" : "s"} · ${vulnN} vulnerable</span></h2>${modeTag}${meta}</div>`;
   const items = entries.map((e, i) => `
     <details class="result-item" ${entries.length === 1 ? "open" : ""}>
       <summary>${statusBadge(e.status)}<span class="result-name">${esc(e.name)}</span></summary>
@@ -108,7 +156,19 @@ function renderResults(entries, opts = {}) {
   const spinner = opts.busy
     ? `<div class="result-item busy"><div class="spinner sm"></div> Analyzing ${esc(opts.busy)}…</div>` : "";
   results.innerHTML = head + spinner + items;
-  results.scrollIntoView({ behavior: "smooth", block: "start" });
+  if (!opts.noScroll) results.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function renderResults(entries, opts = {}) {
+  // Only a finished scan is worth restoring — an in-progress spinner is not.
+  if (!opts.busy) resultsByMode[currentMode] = { entries, meta: opts.meta || null };
+  paintResults(entries, opts);
+}
+
+function showResultsForMode(mode) {
+  const cached = resultsByMode[mode];
+  if (!cached) { results.innerHTML = ""; return; }   // nothing run in this mode yet
+  paintResults(cached.entries, { meta: cached.meta, mode, noScroll: true });
 }
 
 // ---------- normalizers ----------
@@ -214,10 +274,13 @@ async function scanGit() {
   // Paginate: fetch one batch at a time and keep going until the server says
   // there are no more files. Results stream in and progress is shown live.
   let all = [], offset = 0, total = null;
+  // Pin the mode for the whole scan: it paginates across many requests, and reading the live
+  // toggle each time would silently split one scan across two arms if the user clicked mid-run.
+  const scanMode = currentMode;
   renderResults([], { busy: "cloning and scanning the repository" });
   try {
     do {
-      const data = await postJSON("/api/scan-git", { repo_url, branch, token, offset });
+      const data = await postJSON("/api/scan-git", { repo_url, branch, token, offset, mode: scanMode });
       if (!data.ok) return errorPanel(results, data.error || "repository scan failed");
       total = data.found;
       all = all.concat(data.results);
@@ -307,6 +370,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll(".mode-btn").forEach((b) => b.addEventListener("click", () => {
     currentMode = b.dataset.mode;
     document.querySelectorAll(".mode-btn").forEach((x) => x.classList.toggle("active", x === b));
+    showResultsForMode(currentMode);   // swap the panel to this mode's own last scan
   }));
   document.getElementById("analyze-btn").addEventListener("click", analyzeBatch);
   document.getElementById("scan-git-btn").addEventListener("click", scanGit);
