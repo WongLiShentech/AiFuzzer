@@ -193,7 +193,6 @@ examples/          standalone contracts to try the tool immediately, no corpus n
 tests/             pytest suite, contract fixtures, and the `aifuzz suite` case library
   fixtures/          contracts used only as test targets (+ labels.csv, provenance)
   harnesses/         hand-written Echidna harnesses + registry.yaml
-docs/              design notes: code-coverage, LIMITATIONS, metrics-proposal, semantics-parsing
 dataset/           where you download the Hugging Face reference corpus (git-ignored; see Setup)
 Dockerfile / docker-compose.yml   the stack: aifuzz app + Ollama sidecar + persisted vector store
 reference-paper.pdf   IEEE reference paper (evaluation methodology)
@@ -209,7 +208,7 @@ progress.py             live progress while a sweep is in flight
 
 ### What each directory is for
 
-Five directories, each with one job. Nothing else is committed.
+Four directories, each with one job. Nothing else is committed.
 
 | Directory | Purpose | Needed to run the tool? |
 |---|---|---|
@@ -217,7 +216,6 @@ Five directories, each with one job. Nothing else is committed.
 | `dashboard/` | Flask UI over the same `analyze()` entry point the CLI uses | Only for the web UI |
 | `examples/` | Five self-contained contracts to try it without downloading the corpus | No, convenience |
 | `tests/` | `pytest` suite, `fixtures/` targets, and `harnesses/` + `registry.yaml` for `aifuzz suite` | No, development |
-| `docs/` | Design notes and stated limitations | No, reference |
 
 Three more directories appear once you run the tool. All are git-ignored, because each is
 downloaded or generated rather than authored:

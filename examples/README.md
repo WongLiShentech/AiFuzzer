@@ -28,8 +28,7 @@ cannot distinguish a protected owner from an address field that is settable by d
 recipient or an operator slot — so that oracle was implemented, measured, found to catch none of
 the real misses while adding false positives on clean contracts, and removed. Access-control
 detection is consequently limited to two shapes it can assert safely: an unprotected
-`selfdestruct`, and an attacker extracting ether it never deposited. See
-[`../docs/LIMITATIONS.md`](../docs/LIMITATIONS.md).
+`selfdestruct`, and an attacker extracting ether it never deposited.
 
 `multi_vuln_bank.sol` carries two weaknesses and only the reentrancy is reported, for the same
 reason.
