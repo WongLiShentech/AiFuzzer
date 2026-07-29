@@ -26,7 +26,7 @@ for-me/
 # Source repos — cloned locally for the dataset, never committed
 staging/
 
-# Claude Code session context + dev-helper agents — local only
+# Local editor / tooling config — never committed
 CLAUDE.md
 .claude/
 
