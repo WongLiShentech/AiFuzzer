@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import re
 from pathlib import Path
 
@@ -34,6 +35,15 @@ except ImportError:  # pragma: no cover - exercised only without the ai extra
 
 _MAX_CHARS = 2500  # a contract fingerprint (pragma + decls + first fns) is enough to
 # retrieve similar contracts, and short docs embed far faster than full sources
+
+
+# Hold the model resident across contracts: a cold load is ~45s and the default keep_alive is
+# 5 minutes, so a long batch run would otherwise pay that repeatedly whenever an embedding call
+# lands in between. num_gpu forces every layer onto the GPU -- Ollama's automatic split leaves
+# ~18% on the CPU on a 6 GB card even when nothing else is loaded, which dominates the cost of
+# the long prompts and long JSON replies the seed path produces.
+_KEEP_ALIVE = os.getenv("OLLAMA_KEEP_ALIVE", "60m")
+_GEN_OPTS = {"temperature": 0, "seed": 0, "num_gpu": int(os.getenv("OLLAMA_NUM_GPU", "99"))}
 
 
 class KnowledgeBase:
@@ -77,9 +87,18 @@ class KnowledgeBase:
         return ollama.Client(host=settings.ollama_host, timeout=600)
 
     def _embed(self, texts: list[str]) -> list[list[float]]:
-        """Embed texts with the local Ollama embedding model."""
+        """Embed texts with the local Ollama embedding model.
+
+        num_gpu=0 keeps this model on the CPU. It is small (~300 MB) and embedding a
+        truncated source is cheap either way, but co-residency with the 7B generation
+        model overflows a 6 GB card -- Ollama then silently offloads part of the *large*
+        model to CPU instead, which measured as a 16x generation slowdown (13.7s -> 224.6s
+        per contract) partway through a run. Paying a few ms here keeps the whole
+        generation model on the GPU.
+        """
         payload = [t[:_MAX_CHARS] for t in texts]
-        resp = self._client().embed(model=self.embed_model, input=payload)
+        resp = self._client().embed(model=self.embed_model, input=payload,
+                                    options={"num_gpu": 0})
         return resp["embeddings"]
 
     def _ensure_index(self):
@@ -576,6 +595,55 @@ def _whitelist_violations(harness: str, src: str) -> list[str]:
             f"{', '.join(sorted(real))[:300]}" for c in invented[:5]]
 
 
+# Values a contract compares against are the values that decide which branch runs, so they are
+# the ones worth trying. Ordered roughly by how often each form gates a guard.
+_CMP_INT = re.compile(r"[<>=!]=?\s*(\d{1,40})\b")
+_ASSIGN_INT = re.compile(r"=\s*(\d{2,40})\s*[;)]")
+_HASH_LIT = re.compile(r"keccak256\s*\([^)]*?['\"]([^'\"]{1,32})['\"]")
+_STR_LIT = re.compile(r"==\s*['\"]([^'\"]{1,32})['\"]")
+_ADDR_LIT = re.compile(r"(0x[0-9a-fA-F]{40})")
+
+
+def _seed_constants(src: str, limit: int = 24) -> str:
+    """The contract's own comparison operands, as a candidate set for argument selection.
+
+    See the module note: this is the static stand-in for ILF's learned seed-integer set S_I.
+    Returns a short prompt fragment, or "" when the contract has nothing distinctive -- an
+    empty section is worse than no section, because it invites the model to treat it as a
+    constraint rather than a hint.
+    """
+    ints, strs, addrs = [], [], []
+    for m in _CMP_INT.finditer(src):
+        v = m.group(1)
+        if v not in ints:
+            ints.append(v)
+    for m in _ASSIGN_INT.finditer(src):
+        v = m.group(1)
+        if v not in ints:
+            ints.append(v)
+    # A literal a hash is compared against is the single highest-value seed there is: no fuzzer
+    # finds it by search, because the search space is the full preimage space.
+    for rx in (_HASH_LIT, _STR_LIT):
+        for m in rx.finditer(src):
+            if m.group(1) not in strs:
+                strs.append(m.group(1))
+    for m in _ADDR_LIT.finditer(src):
+        if m.group(1) not in addrs:
+            addrs.append(m.group(1))
+    parts = []
+    if ints:
+        parts.append("integers the contract compares against: " + ", ".join(ints[:limit]))
+    if strs:
+        parts.append("string/bytes literals it checks (try these EXACTLY, as bytes32 where the "
+                     "parameter is bytes32): " + ", ".join(repr(x) for x in strs[:8]))
+    if addrs:
+        parts.append("addresses that appear in the source: " + ", ".join(addrs[:4]))
+    if not parts:
+        return ""
+    return ("\n\nVALUES TAKEN FROM THIS CONTRACT (prefer these over invented numbers -- they are "
+            "the operands its own guards test against):\n  " + "\n  ".join(parts))
+
+
 class PropertyGenerator:
     """Local LLM (Ollama qwen) + RAG retrieval -> an Echidna harness. This is the M3
     novelty: generate a fuzzable harness for contracts the Tier-2 templates can't
@@ -584,6 +652,7 @@ class PropertyGenerator:
     def __init__(self, kb: KnowledgeBase | None = None) -> None:
         self.kb = kb or KnowledgeBase()
         self.model = settings.ollama_model
+        self.last_cot = ""   # phase-1 reasoning trace from the most recent seed_sequences_cot
 
     def available(self) -> bool:
         return _AI_DEPS
@@ -760,6 +829,7 @@ class PropertyGenerator:
         out = self.generate_harness(contract_source, "./target.sol")
         return [out[0]] if out else []
 
+
     def seed_sequences(self, contract_source: str, specs: list[dict],
                        max_seqs: int = 6) -> list[list[dict]]:
         """AI-GUIDED INPUT GENERATION (the thesis). Given the contract and the coverage
@@ -771,7 +841,6 @@ class PropertyGenerator:
         identical to the random arm, so seeds are the ONLY variable (a clean controlled test)."""
         if not _AI_DEPS or not specs:
             return []
-        by_name = {s["call_name"]: s for s in specs}
         api = "\n".join(f'  {s["call_name"]}({", ".join(s["raw_types"])})'
                         + ("  [payable]" if s["payable"] else "") for s in specs[:28])
         # RAG, as specified for BOTH generation paths: retrieve contracts from the reference
@@ -791,7 +860,8 @@ class PropertyGenerator:
             "concrete integer/address/bool arguments.\n\n"
             f"CONTRACT (state + security-relevant functions):\n{_focus_source(contract_source)}\n\n"
             f"SIMILAR VULNERABLE CONTRACTS (how contracts of this shape get exploited):\n{ctx}\n\n"
-            f"CALLABLE HARNESS FUNCTIONS:\n{api}\n\n"
+            f"CALLABLE HARNESS FUNCTIONS:\n{api}"
+            f"{_seed_constants(contract_source)}\n\n"
             # Addresses MUST be requested in short form. Left to itself the model writes
             # zero-padded 42-char literals ("0x0000...0000"), and long runs of zeros tokenise
             # very poorly -- a single argument could consume enough of the budget that the
@@ -812,74 +882,163 @@ class PropertyGenerator:
                 # 1600, not 700: the old budget truncated mid-array on contracts with wide
                 # ABIs. Short-form addresses cut the tokens per argument sharply, so this
                 # headroom costs far less generation time than raising it alone would have.
-                options={"temperature": 0, "seed": 0, "num_predict": 1600})
+                keep_alive=_KEEP_ALIVE, options={**_GEN_OPTS, "num_predict": 1600})
         except Exception:
             return []
-        raw = resp.get("response", "")
-        # Take everything from the first '[' rather than requiring a matching ']'. The previous
-        # `\[.*\]` search returned None whenever the reply was cut off before any bracket
-        # closed, which discarded the response outright -- the single largest cause of empty
-        # seed corpora, and one that produced no error because the caller treats [] as
-        # "degrade to random".
-        start = raw.find("[")
-        if start < 0:
-            return []
-        raw_arr = raw[start:]
-        # Large contracts (the SolidiFI files carry ~40 injected functions) can still push the
-        # reply past num_predict, so a strict parse would discard a response that was mostly
-        # usable. Salvage in two stages: close the array at successively earlier sequence
-        # boundaries, then, failing that, truncate at the last complete call object and
-        # re-balance the brackets by hand.
-        def _candidates(s: str):
-            yield s
-            for i in range(len(s) - 1, 0, -1):          # close at an earlier ']'
-                if s[i] == "]":
-                    yield s[:i + 1] + "]"
-            for i in range(len(s) - 1, 0, -1):          # close after the last complete '}'
-                if s[i] == "}":
-                    head = s[:i + 1]
-                    yield head + "]" * max(head.count("[") - head.count("]"), 0)
+        return _parse_seed_reply(resp.get("response", ""), specs, max_seqs)
 
-        data = None
-        for cand in _candidates(raw_arr):
-            try:
-                data = json.loads(cand)
-                break
-            except Exception:
+    def seed_sequences_cot(self, contract_source: str, specs: list[dict],
+                           max_seqs: int = 6) -> list[list[dict]]:
+        """B1-CoT: the same intervention as `seed_sequences` -- an LLM-proposed seed corpus
+        replayed into an otherwise byte-identical harness -- but the model is asked to REASON
+        before it emits. Two calls, deliberately:
+
+          phase 1  a short numbered analysis (guard -> state -> setup call -> payoff call ->
+                   senders/value), capped tight;
+          phase 2  that analysis fed back, then the SAME JSON-only instruction as the plain arm.
+
+        The split is not stylistic. Emitting reasoning and JSON from one call spends the token
+        budget on prose before the array opens, which is exactly the truncation that held seed
+        delivery at 49% before it was fixed; keeping phase 2 reasoning-free preserves that fix.
+
+        The four questions mirror ILF's four policy heads (function / arguments / sender /
+        amount): where ILF trains a network per component, this decomposes the same choice in
+        natural language against a frozen model. That is the comparison the arm exists to test,
+        and `last_cot` keeps the trace so it can be shown rather than asserted."""
+        self.last_cot = ""
+        if not _AI_DEPS or not specs:
+            return []
+        api = "\n".join(f'  {s["call_name"]}({", ".join(s["raw_types"])})'
+                        + ("  [payable]" if s["payable"] else "") for s in specs[:28])
+        examples = self.kb.retrieve(contract_source, k=3)
+        ctx = "\n\n".join(f"// similar known-vulnerable contract {i + 1}:\n{e[:500]}"
+                          for i, e in enumerate(examples)) or "(none retrieved)"
+        focus = _focus_source(contract_source)
+        # ---- phase 1: reason only. num_predict is small on purpose -- the analysis is a means
+        # to a better sequence, not an artefact worth paying for, and a 7B model padding to 600
+        # tokens costs real minutes across a 678-contract arm.
+        think = (
+            "You are analysing a smart contract to plan a fuzzing attack. Think step by step, "
+            "then STOP -- do not write any transaction list yet.\n\n"
+            f"CONTRACT (state + security-relevant functions):\n{focus}\n\n"
+            f"SIMILAR VULNERABLE CONTRACTS (how contracts of this shape get exploited):\n{ctx}\n\n"
+            f"CALLABLE HARNESS FUNCTIONS:\n{api}"
+            f"{_seed_constants(contract_source)}\n\n"
+            "Answer these four questions, one short line each, numbered:\n"
+            "1. Which function holds the vulnerable or guarded code, and what state must be "
+            "true to reach it?\n"
+            "2. Which function establishes that state, and what argument values does it need?\n"
+            "3. Which function is the payoff (the call that steals, destroys or hijacks)?\n"
+            "4. Which sender must issue each call, and what ether value does each carry?\n\n"
+            "Be concrete: name real functions and real numbers. Maximum four lines total.")
+        try:
+            r1 = self._client().generate(
+                model=self.model, prompt=think,
+                keep_alive=_KEEP_ALIVE, options={**_GEN_OPTS, "num_predict": 220})
+        except Exception:
+            return []
+        plan = (r1.get("response", "") or "").strip()[:1200]
+        self.last_cot = plan
+        if not plan:
+            # No plan means this degenerates to the plain arm with a wasted call; say so by
+            # falling through to it rather than returning nothing, so a phase-1 hiccup does not
+            # get recorded as "the AI proposed no seeds".
+            return self.seed_sequences(contract_source, specs, max_seqs)
+        # ---- phase 2: emit only. Identical JSON contract to the plain arm, so any measured
+        # difference between B1 and B1-CoT is attributable to the plan and nothing else.
+        emit = (
+            "You are guiding a smart-contract fuzzer. You have already analysed the contract. "
+            "Now turn that analysis into concrete transaction SEQUENCES. Use ONLY the listed "
+            "function names and pass concrete integer/address/bool arguments.\n\n"
+            f"YOUR ANALYSIS:\n{plan}\n\n"
+            f"CONTRACT (state + security-relevant functions):\n{focus}\n\n"
+            f"CALLABLE HARNESS FUNCTIONS:\n{api}"
+            f"{_seed_constants(contract_source)}\n\n"
+            f"Reply with ONLY a JSON array of at most {max_seqs} sequences. Each sequence is an "
+            'array of {"fn": "<call_name>", "args": [<values>]}.\n'
+            "Write addresses in SHORT form -- 0x1, 0x2, 0x3 -- never zero-padded. Keep the "
+            "reply compact; do not add commentary or markdown fences. Example:\n"
+            '[[{"fn":"call_deposit_0","args":[1000000000000000000]},'
+            '{"fn":"call_withdraw_0","args":[]}],'
+            '[{"fn":"call_setOwner_0","args":["0x1"]}]]\n')
+        try:
+            r2 = self._client().generate(
+                model=self.model, prompt=emit,
+                keep_alive=_KEEP_ALIVE, options={**_GEN_OPTS, "num_predict": 1600})
+        except Exception:
+            return []
+        return _parse_seed_reply(r2.get("response", ""), specs, max_seqs)
+
+
+def _parse_seed_reply(raw: str, specs: list[dict], max_seqs: int) -> list[list[dict]]:
+    """Model reply -> seed sequences, shared by the plain and CoT seed arms so that neither
+    can drift into a more forgiving parser than the other (which would show up as an arm
+    difference that was really a parsing difference)."""
+    by_name = {s["call_name"]: s for s in specs}
+    # Take everything from the first '[' rather than requiring a matching ']'. The previous
+    # `\[.*\]` search returned None whenever the reply was cut off before any bracket
+    # closed, which discarded the response outright -- the single largest cause of empty
+    # seed corpora, and one that produced no error because the caller treats [] as
+    # "degrade to random".
+    start = raw.find("[")
+    if start < 0:
+        return []
+    raw_arr = raw[start:]
+    # Large contracts (the SolidiFI files carry ~40 injected functions) can still push the
+    # reply past num_predict, so a strict parse would discard a response that was mostly
+    # usable. Salvage in two stages: close the array at successively earlier sequence
+    # boundaries, then, failing that, truncate at the last complete call object and
+    # re-balance the brackets by hand.
+    def _candidates(s: str):
+        yield s
+        for i in range(len(s) - 1, 0, -1):          # close at an earlier ']'
+            if s[i] == "]":
+                yield s[:i + 1] + "]"
+        for i in range(len(s) - 1, 0, -1):          # close after the last complete '}'
+            if s[i] == "}":
+                head = s[:i + 1]
+                yield head + "]" * max(head.count("[") - head.count("]"), 0)
+
+    data = None
+    for cand in _candidates(raw_arr):
+        try:
+            data = json.loads(cand)
+            break
+        except Exception:
+            continue
+    if data is None:
+        return []
+    # The model routinely names the TARGET function ("withdraw") where the harness exposes a
+    # forwarder ("call_withdraw_0"). The intent is unambiguous and the mapping is
+    # deterministic, so resolve it rather than discarding the sequence -- this was the single
+    # largest source of empty seed corpora (whole contracts contributing nothing).
+    by_target: dict[str, dict] = {}
+    for s in specs:
+        by_target.setdefault(s["fn"], s)
+        by_target.setdefault(s["fn"].lower(), s)
+
+    def _resolve(name):
+        if not isinstance(name, str):
+            return None
+        return by_name.get(name) or by_target.get(name) or by_target.get(name.lower())
+
+    # The model answers in two shapes: a list OF sequences ([[call, call]]) and -- just as
+    # often -- a single flat sequence ([call, call]). Requiring the nested form silently threw
+    # away every flat reply, which is why contracts whose function names all resolved still
+    # produced zero seeds. Normalise to the nested form.
+    if isinstance(data, list) and data and isinstance(data[0], dict):
+        data = [data]
+
+    out = []
+    for seq in data if isinstance(data, list) else []:
+        calls = []
+        for step in seq if isinstance(seq, list) else []:
+            spec = _resolve(step.get("fn")) if isinstance(step, dict) else None
+            if spec is None:
                 continue
-        if data is None:
-            return []
-        # The model routinely names the TARGET function ("withdraw") where the harness exposes a
-        # forwarder ("call_withdraw_0"). The intent is unambiguous and the mapping is
-        # deterministic, so resolve it rather than discarding the sequence -- this was the single
-        # largest source of empty seed corpora (whole contracts contributing nothing).
-        by_target: dict[str, dict] = {}
-        for s in specs:
-            by_target.setdefault(s["fn"], s)
-            by_target.setdefault(s["fn"].lower(), s)
-
-        def _resolve(name):
-            if not isinstance(name, str):
-                return None
-            return by_name.get(name) or by_target.get(name) or by_target.get(name.lower())
-
-        # The model answers in two shapes: a list OF sequences ([[call, call]]) and -- just as
-        # often -- a single flat sequence ([call, call]). Requiring the nested form silently threw
-        # away every flat reply, which is why contracts whose function names all resolved still
-        # produced zero seeds. Normalise to the nested form.
-        if isinstance(data, list) and data and isinstance(data[0], dict):
-            data = [data]
-
-        out = []
-        for seq in data if isinstance(data, list) else []:
-            calls = []
-            for step in seq if isinstance(seq, list) else []:
-                spec = _resolve(step.get("fn")) if isinstance(step, dict) else None
-                if spec is None:
-                    continue
-                calls.append({"spec": spec, "args": step.get("args", []) or []})
-            if calls:
-                out.append(calls)
-            if len(out) >= max_seqs:
-                break
-        return out
+            calls.append({"spec": spec, "args": step.get("args", []) or []})
+        if calls:
+            out.append(calls)
+        if len(out) >= max_seqs:
+            break
+    return out
