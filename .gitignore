@@ -52,3 +52,9 @@ artifacts/
 # OS
 .DS_Store
 Thumbs.db
+
+# superseded vector store from the 4746-contract corpus
+chroma_data_old_*/
+
+# extracted text of third-party papers, kept locally for reference only
+_ilf.txt

@@ -138,7 +138,7 @@ def _solc_for_pragma(contract_path: str) -> str | None:
 
 class EchidnaFuzzer:
     def __init__(self, mode: str = "random") -> None:
-        if mode not in ("random", "ai-guided", "ai-seed"):
+        if mode not in ("random", "ai-guided", "ai-seed", "ai-seed-cot"):
             raise ValueError(f"unknown mode: {mode!r}")
         self.mode = mode
         self.test_limit = settings.echidna_test_limit  # configurable, not hardcoded

@@ -91,7 +91,8 @@ def build_parser() -> argparse.ArgumentParser:
 
     a = sub.add_parser("analyze", help="analyze a single contract")
     a.add_argument("contract", help="path to a .sol contract / Echidna harness")
-    a.add_argument("--mode", choices=["random", "ai-seed", "ai-guided"], default="random")
+    a.add_argument("--mode", default="random",
+                   choices=["random", "ai-seed", "ai-seed-cot", "ai-guided"])
     a.add_argument("--contract-name", dest="contract_name", default=None,
                    help="name of the Echidna test contract (the one with echidna_* properties)")
     a.add_argument("--config", default=None,

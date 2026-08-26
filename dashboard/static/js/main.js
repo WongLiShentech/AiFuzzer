@@ -140,7 +140,8 @@ function statusBadge(s) {
 // you run each once, then flip between tabs to compare the two verdicts side by side.
 const resultsByMode = {};        // mode -> { entries, meta }
 
-const MODE_LABEL = { "random": "Random", "ai-seed": "AI-guided inputs" };
+const MODE_LABEL = { "random": "Random", "ai-seed": "AI-guided inputs",
+                     "ai-seed-cot": "AI-guided inputs (CoT)" };
 
 function paintResults(entries, opts = {}) {
   const vulnN = entries.filter((e) => e.status === "vulnerable").length;

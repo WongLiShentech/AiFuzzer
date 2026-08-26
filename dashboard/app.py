@@ -230,7 +230,7 @@ def api_scan_git():
     # UI showed as selected, so "AI-guided" was a lie on this panel -- a repo scan and an
     # upload of the same file ran different arms while claiming to run the same one.
     mode = data.get("mode") or "random"
-    if mode not in ("random", "ai-seed", "ai-guided"):
+    if mode not in ("random", "ai-seed", "ai-seed-cot", "ai-guided"):
         mode = "random"
     try:
         offset = max(0, int(data.get("offset", 0)))   # which batch to scan (UI paginates)

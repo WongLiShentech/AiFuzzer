@@ -6,6 +6,7 @@ from collections import Counter
 
 TOOL = Path(__file__).resolve().parent
 ARMS = [("random", "A  Random (baseline)"), ("ai-seed", "B1 AI inputs"),
+        ("ai-seed-cot", "B1-CoT AI inputs, planned"),
         ("ai", "B2 AI harness"), ("ai-full", "B3 Full AI pipeline")]
 TOTAL = 678
 

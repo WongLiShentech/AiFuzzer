@@ -18,6 +18,7 @@ ROOT = Path(__file__).resolve().parent
 RESULTS = ROOT / "eval_out" / (os.getenv("AIFUZZ_RESULTS") or "results.jsonl")
 ARMS = [("random", "A  - Random (manual template)"),
         ("ai-seed", "B1 - AI-guided inputs"),
+        ("ai-seed-cot", "B1-CoT - AI-guided inputs, planned"),
         ("ai", "B2 - AI-authored harness"),
         ("ai-full", "B3 - Full AI pipeline")]
 

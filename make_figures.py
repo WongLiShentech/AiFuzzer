@@ -26,6 +26,7 @@ TOTAL = 678
 ARMS = [
     ("random",  "A - Random (manual template)", "#5B8DEF"),
     ("ai-seed", "B1 - AI-guided inputs",        "#E8833A"),
+    ("ai-seed-cot", "B1-CoT - AI inputs, planned", "#C4553A"),
     ("ai",      "B2 - AI-authored harness",     "#7A5FBF"),
     ("ai-full", "B3 - Full AI pipeline",        "#2E9E7E"),
 ]

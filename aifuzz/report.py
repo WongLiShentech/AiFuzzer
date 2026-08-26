@@ -88,6 +88,9 @@ class Report:
     # the dashboard's "Test harness" panel had nothing to show but the uploaded contract itself --
     # a real bug found via a live demo, where an access-control finding's own attack code
     # (attack_val_N, force_fund, the ValAttacker sub-contract) was invisible to the viewer.
+    cot: str = ""              # phase-1 reasoning trace, ai-seed-cot mode only. Shown rather
+    # than summarised: the arm's whole claim is that planning changes the sequences, and that
+    # is only checkable if the plan is visible next to them.
     created_at: str = field(
         default_factory=lambda: datetime.now(timezone.utc).isoformat()
     )
@@ -104,6 +107,7 @@ class Report:
             "total_elapsed": self.total_elapsed,
             "harness_src": self.harness_src,
             "harness_name": self.harness_name,
+            "cot": self.cot,
             "created_at": self.created_at,
             "findings": [f.to_dict() for f in self.findings],
         }

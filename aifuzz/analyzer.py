@@ -48,8 +48,9 @@ def analyze(contract_path: str, mode: str = "random", contract: str | None = Non
     src = path.read_text(encoding="utf-8", errors="replace")
     if mode == "ai-guided":
         report.findings += _fuzz_ai_guided(src, path.name, fuzzer, report)
-    elif mode == "ai-seed":
-        report.findings += _fuzz_ai_seeded(src, path.name, fuzzer, report)
+    elif mode in ("ai-seed", "ai-seed-cot"):
+        report.findings += _fuzz_ai_seeded(src, path.name, fuzzer, report,
+                                           cot=(mode == "ai-seed-cot"))
     elif auto and "echidna_" not in src:
         report.findings += _fuzz_synthesized(src, path.name, fuzzer, report)
     else:
@@ -108,7 +109,8 @@ def _fuzz_ai_guided(src: str, target_name: str, fuzzer: EchidnaFuzzer, report: R
         return fuzzer.fuzz(str(hpath), contract=harness_name, config=str(cfg), seeds=seeds or None)
 
 
-def _fuzz_ai_seeded(src: str, target_name: str, fuzzer: EchidnaFuzzer, report: Report):
+def _fuzz_ai_seeded(src: str, target_name: str, fuzzer: EchidnaFuzzer, report: Report,
+                    cot: bool = False):
     """B1: AI-GUIDED INPUTS ONLY -- the project's actual research question. The harness is the
     SAME deterministic coverage-forwarding template as random mode (identical code path to
     _fuzz_synthesized's coverage branch); the only difference is that Echidna's corpus is
@@ -132,7 +134,9 @@ def _fuzz_ai_seeded(src: str, target_name: str, fuzzer: EchidnaFuzzer, report: R
         pg = PropertyGenerator()
         spec = coverage_forwarder_specs(src)
         if spec:
-            seeds = pg.seed_sequences(src, spec[1])
+            seeds = (pg.seed_sequences_cot(src, spec[1]) if cot
+                     else pg.seed_sequences(src, spec[1]))
+            report.cot = pg.last_cot if cot else ""
     except Exception:
         seeds = []  # honest degrade to random -- never blocks the fuzz run
 

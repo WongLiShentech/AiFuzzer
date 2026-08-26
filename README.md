@@ -135,6 +135,7 @@ pip install -e .
 # analyze one raw contract (auto-synthesises a harness from its shape)
 python -m aifuzz.cli analyze examples/reentrancy_withdraw_all.sol --auto --mode random
 python -m aifuzz.cli analyze examples/reentrancy_withdraw_all.sol --auto --mode ai-seed   # AI inputs
+python -m aifuzz.cli analyze examples/reentrancy_withdraw_all.sol --auto --mode ai-seed-cot  # AI inputs, planned
 python -m aifuzz.cli analyze <contract>.sol --auto --mode ai-guided --format sarif         # AI harness
 
 # run the built-in case library and check against ground truth
@@ -152,6 +153,7 @@ The held-out evaluation over the full test set (produces the paper's numbers and
 ```bash
 python benchmark_testset.py --approach random     # baseline (A): template harness, random inputs
 python benchmark_testset.py --approach ai-seed    # B1: same harness, LLM+RAG seeded inputs
+python benchmark_testset.py --approach ai-seed-cot # B1-CoT: as B1, but the model plans before it emits
 python benchmark_testset.py --approach ai         # B2: LLM-authored harness, random inputs
 python benchmark_testset.py --approach ai-full    # B3: LLM harness + LLM inputs
 
