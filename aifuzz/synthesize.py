@@ -16,6 +16,11 @@ _CONTRACT = re.compile(r"\bcontract\s+(\w+)\s*(?:is\b|\{)")
 _SEND = re.compile(r"\.call\.value|\.transfer\s*\(|\.send\s*\(")
 _BALANCE_LEDGER = re.compile(r"mapping\s*\(\s*address\s*=>\s*uint")   # reentrancy fingerprint
 _PRIV_NAME = re.compile(r"owner|admin|operator|governor|governance|controller|manager|master|root", re.I)
+# Broader authority vocabulary, used ONLY by the seizure detector. _PRIV_NAME is read by
+# several other paths, so widening it there would change behaviour well outside this one;
+# `creator` in particular is what SWC-118 contracts (rubixi.sol) name their owner field.
+_OWNER_LIKE = re.compile(r"owner|admin|operator|governor|governance|controller|manager"
+                         r"|master|root|creator|deployer|founder|authority|keeper", re.I)
 _BUILTIN_MODS = {"public", "external", "internal", "private", "payable", "view",
                  "pure", "constant", "returns", "memory", "storage", "calldata"}
 
@@ -141,12 +146,36 @@ def _is_guarded(head: str, body: str, owner_var: str) -> bool:
 
 
 # --- Slither semantic parsing (AST/IR); regex is the fallback --------------- #
+def _relax_low_pragma(src: str) -> str:
+    """Widen an exact `pragma solidity 0.4.x;` below the toolchain floor to a 0.4-series range.
+
+    Raising the compiler is not enough on its own: a contract pinned `pragma solidity 0.4.9;`
+    rejects 0.4.26 by its own pragma, so the pin and the compiler have to move together. Applied
+    to the temporary copy handed to Slither, never to the corpus on disk.
+    """
+    def repl(m):
+        try:
+            parts = tuple(int(x) for x in m.group(1).split("."))
+        except ValueError:
+            return m.group(0)
+        if parts >= (0, 4, 25) or parts[:2] != (0, 4):
+            return m.group(0)
+        return "pragma solidity >=0.4.25 <0.5.0;"
+    return re.sub(r"pragma\s+solidity\s+(\d+\.\d+\.\d+)\s*;", repl, src)
+
+
 def _solc_for_pragma_spec(pragma: str) -> str | None:
     """Solc version for Slither, resolved for ANY pragma (0.4..0.8). Previously only 0.4.x
     was handled, so Slither silently failed on 0.5+ contracts and every detector dropped to
     the sloppy regex path (no payability/visibility/abstract info) -- the root cause of the
     template's broken harnesses on 0.5.x contracts."""
     v = _resolve_solc(pragma)
+    # Same floor the fuzzer applies. py-solc-x cannot install anything below 0.4.11 and Echidna
+    # refuses anything below 0.4.25, so a contract pinned lower has no usable compiler at either
+    # stage. Raising it here keeps Slither and Echidna on the same version -- otherwise the
+    # harness would be built against one compiler and fuzzed under another.
+    if v < (0, 4, 25) and v[:2] == (0, 4):
+        return "0.4.26"
     return f"{v[0]}.{v[1]}.{v[2]}"
 
 
@@ -181,7 +210,7 @@ def _slither_contracts(src: str, pragma: str):
         with tempfile.TemporaryDirectory(prefix="aifuzz-slither-") as d:
             path = os.path.join(d, "Contract.sol")
             with open(path, "w", encoding="utf-8") as fh:
-                fh.write(src)
+                fh.write(_relax_low_pragma(src))
             # Compile from INSIDE the temp dir using a bare filename. Passing the absolute
             # Windows path makes solc split it on the drive-letter colon ("C:\Users\..." ->
             # "Unknown file: Users:\..."), so Slither failed on every contract routed through
@@ -711,18 +740,50 @@ def _default_literal(t: str) -> str | None:
     return None
 
 
-def _ctor_args(c, src: str) -> str | None:
+def _contract_arg(tname: str, src: str, pragma: str) -> str | None:
+    """A stand-in for a constructor parameter whose type is a contract. See the module note."""
+    if not re.match(r"^[A-Za-z_]\w*$", tname):
+        return None
+    for x in (_slither_contracts(src, pragma) or []):
+        if x.name != tname:
+            continue
+        concrete = (x.is_fully_implemented and not x.is_interface
+                    and x.contract_kind not in ("interface", "library"))
+        if concrete and not _ctor_requires_args(src, tname):
+            return f"new {tname}()"
+        break
+    # Interface, library, abstract, or a dependency with its own required args: bind a typed
+    # handle to a codeless address rather than skipping the contract entirely.
+    return f"{tname}(address(0x1))"
+
+
+
+def _ctor_args(c, src: str, pragma: str = "") -> str | None:
     """Literal argument list for `c`'s constructor: '' if none needed, a string like
     '1, address(0x1)' if all params are value types, or None if any param can't be defaulted
-    (array/struct/contract) -> the target isn't template-deployable."""
+    (array/struct/contract) -> the target isn't template-deployable.
+
+    An address parameter whose NAME denotes an authority is deployed as `tx.origin` rather than
+    the neutral default -- see the module note on SWC-115: with the default, every path behind a
+    `require(tx.origin == <field>)` guard is unreachable and the contract reads as clean.
+    """
     if not _ctor_requires_args(src, c.name):
         return ""
     ctor = getattr(c, "constructor", None)
     if ctor is None:
         return None
+    # tx.origin is address payable through 0.7 and plain address from 0.8, so a payable
+    # parameter needs an explicit cast on the newer compilers.
+    v8 = bool(pragma) and _resolve_solc(pragma)[:2] >= (0, 8)
     lits = []
     for p in ctor.parameters:
-        lit = _default_literal(str(p.type))
+        ptype = str(p.type)
+        if ptype.replace(" payable", "").strip() == "address" and _CTOR_AUTH.search(p.name or ""):
+            lits.append("payable(tx.origin)" if (v8 and "payable" in ptype) else "tx.origin")
+            continue
+        lit = _default_literal(ptype)
+        if lit is None:
+            lit = _contract_arg(ptype, src, pragma)
         if lit is None:
             return None
         lits.append(lit)
@@ -762,6 +823,10 @@ def _forwarder_specs(c, pragma: str) -> list[dict]:
 
 
 _AUTH_PARAM = re.compile(r"owner|admin|operator|creator|governor|manager|auth", re.I)
+# Constructor parameters that name an authority. `tx.origin` is passed for these so a
+# `require(tx.origin == <that field>)` guard is satisfiable from the harness.
+_CTOR_AUTH = re.compile(r"owner|admin|operator|governor|manager|auth|relayer|keeper|signer",
+                        re.I)
 _RECIP_PARAM = re.compile(r"recipient|receiver|to|dest|target|payee|beneficiar", re.I)
 
 
@@ -785,10 +850,19 @@ def _is_unearned_drain(src: str, c, fname: str) -> bool:
     if body is None:
         return False
     txorigin_param_guard = re.search(r"tx\s*\.\s*origin\s*==|==\s*tx\s*\.\s*origin", body) is not None
-    if re.search(r"\[\s*msg\s*\.\s*sender\s*\]", body):
-        return False                                   # entitlement, not theft
-    if re.search(r"\(\s*msg\s*\.\s*sender\s*[,)]", body) and not txorigin_param_guard:
-        return False                                   # per-caller accounting (_burn(msg.sender, n))
+    # Both entitlement rules below exist because the theft oracle used to be `balance == 0`,
+    # under which any ether reaching the attacker looked like theft. The oracle is now net-flow
+    # (`balance <= funded`), so a caller withdrawing what it is genuinely owed nets to zero and
+    # cannot trip it -- for a PAYABLE function, where the attacker must pay to participate, the
+    # accounting does the work these heuristics were standing in for. The authority checks below
+    # still apply: the harness really can delegate rights to the attacker, and that is a
+    # different failure the accounting does not catch.
+    is_payable = any(f.name == fname and getattr(f, "payable", False) for f in c.functions)
+    if not is_payable:
+        if re.search(r"\[\s*msg\s*\.\s*sender\s*\]", body):
+            return False                               # entitlement, not theft
+        if re.search(r"\(\s*msg\s*\.\s*sender\s*[,)]", body) and not txorigin_param_guard:
+            return False                               # per-caller accounting (_burn(msg.sender, n))
     if not txorigin_param_guard:
         # ANY msg.sender comparison is an access check, in either operand order and inside a
         # require or an if (`if (receiver == msg.sender && ...)` guards just as effectively as
@@ -878,6 +952,13 @@ def _guarded_eth_senders(src: str, c) -> set[str]:
         if (getattr(f, "modifiers", None)
                 or re.search(r"msg\s*\.\s*sender\s*[=!]=|[=!]=\s*msg\s*\.\s*sender", b)
                 or (set(re.findall(r"\b(\w+)\s*\(", b)) & guarded)):
+            # A guarded DEPOSIT is not the case this exclusion exists for -- see the module
+            # note. Payable, and paying no ether to its caller, means the harness can only put
+            # money in, which is exactly the setup a value-extraction oracle needs.
+            if (getattr(f, "payable", False)
+                    and not re.search(r"msg\s*\.\s*sender\s*\.\s*(?:transfer|send)\b", b)
+                    and not re.search(r"msg\s*\.\s*sender\s*\.\s*call\s*[.{]\s*value", b)):
+                continue
             out.add(f.name)
     return out
 
@@ -894,6 +975,201 @@ def _monotone_twin(src: str, var: str) -> str | None:
             if cand != var and not re.search(rf"\b{re.escape(cand)}\s*-=", src):
                 return cand
     return None
+
+
+def _authority_hijack(src: str, c) -> dict | None:
+    """An owner-like variable the contract itself treats as an authority, yet any caller can
+    rewrite. See the module note on why both halves are required.
+
+    Returns the shape the access-control attacker block expects, or None. The variable must have
+    a public getter: an invariant that cannot read the value it is asserting over is useless, and
+    emitting one anyway would produce a harness that compiles but never observes anything.
+    """
+    owners = [v for v in getattr(c, "state_variables", [])
+              if _PRIV_NAME.search(v.name) and "address" in str(getattr(v, "type", ""))]
+    if not owners:
+        return None
+    guards = _guard_fn_names(src)
+    for v in owners:
+        name = v.name
+        # half 1: the contract tests callers against it somewhere -> it IS an authority
+        if not re.search(rf"msg\s*\.\s*sender\s*[=!]=\s*{re.escape(name)}\b"
+                         rf"|\b{re.escape(name)}\s*[=!]=\s*msg\s*\.\s*sender", src):
+            continue
+        if str(getattr(v, "visibility", "")) != "public":
+            continue                       # no getter -> the oracle could not read it
+        # half 2: some public entry point rewrites it with no guard at all
+        setters = []
+        for f in getattr(c, "functions", []):
+            if f.is_constructor or str(f.visibility) not in ("public", "external"):
+                continue
+            b = _fn_body(src, f.name)
+            if b is None or not re.search(rf"\b{re.escape(name)}\s*=(?!=)", b):
+                continue
+            if (getattr(f, "modifiers", None)
+                    or re.search(r"msg\s*\.\s*sender\s*[=!]=|[=!]=\s*msg\s*\.\s*sender", b)
+                    or (set(re.findall(r"\b(\w+)\s*\(", b)) & guards)):
+                continue                   # guarded writer -> consistent policy, not a flaw
+            takes_addr = any("address" in str(prm.type) for prm in getattr(f, "parameters", []))
+            if len(getattr(f, "parameters", [])) > 1:
+                continue                   # cannot supply extra args from the attacker stub
+            setters.append({"name": f.name, "takes_address": takes_addr})
+        if setters:
+            return {"contract": c.name, "owner_var": name, "owner_public": True,
+                    "kind": "var", "setters": setters[:6], "probe": None}
+    return _role_map_hijack(src, c, guards)
+
+
+
+# A mapping read as `require(role[msg.sender])` is an authority check. The negated form is
+# excluded on purpose: `require(!banned[msg.sender])` is a blacklist, and writing yourself into
+# a blacklist is not a privilege gain.
+_ROLE_GUARD = re.compile(r"require\s*\(\s*(\w+)\s*\[\s*msg\s*\.\s*sender\s*\]")
+_ROLE_GUARD_IF = re.compile(r"if\s*\(\s*!\s*(\w+)\s*\[\s*msg\s*\.\s*sender\s*\]\s*\)"
+                            r"\s*(?:revert|throw)")
+
+
+def _role_map_hijack(src: str, c, guards: set) -> dict | None:
+    """Same flaw as `_authority_hijack`, with the authority held in a `mapping(address => bool)`.
+
+    See the module note: both halves are still required, which is what keeps open-registration
+    mappings (registered, whitelisted-for-airdrop) from attaching an oracle they would trip
+    legitimately on the first call.
+    """
+    roles = {m.group(1) for m in _ROLE_GUARD.finditer(src)}
+    roles |= {m.group(1) for m in _ROLE_GUARD_IF.finditer(src)}
+    if not roles:
+        return None
+    for v in getattr(c, "state_variables", []):
+        t = str(getattr(v, "type", ""))
+        if v.name not in roles or "mapping" not in t or "bool" not in t:
+            continue
+        if str(getattr(v, "visibility", "")) != "public":
+            continue                       # no getter -> the oracle could not read it
+        setters = []
+        for f in getattr(c, "functions", []):
+            if f.is_constructor or str(f.visibility) not in ("public", "external"):
+                continue
+            b = _fn_body(src, f.name)
+            if b is None or not re.search(rf"\b{re.escape(v.name)}\s*\[[^\]]*\]\s*=\s*true", b):
+                continue
+            if (getattr(f, "modifiers", None)
+                    or re.search(r"msg\s*\.\s*sender\s*[=!]=|[=!]=\s*msg\s*\.\s*sender", b)
+                    or re.search(rf"require\s*\(\s*\w+\s*\[\s*msg\s*\.\s*sender", b)
+                    or (set(re.findall(r"\b(\w+)\s*\(", b)) & guards)):
+                continue                   # guarded writer -> consistent policy, not a flaw
+            prms = getattr(f, "parameters", [])
+            if len(prms) > 1:
+                continue
+            takes_addr = any("address" in str(pm.type) for pm in prms)
+            setters.append({"name": f.name, "takes_address": takes_addr})
+        if setters:
+            return {"contract": c.name, "owner_var": v.name, "owner_public": True,
+                    "kind": "map", "setters": setters[:6], "probe": None}
+    return None
+
+
+def _seizure_shape(src: str, c) -> dict | None:
+    """Unguarded writes to an owner-like variable, paired with the owner-guarded ether senders
+    that become reachable once the write succeeds. See the module note on why both are needed
+    and why offering the drains is false-positive safe.
+    """
+    owners = {v.name for v in getattr(c, "state_variables", [])
+              if _OWNER_LIKE.search(v.name) and "address" in str(getattr(v, "type", ""))}
+    # The variable must actually CONTROL something. Without this, an open initializer that sets
+    # an address nobody ever checks reads as a privilege seizure -- measured as 2 false positives
+    # on clean Etherscan contracts (MorphToken, CheapLambos). Seizing a variable that grants no
+    # authority is not an escalation, so require the contract to test callers against it.
+    owners = {o for o in owners
+              if re.search(rf"msg\s*\.\s*sender\s*[=!]=\s*{re.escape(o)}\b"
+                           rf"|\b{re.escape(o)}\s*[=!]=\s*msg\s*\.\s*sender", src)}
+    if not owners:
+        return None
+    guards = _guard_fn_names(src)
+
+    def guarded(f, b):
+        return bool(getattr(f, "modifiers", None)
+                    or re.search(r"msg\s*\.\s*sender\s*[=!]=|[=!]=\s*msg\s*\.\s*sender", b)
+                    or (set(re.findall(r"\b(\w+)\s*\(", b)) & guards))
+
+    seize, drains = [], []
+    for f in getattr(c, "functions", []):
+        if f.is_constructor or str(f.visibility) not in ("public", "external"):
+            continue
+        b = _fn_body(src, f.name)
+        if b is None:
+            continue
+        prms = getattr(f, "parameters", [])
+        g = guarded(f, b)
+        writes_owner = any(re.search(rf"\b{re.escape(o)}\s*=(?!=)", b) for o in owners)
+        if writes_owner and not g and len(prms) <= 1:
+            takes_addr = any("address" in str(pm.type) for pm in prms)
+            seize.append({"name": f.name, "takes_address": takes_addr})
+        elif g and not prms:
+            try:
+                if f.can_send_eth():
+                    drains.append(f.name)
+            except Exception:
+                pass
+    if not seize:
+        return None                      # no way in -> offering the drains would be unsafe
+    return {"seize": seize[:6], "drains": drains[:6]}
+
+
+
+# Value types the oracle can snapshot and compare. Reference types have no cheap equality and a
+# mapping has no single value to watch, so they are out of scope for this invariant.
+_SNAPSHOTABLE = re.compile(r"^(uint\d*|int\d*|address|bool|bytes\d+)$")
+
+
+def _inconsistently_guarded_state(src: str, c) -> list[dict]:
+    """State the contract guards in one place and leaves open in another. See the module note."""
+    guards = _guard_fn_names(src)
+    pub = {v.name: v for v in getattr(c, "state_variables", [])
+           if str(getattr(v, "visibility", "")) == "public"
+           and _SNAPSHOTABLE.match(str(getattr(v, "type", "")).replace(" payable", "").strip())}
+    if not pub:
+        return []
+
+    def is_guarded(f, b):
+        return bool(getattr(f, "modifiers", None)
+                    or re.search(r"msg\s*\.\s*sender\s*[=!]=|[=!]=\s*msg\s*\.\s*sender", b)
+                    or (set(re.findall(r"\b(\w+)\s*\(", b)) & guards))
+
+    guarded_w, open_w = {}, {}
+    for f in getattr(c, "functions", []):
+        if f.is_constructor or str(f.visibility) not in ("public", "external"):
+            continue
+        b = _fn_body(src, f.name)
+        if b is None:
+            continue
+        g = is_guarded(f, b)
+        prms = [pm for pm in getattr(f, "parameters", []) if pm.name]
+        for name in pub:
+            if not re.search(rf"\b{re.escape(name)}\s*=(?!=)", b):
+                continue
+            if g:
+                guarded_w.setdefault(name, []).append(f.name)
+                continue
+            # unguarded: only count a direct assignment FROM AN ARGUMENT as arbitrary control
+            if not any(re.search(rf"\b{re.escape(name)}\s*=\s*{re.escape(pm.name)}\s*;", b)
+                       for pm in prms):
+                continue
+            if len(prms) > 1:
+                continue                     # cannot supply extra args from the attacker stub
+            open_w.setdefault(name, []).append({"name": f.name, "arg": str(prms[0].type) if prms else None})
+
+    out = []
+    for name in open_w:
+        if name not in guarded_w:
+            continue                         # never protected anywhere -> settable by design
+        out.append({"var": name,
+                    "type": str(pub[name].type).replace(" payable", "").strip(),
+                    "setters": open_w[name][:3]})
+        if len(out) >= 3:
+            break
+    return out
+
 
 
 def _detect_price_solvency(src: str, c) -> dict | None:
@@ -926,6 +1202,39 @@ def _detect_price_solvency(src: str, c) -> dict | None:
                 if rb:
                     base = _monotone_twin(src, rb.group(1)) or rb.group(1)
                     return {"debt": r2.group(1), "coll": base, "lit": lit}
+    return _derived_price_solvency(src, c, cons, guarded)
+
+
+def _derived_price_solvency(src: str, c, cons, guarded: set[str]) -> dict | None:
+    """The same shape, with the price COMPUTED by a view function. See the module note."""
+    # public uint state and the literal it was seeded to -- the contract's own honest baseline
+    seeded = {m.group(1): m.group(2)
+              for m in re.finditer(r"uint\d*\s+public\s+(\w+)\s*=\s*(\d+)\s*;", src)}
+    for m in re.finditer(r"require\s*\(\s*(\w+)\s*\+\s*\w+\s*<=\s*(\w+)\s*\*\s*(\w+)\s*\(\s*\)", src):
+        debt, coll, fn = m.group(1), m.group(2), m.group(3)
+        body = _fn_body(src, fn)
+        if body is None:
+            continue
+        # the view must read state an arbitrary caller can move, or there is nothing to game
+        reads = [v for v in seeded if re.search(rf"\b{re.escape(v)}\b", body)]
+        movable = [v for v in reads if _has_unguarded_writer(src, c, v, guarded)]
+        if not movable:
+            continue
+        # trust the constant the price was seeded to, not one matched by name
+        vals = {seeded[v] for v in movable}
+        lit = next((L for _, L in cons if L in vals), None)
+        if lit is None and len(cons) == 1:
+            # A ratio price (quoteReserve / baseReserve) is seeded to neither operand's value,
+            # so no seed matches even though the contract plainly states its honest rate. When
+            # the contract declares exactly ONE constant there is no ambiguity about which
+            # reference is meant, and using it needs no assumption about naming.
+            lit = cons[0][1]
+        if lit is None:
+            continue
+        for need in (debt, coll):           # the invariant has to be able to read both sides
+            if not re.search(rf"\buint\d*\s+public\s+{re.escape(need)}\b", src):
+                return None
+        return {"debt": debt, "coll": coll, "lit": lit}
     return None
 
 
@@ -944,6 +1253,69 @@ def _has_unguarded_writer(src: str, c, var: str, guarded: set[str]) -> bool:
             continue
         return True
     return False
+
+
+def _recipient_setters(src: str, c) -> list[dict]:
+    """Unguarded public functions that write a state variable later used as a payout recipient.
+
+    This is transaction-order dependence stated as a property: `winner.transfer(msg.value)` pays
+    whoever `winner` happens to be at that instant, and if any caller can set `winner` in a
+    separate transaction then the payout is decided by transaction order. The same shape covers
+    `beneficiary`, `recipient`, `lastPlayer` -- the name is irrelevant and is deliberately not
+    matched on.
+
+    Guarded setters are excluded: if only the owner can move the recipient there is no race, and
+    the harness deploys the target so it would be handing itself authority (see
+    `_guarded_eth_senders` for the same reasoning applied to withdrawals).
+
+    Owner-like variables are excluded too -- an unguarded ownership transfer is a real bug, but
+    it is the access-control path's bug, and `_acatk` already attacks it. Keeping the two apart
+    stops one finding being reported twice.
+    """
+    payout = set()
+    for m in re.finditer(r"\b(\w+)\s*\.\s*(?:transfer|send)\s*\(", src):
+        payout.add(m.group(1))
+    for m in re.finditer(r"\b(\w+)\s*\.\s*call\s*[.{]\s*value", src):
+        payout.add(m.group(1))
+    # keep only those that are actually address-typed STATE variables
+    state = {}
+    for v in getattr(c, "state_variables", []):
+        state[v.name] = str(getattr(v, "type", ""))
+    payout = {v for v in payout
+              if v in state and "address" in state[v] and not _PRIV_NAME.search(v)}
+    if not payout:
+        return []
+
+    guarded = _guard_fn_names(src)
+    out = []
+    for f in getattr(c, "functions", []):
+        if f.is_constructor or str(f.visibility) not in ("public", "external"):
+            continue
+        if getattr(f, "payable", False):
+            continue                       # a payable setter is funded by the caller, not a race
+        b = _fn_body(src, f.name)
+        if b is None:
+            continue
+        if not any(re.search(rf"\b{re.escape(v)}\s*=(?!=)", b) for v in payout):
+            continue
+        if (getattr(f, "modifiers", None)
+                or re.search(r"msg\s*\.\s*sender\s*[=!]=|[=!]=\s*msg\s*\.\s*sender", b)
+                or (set(re.findall(r"\b(\w+)\s*\(", b)) & guarded)):
+            continue                       # guarded -> no race
+        decl = []
+        ok = True
+        for prm in getattr(f, "parameters", []):
+            t = _fwd_type(str(prm.type))
+            if t is None:
+                ok = False
+                break
+            decl.append(t)
+        if not ok or len(decl) > 4:
+            continue
+        out.append({"fn": f.name, "decl_types": decl})
+        if len(out) >= 8:
+            break
+    return out
 
 
 def _attack_args(spec, v6: bool) -> str | None:
@@ -1039,7 +1411,7 @@ def synthesize_coverage_harness(src: str, target_import: str,
     c = _concrete_main(src, pragma)
     if c is None:
         return None
-    cargs = _ctor_args(c, src)
+    cargs = _ctor_args(c, src, pragma)
     if cargs is None:
         return None   # ctor needs a non-value arg we can't default -> defer, don't emit broken code
     specs = _forwarder_specs(c, pragma)
@@ -1056,14 +1428,23 @@ def synthesize_coverage_harness(src: str, target_import: str,
     # was the sole false-positive cause. Measured: it detected 0/4 of the access-control misses
     # and introduced 3 new false positives on 27 clean contracts, so the theory was wrong and the
     # oracle is left off. Access-control recall via generic fuzzing is a stated limitation.
-    ac = None
-    ac_setters = set()
+    # Re-enabled under a strictly narrower condition than the attempt described above: the
+    # variable must be used as an authority by the contract AND be rewritable without a guard.
+    # A fee recipient fails the first half, a properly-guarded owner fails the second, so the
+    # false-positive shape that forced the original disable cannot match.
+    ac = _authority_hijack(src, c)
+    ac_setters = {s["name"] for s in ac["setters"]} if ac else set()
     # Unprotected-selfdestruct detection (FP-safe): a non-owner attacker calls each destruct
     # function; the oracle checks the target still has code. A guarded destruct reverts for the
     # attacker -> no false positive. These functions are excluded from the normal forwarders so
     # the harness (the deployer) can't legitimately self-destruct the target and trip the oracle.
     sd_fns = _selfdestruct_fns(src, c)
-    excluded = ac_setters | set(sd_fns) | _ownership_setters(src, c) | _guarded_eth_senders(src, c)
+    # Withheld from the forwarders so the harness -- the deployer, and so the legitimate owner --
+    # cannot change this state itself and trip its own invariant. Only the attacker reaches them.
+    inconsistent = _inconsistently_guarded_state(src, c)
+    incon_setters = {x["name"] for g in inconsistent for x in g["setters"]}
+    excluded = (ac_setters | set(sd_fns) | incon_setters
+                | _ownership_setters(src, c) | _guarded_eth_senders(src, c))
     # Reentrancy PoC setup: pick the payable no-arg deposit and the ether-sending withdraw(s).
     # A VICTIM deposits first (so the target holds ether the attacker doesn't own), then the
     # attacker deposits a little and drains via re-entry -> it extracts MORE than it deposited
@@ -1139,6 +1520,34 @@ def synthesize_coverage_harness(src: str, target_import: str,
                      f"{{ _forced = true; _sent += 2 ether; {newf}; }} }}")
         fields.append("    bool internal _forced;")
 
+    # Prime the contract through its own guarded deposit path -- see the module note on why a
+    # payable forwarder alone is not enough.
+    primed = 0
+    for f in c.functions:
+        if primed >= 3:
+            break
+        if f.is_constructor or str(f.visibility) not in ("public", "external"):
+            continue
+        if not getattr(f, "payable", False) or getattr(f, "parameters", None):
+            continue                      # no-arg deposits only: a primer must not guess args
+        b = _fn_body(src, f.name)
+        if b is None:
+            continue
+        is_guarded = bool(getattr(f, "modifiers", None)
+                          or re.search(r"msg\s*\.\s*sender\s*[=!]=|[=!]=\s*msg\s*\.\s*sender", b))
+        if not is_guarded:
+            continue                      # unguarded deposits are already reachable by anyone
+        if re.search(r"msg\s*\.\s*sender\s*\.\s*(?:transfer|send)\b", b):
+            continue                      # pays its caller -> not a deposit
+        call = (f"target.{f.name}{{value: 1 ether}}()" if v6
+                else f"target.{f.name}.value(1 ether)()")
+        fields.append(f"    bool internal _primed{primed};")
+        extra.append(f"    function prime_{f.name}() public {{ if (!_primed{primed} && "
+                     f"address(this).balance >= 1 ether) {{ _primed{primed} = true; "
+                     f"_sent += 1 ether; {call}; }} }}"
+                     f"  // fills the pot via the contract's own owner-only deposit")
+        primed += 1
+
     # Targeted attack wrappers: call each ether-sending function with STRATEGIC arguments
     # (tx.origin for an authority parameter, the attacker's address for a recipient) instead of
     # the random values Echidna samples. Patterns such as `require(tx.origin == ownerParam)` are
@@ -1152,6 +1561,7 @@ def synthesize_coverage_harness(src: str, target_import: str,
     # (2) Semantics: the attacker never deposits and never sends ether anywhere, so ANY balance it
     # holds is ether extracted from the target, making `balance == 0` an exact theft oracle.
     val_atk = []
+    val_atk_pay = []
     for s in specs:
         if s["fn"] not in send_eth_names or s["fn"] in excluded:
             continue
@@ -1160,17 +1570,37 @@ def synthesize_coverage_harness(src: str, target_import: str,
         aa = _attack_args(s, v6)
         if aa is not None:
             val_atk.append((s["fn"], aa))
+            val_atk_pay.append(bool(s["payable"]))
         if len(val_atk) >= 12:
             break
-    if val_atk:
+    # TOD: let the attacker make ITSELF the payout recipient. Without this the attacker can
+    # only call ether-sending functions, so a contract that pays `winner` can never be attacked
+    # -- the fuzzer reaches the payout but the recipient is never the attacker, and the theft
+    # oracle correctly reports nothing. Measured: 0/16 on the ordering-attacks dev set.
+    race = _recipient_setters(src, c)
+    if val_atk or race:
         mmv = _resolve_solc(pragma)[:2]
         v_ctor = (f"constructor({c.name} _t)" if mmv >= (0, 7) else
                   f"constructor({c.name} _t) public" if _resolve_solc(pragma) >= (0, 4, 22)
                   else f"function {c.name}_ValAttacker({c.name} _t) public")
         v_recv = ("    receive() external payable {}\n    fallback() external payable {}"
                   if mmv >= (0, 6) else "    function () external payable {}")
-        grabs = "\n".join(f"    function take{i}() public {{ t.{fn}({aa}); }}"
-                          for i, (fn, aa) in enumerate(val_atk))
+        dv_a = (lambda x: f"{{value: {x}}}" if v6 else f".value({x})")
+        grabs = "\n".join(
+            f"    function take{i}() public payable {{ t.{fn}{dv_a('msg.value')}({aa}); }}"
+            if pay else
+            f"    function take{i}() public {{ t.{fn}({aa}); }}"
+            for i, (fn, aa, pay) in enumerate((f, a, p) for (f, a), p in
+                                              zip(val_atk, val_atk_pay)))
+        # Parameters stay OPEN rather than being filled with literals: the race is only won by
+        # passing whatever value the setter gates on (`play(bytes32 guess)` needs the guess), so
+        # the argument is left for the search to supply. This is where a seed model can beat a
+        # random one, and leaving it open is what makes that difference measurable.
+        for i, r in enumerate(race):
+            d = ", ".join(f"{t}{' memory' if (t.endswith('[]') or t in ('string','bytes')) else ''} a{j}"
+                          for j, t in enumerate(r["decl_types"]))
+            a = ", ".join(f"a{j}" for j in range(len(r["decl_types"])))
+            grabs += f"\n    function race{i}({d}) public {{ t.{r['fn']}({a}); }}"
         sub.append(f"contract {c.name}_ValAttacker {{\n    {c.name} t;\n"
                    f"    {v_ctor} {{ t = _t; }}\n{grabs}\n{v_recv}\n}}")
         fields.append(f"    {c.name}_ValAttacker internal _vatk;")
@@ -1179,11 +1609,26 @@ def synthesize_coverage_harness(src: str, target_import: str,
         # dashboard shows an opaque `_vatk.take3()` with no indication this is a tx.origin
         # impersonation or which function is being drained (observed directly: a demo run showed
         # exactly this, and the reviewer couldn't tell an access-control bug was being exploited).
-        extra.extend(f"    function attack_val_{i}() public {{ _vatk.take{i}(); }}"
-                     f"  // drains via target.{fn}({aa})"
-                     for i, (fn, aa) in enumerate(val_atk))
+        fields.append("    uint256 internal _vatkFunded;")
+        for i, ((fn, aa), pay) in enumerate(zip(val_atk, val_atk_pay)):
+            if pay:
+                extra.append(
+                    f"    function attack_val_{i}() public payable {{ _vatkFunded += msg.value; "
+                    f"_sent += msg.value; _vatk.take{i}{dv_a('msg.value')}(); }}"
+                    f"  // pays in, then drains via target.{fn}({aa})")
+            else:
+                extra.append(f"    function attack_val_{i}() public {{ _vatk.take{i}(); }}"
+                             f"  // drains via target.{fn}({aa})")
+        for i, r in enumerate(race):
+            d = ", ".join(f"{t}{' memory' if (t.endswith('[]') or t in ('string','bytes')) else ''} a{j}"
+                          for j, t in enumerate(r["decl_types"]))
+            a = ", ".join(f"a{j}" for j in range(len(r["decl_types"])))
+            extra.append(f"    function attack_race_{i}({d}) public {{ _vatk.race{i}({a}); }}"
+                         f"  // attacker becomes payout recipient via target.{r['fn']}")
+        # Net gain, not absolute balance -- see the module note. `== 0` was only exact while
+        # the attacker could never be funded, and it cannot pay its way into a contract.
         oracles.append("    function echidna_no_theft() public view returns (bool) "
-                       "{ return address(_vatk).balance == 0; }")
+                       "{ return address(_vatk).balance <= _vatkFunded; }")
 
     # Access-control: a NON-owner attacker calls each setter in its OWN function (so a guarded
     # setter reverting can't roll back a bug found via another setter); invariant = owner intact.
@@ -1194,15 +1639,52 @@ def synthesize_coverage_harness(src: str, target_import: str,
             arg = "address(this)" if s["takes_address"] else ""
             grabs.append(f"    function grab{i}() public {{ t.{s['name']}({arg}); }}")
             attacks.append(f"    function attack_ac_{i}() public {{ _acatk.grab{i}(); }}")
+        mma = _resolve_solc(pragma)[:2]
+        ac_ctor = (f"constructor({c.name} _t)" if mma >= (0, 7) else
+                   f"constructor({c.name} _t) public" if _resolve_solc(pragma) >= (0, 4, 22)
+                   else f"function {c.name}_ACAttacker({c.name} _t) public")
         sub.append(f"contract {c.name}_ACAttacker {{\n    {c.name} t;\n"
-                   f"    constructor({c.name} _t) public {{ t = _t; }}\n" + "\n".join(grabs) + "\n}")
+                   f"    {ac_ctor} {{ t = _t; }}\n" + "\n".join(grabs) + "\n}")
         fields.append(f"    {c.name}_ACAttacker internal _acatk;")
-        fields.append("    address internal _owner0;")
+        if ac.get("kind") != "map":
+            fields.append("    address internal _owner0;")
         init.append(f"        _acatk = new {c.name}_ACAttacker(target);")
-        init.append(f"        _owner0 = target.{owner}();")
         extra.extend(attacks)
-        oracles.append(f"    function echidna_owner_unchanged() public view returns (bool) "
-                       f"{{ return target.{owner}() == _owner0; }}")
+        if ac.get("kind") == "map":
+            # No single value to snapshot: assert instead that the attacker never holds the role.
+            oracles.append(f"    function echidna_attacker_not_privileged() public view returns (bool) "
+                           f"{{ return !target.{owner}(address(_acatk)); }}")
+        else:
+            init.append(f"        _owner0 = target.{owner}();")
+            oracles.append(f"    function echidna_owner_unchanged() public view returns (bool) "
+                           f"{{ return target.{owner}() == _owner0; }}")
+
+    # Ownership seizure, then use of the seized authority. See _seizure_shape's note.
+    sz = _seizure_shape(src, c)
+    if sz:
+        mms = _resolve_solc(pragma)[:2]
+        sz_ctor = (f"constructor({c.name} _t)" if mms >= (0, 7) else
+                   f"constructor({c.name} _t) public" if _resolve_solc(pragma) >= (0, 4, 22)
+                   else f"function {c.name}_SzAttacker({c.name} _t) public")
+        sz_recv = ("    receive() external payable {}\n    fallback() external payable {}"
+                   if mms >= (0, 6) else "    function () external payable {}")
+        body = "\n".join(
+            f"    function seize{i}() public {{ t.{x['name']}({'address(this)' if x['takes_address'] else ''}); }}"
+            for i, x in enumerate(sz["seize"]))
+        body += "".join(f"\n    function spend{i}() public {{ t.{fn}(); }}"
+                        for i, fn in enumerate(sz["drains"]))
+        sub.append(f"contract {c.name}_SzAttacker {{\n    {c.name} t;\n"
+                    f"    {sz_ctor} {{ t = _t; }}\n{body}\n{sz_recv}\n}}")
+        fields.append(f"    {c.name}_SzAttacker internal _szatk;")
+        init.append(f"        _szatk = new {c.name}_SzAttacker(target);")
+        extra.extend(f"    function attack_seize_{i}() public {{ _szatk.seize{i}(); }}"
+                     f"  // seizes authority via target.{x['name']}"
+                     for i, x in enumerate(sz["seize"]))
+        extra.extend(f"    function attack_spend_{i}() public {{ _szatk.spend{i}(); }}"
+                     f"  // owner-only target.{fn}, reachable only after a seizure"
+                     for i, fn in enumerate(sz["drains"]))
+        oracles.append("    function echidna_no_seizure_theft() public view returns (bool) "
+                       "{ return address(_szatk).balance == 0; }")
 
     # Unprotected selfdestruct: attacker calls each destruct fn; oracle = target still has code.
     if sd_fns:
@@ -1218,6 +1700,32 @@ def synthesize_coverage_harness(src: str, target_import: str,
         extra.extend(f"    function attack_sd_{i}() public {{ _sdatk.kill{i}(); }}" for i in range(len(sd_fns)))
         oracles.append("    function echidna_not_destroyed() public view returns (bool) "
                        "{ uint256 sz; address tt = address(target); assembly { sz := extcodesize(tt) } return sz > 0; }")
+
+    # Unauthorised state change -- the general access-control invariant. See the module note.
+    if inconsistent:
+        mmi = _resolve_solc(pragma)[:2]
+        i_ctor = (f"constructor({c.name} _t)" if mmi >= (0, 7) else
+                  f"constructor({c.name} _t) public" if _resolve_solc(pragma) >= (0, 4, 22)
+                  else f"function {c.name}_StAttacker({c.name} _t) public")
+        stubs, wraps = [], []
+        for gi, g in enumerate(inconsistent):
+            for si, st in enumerate(g["setters"]):
+                a = st["arg"]
+                decl = f"{a} v" if a else ""
+                arg = "v" if a else ""
+                stubs.append(f"    function set{gi}_{si}({decl}) public {{ t.{st['name']}({arg}); }}")
+                wraps.append(f"    function attack_state_{gi}_{si}({decl}) public "
+                             f"{{ _statk.set{gi}_{si}({arg}); }}"
+                             f"  // unguarded write to {g['var']}, which {c.name} guards elsewhere")
+            fields.append(f"    {g['type']} internal _snap{gi};")
+            init.append(f"        _snap{gi} = target.{g['var']}();")
+            oracles.append(f"    function echidna_{g['var']}_unchanged() public view returns (bool) "
+                           f"{{ return target.{g['var']}() == _snap{gi}; }}")
+        sub.append(f"contract {c.name}_StAttacker {{\n    {c.name} t;\n"
+                   f"    {i_ctor} {{ t = _t; }}\n" + "\n".join(stubs) + "\n}")
+        fields.append(f"    {c.name}_StAttacker internal _statk;")
+        init.append(f"        _statk = new {c.name}_StAttacker(target);")
+        extra.extend(wraps)
 
     # Oracle manipulation: the target's own solvency rule, re-evaluated at its trusted reference
     # price instead of the caller-writable one. The forwarders already expose the price setter,
@@ -1278,7 +1786,13 @@ def synthesize_coverage_harness(src: str, target_import: str,
                             for i, enc in enumerate(reentry_encs))
             reentry = f" if (_reDepth < 6) {{ _reDepth++;\n            {calls}_reDepth--; }}"
             fields.append("    uint256 internal _reDepth;")
-    guard = f"if (msg.sender == address(target)) {{ _got += msg.value;{reentry} }}"
+    # `msg.value > 0` first, and deliberately so. `transfer`/`send` forward a 2300-gas
+    # stipend, which a storage write blows -- so a target doing `owner.transfer(0)` in a
+    # setup path (eth_tx_order_dependence_minimal refunds the previous reward before
+    # storing the new one) reverted the whole call and the deposit path was unreachable.
+    # Skipping the write when nothing was received costs nothing: `_got += 0` is a no-op,
+    # and re-entry is only worth attempting when ether actually arrived.
+    guard = f"if (msg.value > 0 && msg.sender == address(target)) {{ _got += msg.value;{reentry} }}"
     recv_block = (f"    receive() external payable {{ {guard} }}\n    fallback() external payable {{ {guard} }}"
                   if v6 else f"    function () external payable {{ {guard} }}")
 
