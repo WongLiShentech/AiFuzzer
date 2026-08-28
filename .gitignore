@@ -11,11 +11,20 @@ dataset/
 # Eval / scratch working dirs — regenerated per run, never committed
 _eval/
 _fuzzcheck/
-eval_out/
+# Raw per-contract results are ignored by default (scratch, corpus dumps, logs), but
+# the arm result files themselves are tracked below: they are the evidence behind every
+# number in the report, and both machines need them to build combined figures.
+eval_out/*
+!eval_out/results.jsonl
+!eval_out/B2_*.jsonl
+!eval_out/B3_*.jsonl
+!eval_out/frozen_A.jsonl
 # dashboard host-side fuzz workdir (staged per request)
 _dash/
 # generated figures + tables (run make_figures.py / make_report.py)
-eval_results/
+# Figures and tables ARE tracked: they are the artifacts the report cites, they are
+# small (<1 MB), and regenerating them requires the full corpus plus a completed run.
+# eval_results/  (intentionally not ignored)
 # scratch demo contract copies
 _demo_target.sol
 _dash_target.sol

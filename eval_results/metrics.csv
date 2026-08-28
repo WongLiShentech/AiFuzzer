@@ -1,0 +1,4 @@
+arm,set,n,TP,FP,TN,FN,accuracy,precision,recall,f1,mean_coverage%
+random,head2head,678,22,1,638,17,0.973,0.957,0.564,0.710,66.5
+ai-seed,head2head,678,22,0,639,17,0.975,1.000,0.564,0.721,67.0
+random,full-678,678,22,1,638,17,0.973,0.957,0.564,0.710,66.5
