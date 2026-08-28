@@ -578,8 +578,13 @@ def main():
     OUT.mkdir(exist_ok=True)
     if args.out:
         global RESULTS, SUMMARY
-        RESULTS = OUT / args.out
-        SUMMARY = OUT / (Path(args.out).stem + "_summary.md")
+        # Accept a bare filename or a path already under eval_out/. Passing the full relative
+        # path is the obvious thing to try and silently produced eval_out/eval_out/<name>, which
+        # only surfaced as a FileNotFoundError on the first result write -- after preflight had
+        # already reported everything healthy.
+        name = Path(args.out).name
+        RESULTS = OUT / name
+        SUMMARY = OUT / (Path(name).stem + "_summary.md")
         print(f"[run] results -> {RESULTS.name}")
     if args.summary_only:
         summarize()
