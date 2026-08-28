@@ -32,7 +32,10 @@ SCRATCH = TOOL / "_eval"
 RESULTS = OUT / "results.jsonl"
 SUMMARY = OUT / "summary.md"
 CHROMA = TOOL / "chroma_data"
-OLLAMA = os.getenv("OLLAMA_BIN", r"C:\Users\wongl\AppData\Local\Programs\Ollama\ollama.exe")
+# Resolve ollama from PATH, which is where it lives on Linux and macOS. The previous default
+# was one machine's Windows install path, so preflight died with FileNotFoundError on every
+# other host -- including the lab GPU box the AI arms are meant to run on.
+OLLAMA = os.getenv("OLLAMA_BIN") or shutil.which("ollama") or "ollama"
 SVC = "aifuzz"
 
 # The generator model, and a short tag for it. Results are recorded per (approach, model) so

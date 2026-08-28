@@ -21,7 +21,19 @@ TOOL = Path(__file__).resolve().parent
 OUT = TOOL / "eval_results"
 OUT.mkdir(exist_ok=True)
 RESULTS = TOOL / "eval_out" / (os.getenv("AIFUZZ_RESULTS") or "results.jsonl")
-TOTAL = 678
+# Size of the test split, read from the corpus rather than hardcoded: the split has been
+# resized twice (corpus expansion, then holding untestable contracts in reference), and a
+# stale literal silently mislabels every figure and mis-flags complete runs as PARTIAL.
+def _test_split_size():
+    import os
+    ds = Path(os.getenv("DATASET_DIR", "C:/smart-contracts"))
+    n = sum(1 for f in ds.rglob("*.sol")
+            if "_quarantine" not in f.parts
+            and "DATASET_SPLIT: test" in f.read_text(encoding="utf-8", errors="replace")[:900])
+    return n or 2350
+
+
+TOTAL = _test_split_size()
 
 ARMS = [
     ("random",  "A - Random (manual template)", "#5B8DEF"),
@@ -32,11 +44,34 @@ ARMS = [
 ]
 
 
+def current_test_split():
+    """Contract ids stamped `DATASET_SPLIT: test` in the corpus right now."""
+    import os
+    ds = Path(os.getenv("DATASET_DIR", "C:/smart-contracts"))
+    out = set()
+    for f in ds.rglob("*.sol"):
+        if "_quarantine" in f.parts:
+            continue
+        if "DATASET_SPLIT: test" in f.read_text(encoding="utf-8", errors="replace")[:900]:
+            out.add(f.relative_to(ds).as_posix())
+    return out
+
+
 def load():
     rows = [json.loads(l) for l in RESULTS.read_text(encoding="utf-8").splitlines() if l.strip()]
+    keep = current_test_split()
     d = {}
+    dropped = 0
     for r in rows:
-        d[(r["approach"], r["id"])] = r
+        # Rows for contracts that have since left the test split would otherwise be counted as
+        # misses against a denominator that no longer exists.
+        if keep and r["id"] not in keep:
+            dropped += 1
+            continue
+        # A model tag ("ai-seed-cot@7b") is the same arm as the untagged rows.
+        d[(r["approach"].split("@")[0], r["id"])] = r
+    if dropped:
+        print(f"  [figures] ignored {dropped} rows for contracts no longer in the test split")
     return d
 
 
